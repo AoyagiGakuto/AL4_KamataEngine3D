@@ -10,7 +10,7 @@ void GameScene::Initialize() {
 	// 初期化処理
 
 	// テクスチャの読み込み
-	textureHandle_ = TextureManager::Load("texture.png");
+	textureHandle_ = TextureManager::Load("white1x1.png");
 	sprite_ = Sprite::Create(textureHandle_, {100, 50});
 }
 
