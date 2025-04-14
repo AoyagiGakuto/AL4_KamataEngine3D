@@ -29,4 +29,10 @@ public:
 
 	// 描画
 	void Draw();
+
+	// デストラクタ
+	~GameScene() {
+		// スプライトの解放
+		delete sprite_;
+	}
 };
