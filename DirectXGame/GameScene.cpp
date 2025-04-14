@@ -50,3 +50,4 @@ void GameScene::Draw() {
 	Sprite::PostDraw();
 }
 
+
