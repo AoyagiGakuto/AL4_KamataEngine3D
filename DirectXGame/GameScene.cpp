@@ -26,8 +26,6 @@ void GameScene::Initialize() {
 
 void GameScene::Update() {
 	// 更新処理
-
-	
 }
 
 //========================================
