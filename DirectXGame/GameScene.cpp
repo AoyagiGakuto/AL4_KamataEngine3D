@@ -12,6 +12,12 @@ void GameScene::Initialize() {
 	// テクスチャの読み込み
 	textureHandle_ = TextureManager::Load("white1x1.png");
 	model_ = Model::Create();
+
+	// ワールドトランスフォームの初期化
+	worldTransform_.Initialize();
+
+	// カメラの初期化
+	camera_->Initialize();
 }
 
 //========================================
@@ -35,12 +41,11 @@ void GameScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
 	// スプライト描画前処理
-	Sprite::PreDraw(dxCommon->GetCommandList());
+	Model::PreDraw(dxCommon->GetCommandList());
 
-	// ここにスプライトインスタンスの描画処理を記述する
-	model_->Draw();
+    model_->Draw(worldTransform_, *camera_, textureHandle_);
 
 	// スプライト描画後処理
-	Sprite::PostDraw();
+	Model::PostDraw();
 }
 
