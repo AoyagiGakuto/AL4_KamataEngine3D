@@ -25,3 +25,4 @@ void GameScene::Update() {
 void GameScene::Draw() {
 	// 描画処理
 }
+
