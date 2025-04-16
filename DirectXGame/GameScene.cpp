@@ -11,7 +11,13 @@ void GameScene::Initialize() {
 
 	// テクスチャの読み込み
 	textureHandle_ = TextureManager::Load("white1x1.png");
-	sprite_ = Sprite::Create(textureHandle_, {100, 50});
+	model_ = Model::Create();
+
+	// ワールドトランスフォームの初期化
+	worldTransform_.Initialize();
+
+	// カメラの初期化
+	camera_->Initialize();
 }
 
 //========================================
@@ -20,14 +26,6 @@ void GameScene::Initialize() {
 
 void GameScene::Update() {
 	// 更新処理
-
-	// スプライトの今の座標を取得
-	Vector2 position = sprite_->GetPosition();
-	// 座標{2,1}に移動
-	position.x += 2.0f;
-	position.y += 1.0f;
-	// 移動した座標をスプライトに反映
-	sprite_->SetPosition(position);
 }
 
 //========================================
@@ -41,13 +39,12 @@ void GameScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
 	// スプライト描画前処理
-	Sprite::PreDraw(dxCommon->GetCommandList());
+	Model::PreDraw(dxCommon->GetCommandList());
 
-	// ここにスプライトインスタンスの描画処理を記述する
-	sprite_->Draw();
+    model_->Draw(worldTransform_, *camera_, textureHandle_);
 
 	// スプライト描画後処理
-	Sprite::PostDraw();
+	Model::PostDraw();
 }
 
 

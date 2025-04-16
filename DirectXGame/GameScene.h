@@ -19,7 +19,13 @@ private:
 public:
 
 	// スプライト
-	KamataEngine::Sprite* sprite_ = nullptr;
+	KamataEngine::Model* model_ = nullptr;
+
+	// ワールドトランスフォーム
+	KamataEngine::WorldTransform worldTransform_;
+	
+	// カメラ
+	KamataEngine::Camera* camera_;
 
 	//========================================
 	// 更新処理
@@ -38,6 +44,6 @@ public:
 	// デストラクタ
 	~GameScene() {
 		// スプライトの解放
-		delete sprite_;
+		delete model_;
 	}
 };
