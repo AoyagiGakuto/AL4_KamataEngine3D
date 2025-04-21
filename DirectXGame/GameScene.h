@@ -2,6 +2,8 @@
 #include "KamataEngine.h"
 #include "Player.h"
 
+using namespace KamataEngine;
+
 class GameScene {
 public:
 	// デストラクタ
@@ -23,11 +25,11 @@ private:
 	uint32_t textureHandle_ = 0;
 
 	// スプライト
-	KamataEngine::Model* model_ = nullptr;
+	Model* model_ = nullptr;
 
 	// ワールドトランスフォーム
-	KamataEngine::WorldTransform worldTransform_;
+	WorldTransform worldTransform_;
 
 	// カメラ
-	KamataEngine::Camera* camera_;
+	Camera* camera_;
 };

@@ -47,7 +47,7 @@ void GameScene::Draw() {
 	// DirectXCommonのインスタンスを取得
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
-	// スプライト描画前処理
+	//	テクスチャ描画前処理
 	Model::PreDraw(dxCommon->GetCommandList());
 
 	// モデルの描画
@@ -56,7 +56,7 @@ void GameScene::Draw() {
 	// プレイヤーの描画
 	player_->Draw();
 
-	// スプライト描画後処理
+	// テクスチャ描画後処理
 	Model::PostDraw();
 }
 
