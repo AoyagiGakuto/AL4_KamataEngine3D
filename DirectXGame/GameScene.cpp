@@ -16,9 +16,6 @@ void GameScene::Initialize() {
 	// 自キャラの作成
 	player_ = new Player();
 
-	// プレイヤーの初期化
-	player_->Initialize(model_, textureHandle_, camera_);
-
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
 
@@ -29,6 +26,10 @@ void GameScene::Initialize() {
 	if (camera_) {
 		camera_->Initialize();
 	}
+
+	// プレイヤーの初期化
+	player_->Initialize(model_, textureHandle_, camera_);
+
 }
 
 //========================================
@@ -52,7 +53,7 @@ void GameScene::Draw() {
 	Model::PreDraw(dxCommon->GetCommandList());
 
 	// モデルの描画
-	model_->Draw(worldTransform_, *camera_, textureHandle_);
+	// model_->Draw(worldTransform_, *camera_, textureHandle_);
 
 	// プレイヤーの描画
 	player_->Draw();
