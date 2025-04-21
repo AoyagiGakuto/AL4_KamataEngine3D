@@ -1,7 +1,7 @@
 #include "Player.h"
 using namespace KamataEngine;
 
-void Player::Initialize(Model* model, uint32_t textureHandle, Camera* &camera) {
+void Player::Initialize(Model* model, uint32_t textureHandle, Camera* camera) {
 	// NULLポインタチェック
 	assert(model);
 	// モデルの設定

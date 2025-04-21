@@ -13,6 +13,7 @@ void GameScene::Initialize() {
 	// モデルの作成
 	model_ = Model::Create();
 
+	// 自キャラの作成
 	player_ = new Player();
 
 	// プレイヤーの初期化
@@ -47,7 +48,7 @@ void GameScene::Draw() {
 	// DirectXCommonのインスタンスを取得
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
-	//	テクスチャ描画前処理
+	// テクスチャ描画前処理
 	Model::PreDraw(dxCommon->GetCommandList());
 
 	// モデルの描画
@@ -67,5 +68,6 @@ void GameScene::Draw() {
 GameScene::~GameScene() {
 	// モデルの解放
 	delete model_;
+	// 自キャラの開放
 	delete player_;
 }
