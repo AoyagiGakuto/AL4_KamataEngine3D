@@ -1,13 +1,14 @@
 #include "Player.h"
 using namespace KamataEngine;
 
-void Player::Initialize(Model* model, uint16_t extureHandle_, Camera* camera) {
+void Player::Initialize(Model* model, uint32_t textureHandle, Camera* camera) {
 	// NULLポインタチェック
 	assert(model);
+	
 	// モデルの設定
 	model_ = model;
 	// テクスチャハンドルの設定
-	textureHandle_ = extureHandle_;
+	textureHandle_ = textureHandle;
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
 	// カメラの設定

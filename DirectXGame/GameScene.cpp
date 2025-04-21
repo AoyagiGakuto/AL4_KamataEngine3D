@@ -12,6 +12,7 @@ void GameScene::Initialize() {
 
 	// モデルの作成
 	model_ = Model::Create();
+
 	player_ = new Player();
 
 	// プレイヤーの初期化
