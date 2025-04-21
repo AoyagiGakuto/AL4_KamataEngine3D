@@ -12,6 +12,10 @@ void GameScene::Initialize() {
 
 	// モデルの作成
 	model_ = Model::Create();
+	player_ = new Player();
+
+	// プレイヤーの初期化
+	player_->Initialize(model_, textureHandle_, camera_);
 
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
@@ -31,6 +35,7 @@ void GameScene::Initialize() {
 
 void GameScene::Update() {
 	// 更新処理
+	player_->Update();
 }
 
 //========================================
@@ -47,6 +52,9 @@ void GameScene::Draw() {
 	// モデルの描画
 	model_->Draw(worldTransform_, *camera_, textureHandle_);
 
+	// プレイヤーの描画
+	player_->Draw();
+
 	// スプライト描画後処理
 	Model::PostDraw();
 }
@@ -58,4 +66,5 @@ void GameScene::Draw() {
 GameScene::~GameScene() {
 	// モデルの解放
 	delete model_;
+	delete player_;
 }
