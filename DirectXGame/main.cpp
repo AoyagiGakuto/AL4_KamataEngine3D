@@ -1,10 +1,10 @@
-#include <Windows.h>
-#include "KamataEngine.h"
 #include "GameScene.h"
+#include "KamataEngine.h"
+#include <Windows.h>
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
-	
+
 	using namespace KamataEngine;
 
 	// エンジンの初期化
