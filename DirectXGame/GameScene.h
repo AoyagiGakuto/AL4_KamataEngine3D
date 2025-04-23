@@ -31,7 +31,5 @@ private:
 	// カメラ
 	Camera* camera_;
 
-	std::vector<WorldTransform*> worldTransformBlocks_;
-
 	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
 };

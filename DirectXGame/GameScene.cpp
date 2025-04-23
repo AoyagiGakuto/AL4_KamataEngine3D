@@ -60,11 +60,13 @@ void GameScene::Initialize() {
 
 void GameScene::Update() {
 	// 更新処理
-	for (WorldTransform* worldTransformBlock : worldTransformBlocks_) {
-		// アフィン変換行列の作成
-		worldTransformBlock->matWorld_ = MakeAffineMatrix(worldTransformBlock->scale_, worldTransformBlock->rotation_, worldTransformBlock->translation_);
-		// 定数バッファに転送する
-		worldTransformBlock->TransferMatrix();
+	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
+		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+			// アフィン変換行列の作成
+			worldTransformBlock->matWorld_ = MakeAffineMatrix(worldTransformBlock->scale_, worldTransformBlock->rotation_, worldTransformBlock->translation_);
+			// 定数バッファに転送する
+			worldTransformBlock->TransferMatrix();
+		}
 	}
 }
 
@@ -78,13 +80,12 @@ void GameScene::Draw() {
 
 	// スプライト描画前処理
 	Model::PreDraw(dxCommon->GetCommandList());
-
+	
 	// モデルの描画
-	// model_->Draw(worldTransform_, *camera_, textureHandle_);
-
-	for (WorldTransform* worldTransformBlock : worldTransformBlocks_) {
-		// モデルの描画
-		model_->Draw(*worldTransformBlock, *camera_);
+	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
+		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+			modelBlock_->Draw(*worldTransformBlock, *camera_);
+		}
 	}
 
 	// スプライト描画後処理
@@ -98,8 +99,10 @@ void GameScene::Draw() {
 GameScene::~GameScene() {
 	// モデルの解放
 	delete model_;
-	for (WorldTransform* worldTransformBlock : worldTransformBlocks_) {
-		delete worldTransformBlock;
+	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
+		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+			delete worldTransformBlock;
+		}
 	}
 	worldTransformBlocks_.clear();
 }
