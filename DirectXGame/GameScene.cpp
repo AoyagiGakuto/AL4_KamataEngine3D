@@ -33,15 +33,15 @@ void GameScene::Initialize() {
 	const float kBlockHeight = 2.0f;
 
 	// 要素数を変更する
-	worldTransformBlocks_.resize(kNumBlockHorizontal);
+	worldTransformBlocks_.resize(kNumBlockVertical);
 
 	for (uint32_t i = 0; i < kNumBlockVertical; ++i) {
 		worldTransformBlocks_[i].resize(kNumBlockHorizontal);
 	}
 	
 	// キューブの生成
-	for (uint32_t i = 0; i < kNumBlockHorizontal; ++i) {
-		for (uint32_t j = 0; j < kNumBlockVertical; ++j) {
+	for (uint32_t i = 0; i < kNumBlockVertical; ++i) {
+		for (uint32_t j = 0; j < kNumBlockHorizontal; ++j) {
 			// ワールドトランスフォームのインスタンスを生成
 			worldTransformBlocks_[i][j] = new WorldTransform();
 			// ワールドトランスフォームの初期化
@@ -62,6 +62,9 @@ void GameScene::Update() {
 	// 更新処理
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+			if (!worldTransformBlock) {
+				continue;
+			}
 			// アフィン変換行列の作成
 			worldTransformBlock->matWorld_ = MakeAffineMatrix(worldTransformBlock->scale_, worldTransformBlock->rotation_, worldTransformBlock->translation_);
 			// 定数バッファに転送する
@@ -84,6 +87,9 @@ void GameScene::Draw() {
 	// モデルの描画
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+			if (!worldTransformBlock) {
+				continue;
+			}
 			modelBlock_->Draw(*worldTransformBlock, *camera_);
 		}
 	}
@@ -99,6 +105,8 @@ void GameScene::Draw() {
 GameScene::~GameScene() {
 	// モデルの解放
 	delete model_;
+	delete modelBlock_;
+
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
 			delete worldTransformBlock;
