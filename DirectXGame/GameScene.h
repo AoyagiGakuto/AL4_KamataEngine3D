@@ -30,6 +30,11 @@ private:
 
 	// カメラ
 	Camera* camera_;
+	bool isDebugCameraActive = false;
+	
+	// デバッグカメラ
+	DebugCamera* debugCamera_ = nullptr;
 
 	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
+
 };

@@ -38,10 +38,14 @@ void GameScene::Initialize() {
 	for (uint32_t i = 0; i < kNumBlockVertical; ++i) {
 		worldTransformBlocks_[i].resize(kNumBlockHorizontal);
 	}
-	
+
 	// キューブの生成
 	for (uint32_t i = 0; i < kNumBlockVertical; ++i) {
 		for (uint32_t j = 0; j < kNumBlockHorizontal; ++j) {
+			// 市松模様条件：i + j が偶数のときだけ表示
+			if ((i + j) % 2 == 0) {
+				continue;
+			}
 			// ワールドトランスフォームのインスタンスを生成
 			worldTransformBlocks_[i][j] = new WorldTransform();
 			// ワールドトランスフォームの初期化
@@ -50,6 +54,8 @@ void GameScene::Initialize() {
 			worldTransformBlocks_[i][j]->translation_.x = kBlockWidth * j;
 			// ワールドトランスフォームの位置を設定
 			worldTransformBlocks_[i][j]->translation_.y = kBlockHeight * i;
+			// カメラの位置を設定
+			debugCamera_ = new DebugCamera(i, j);
 		}
 	}
 }
@@ -71,6 +77,21 @@ void GameScene::Update() {
 			worldTransformBlock->TransferMatrix();
 		}
 	}
+
+#ifdef DEBUG
+	if (Input::GetInstance()->TriggerKeyPush(DIK_0)) {
+		isDebugCameraActive_ = !isDebugCameraActive_;
+	})
+	// カメラの更新
+	if (isDebugCameraActive_) {
+		debugCamera_->Update();
+		camera_->matView_ = debugCamera_->GetCamera().matView;
+		camera_->matProjection_ = debugCamera_->GetCamera().matProjection;
+	}
+	else {
+		camera_->UpdateMatrix();
+	}
+#endif
 }
 
 //========================================
@@ -83,7 +104,7 @@ void GameScene::Draw() {
 
 	// スプライト描画前処理
 	Model::PreDraw(dxCommon->GetCommandList());
-	
+
 	// モデルの描画
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -106,6 +127,7 @@ GameScene::~GameScene() {
 	// モデルの解放
 	delete model_;
 	delete modelBlock_;
+	delete debugCamera_;
 
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
