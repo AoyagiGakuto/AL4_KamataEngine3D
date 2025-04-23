@@ -78,6 +78,7 @@ void GameScene::Update() {
 		}
 	}
 
+
 #ifdef DEBUG
 	if (Input::GetInstance()->TriggerKeyPush(DIK_0)) {
 		isDebugCameraActive_ = !isDebugCameraActive_;
