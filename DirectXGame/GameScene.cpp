@@ -80,7 +80,7 @@ void GameScene::Update() {
 
 
 #ifdef DEBUG
-	if (Input::GetInstance()->TriggerKeyPush(DIK_0)) {
+	if (Input::GetInstance()->TriggerKeyPush(DIK_O) {
 		isDebugCameraActive_ = !isDebugCameraActive_;
 	})
 	// カメラの更新
