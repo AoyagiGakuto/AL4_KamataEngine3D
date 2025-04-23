@@ -1,4 +1,5 @@
 #include "GameScene.h"
+#include "MyMath.h"
 
 using namespace KamataEngine;
 
@@ -7,8 +8,8 @@ using namespace KamataEngine;
 //========================================
 
 void GameScene::Initialize() {
-	// テクスチャの読み込み
-	textureHandle_ = TextureManager::Load("sample.png");
+	// モデルの読み込み
+	modelBlock_ = Model::CreateFromOBJ("cube");
 
 	// モデルの作成
 	model_ = Model::Create();
@@ -25,24 +26,31 @@ void GameScene::Initialize() {
 	}
 
 	// 要素数
+	const uint32_t kNumBlockVertical = 10;
 	const uint32_t kNumBlockHorizontal = 20;
-
-	// ブロック1個分の横幅
+	// ブロック1個分の縦幅
 	const float kBlockWidth = 2.0f;
+	const float kBlockHeight = 2.0f;
 
 	// 要素数を変更する
 	worldTransformBlocks_.resize(kNumBlockHorizontal);
 
+	for (uint32_t i = 0; i < kNumBlockVertical; ++i) {
+		worldTransformBlocks_[i].resize(kNumBlockHorizontal);
+	}
+	
 	// キューブの生成
 	for (uint32_t i = 0; i < kNumBlockHorizontal; ++i) {
-		// ワールドトランスフォームのインスタンスを生成
-		worldTransformBlocks_[i] = new WorldTransform();
-		// ワールドトランスフォームの初期化
-		worldTransformBlocks_[i]->Initialize();
-		// ワールドトランスフォームの位置を設定
-		worldTransformBlocks_[i]->translation_.x = kBlockWidth * i;
-		// ワールドトランスフォームのスケールを設定
-		worldTransformBlocks_[i]->translation_.y = 0.0f;
+		for (uint32_t j = 0; j < kNumBlockVertical; ++j) {
+			// ワールドトランスフォームのインスタンスを生成
+			worldTransformBlocks_[i][j] = new WorldTransform();
+			// ワールドトランスフォームの初期化
+			worldTransformBlocks_[i][j]->Initialize();
+			// ワールドトランスフォームの位置を設定
+			worldTransformBlocks_[i][j]->translation_.x = kBlockWidth * j;
+			// ワールドトランスフォームの位置を設定
+			worldTransformBlocks_[i][j]->translation_.y = kBlockHeight * i;
+		}
 	}
 }
 
@@ -54,7 +62,7 @@ void GameScene::Update() {
 	// 更新処理
 	for (WorldTransform* worldTransformBlock : worldTransformBlocks_) {
 		// アフィン変換行列の作成
-		worldTransformBlock->matWorld_ = worldTransformBlock->matScale_ * worldTransformBlock->matRotation_ * worldTransformBlock->matTranslation_;
+		worldTransformBlock->matWorld_ = MakeAffineMatrix(worldTransformBlock->scale_, worldTransformBlock->rotation_, worldTransformBlock->translation_);
 		// 定数バッファに転送する
 		worldTransformBlock->TransferMatrix();
 	}
@@ -76,7 +84,7 @@ void GameScene::Draw() {
 
 	for (WorldTransform* worldTransformBlock : worldTransformBlocks_) {
 		// モデルの描画
-		model_->Draw(*worldTransformBlock, *camera_, textureHandle_);
+		model_->Draw(*worldTransformBlock, *camera_);
 	}
 
 	// スプライト描画後処理

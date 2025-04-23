@@ -3,7 +3,7 @@
 using namespace KamataEngine;
 using namespace MathUtility;
 
-Matrix4x4 MyMath::MakeAffineMatrix(const Vector3& scale, const Vector3& rotation, const Vector3& translation) 
+Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotation, const Vector3& translation) 
 { 
 	// スケーリング行列
 	Matrix4x4 matScale = MakeScaleMatrix(scale);

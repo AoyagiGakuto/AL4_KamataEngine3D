@@ -19,8 +19,8 @@ public:
 	void Draw();
 
 private:
-	// テクスチャハンドル
-	uint32_t textureHandle_ = 0;
+	// modelハンドル
+	Model* modelBlock_ = nullptr;
 
 	// スプライト
 	Model* model_ = nullptr;
@@ -31,5 +31,7 @@ private:
 	// カメラ
 	Camera* camera_;
 
-	std::vector<WorldTransform> worldTransformBlocks_;
+	std::vector<WorldTransform*> worldTransformBlocks_;
+
+	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
 };
