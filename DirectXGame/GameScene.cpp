@@ -10,7 +10,7 @@ using namespace KamataEngine;
 void GameScene::Initialize() {
 	// モデルの読み込み
 	modelCube_ = Model::CreateFromOBJ("cube");
-	modelSkyDome_ = Model::CreateFromOBJ("SkyDome");
+	modelSkyDome_ = Model::CreateFromOBJ("SkyDome",true);
 
 	// モデルの作成
 	model_ = Model::Create();
@@ -116,6 +116,9 @@ void GameScene::Draw() {
 			modelCube_->Draw(*worldTransformBlock, *camera_);
 		}
 	}
+
+	// スカイドームの描画
+	modelSkyDome_->Draw(worldTransform_, *camera_);
 
 	// スプライト描画後処理
 	Model::PostDraw();

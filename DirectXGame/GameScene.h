@@ -1,6 +1,7 @@
 #pragma once
 #include "KamataEngine.h"
 #include <vector>
+#include "Skydome.h"
 
 using namespace KamataEngine;
 
