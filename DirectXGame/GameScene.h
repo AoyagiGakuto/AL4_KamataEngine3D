@@ -20,6 +20,7 @@ public:
 	void Draw();
 
 private:
+
 	// modelハンドル
 	Model* modelCube_ = nullptr;
 	Model* modelSkyDome_ = nullptr;
