@@ -9,7 +9,7 @@ using namespace KamataEngine;
 
 void GameScene::Initialize() {
 	// モデルの読み込み
-	modelCube_ = Model::CreateFromOBJ("cube");
+	modelCube_ = Model::CreateFromOBJ("block");
 	modelSkyDome_ = Model::CreateFromOBJ("SkyDome",true);
 
 	// モデルの作成
