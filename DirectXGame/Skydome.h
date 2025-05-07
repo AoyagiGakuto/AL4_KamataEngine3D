@@ -1,6 +1,7 @@
 #pragma once
 #include "KamataEngine.h"
 #include <vector>
+#include "GameScene.h"
 
 using namespace KamataEngine;
 
@@ -15,4 +16,6 @@ private:
 	WorldTransform worldTransform_;
 	// model
 	Model* model_ = nullptr;
+	// カメラ
+	Camera* camera_ = nullptr;
 };

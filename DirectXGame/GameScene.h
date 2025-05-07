@@ -20,7 +20,8 @@ public:
 
 private:
 	// modelハンドル
-	Model* modelBlock_ = nullptr;
+	Model* modelCube_ = nullptr;
+	Model* modelSkyDome_ = nullptr;
 
 	// スプライト
 	Model* model_ = nullptr;

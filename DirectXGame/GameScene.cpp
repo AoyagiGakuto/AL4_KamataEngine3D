@@ -9,7 +9,8 @@ using namespace KamataEngine;
 
 void GameScene::Initialize() {
 	// モデルの読み込み
-	modelBlock_ = Model::CreateFromOBJ("cube");
+	modelCube_ = Model::CreateFromOBJ("cube");
+	modelSkyDome_ = Model::CreateFromOBJ("SkyDome");
 
 	// モデルの作成
 	model_ = Model::Create();
@@ -112,7 +113,7 @@ void GameScene::Draw() {
 			if (!worldTransformBlock) {
 				continue;
 			}
-			modelBlock_->Draw(*worldTransformBlock, *camera_);
+			modelCube_->Draw(*worldTransformBlock, *camera_);
 		}
 	}
 
@@ -127,7 +128,8 @@ void GameScene::Draw() {
 GameScene::~GameScene() {
 	// モデルの解放
 	delete model_;
-	delete modelBlock_;
+	delete modelCube_;
+	delete modelSkyDome_;
 	delete debugCamera_;
 
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
