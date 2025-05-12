@@ -10,10 +10,14 @@ using namespace KamataEngine;
 void GameScene::Initialize() {
 	// モデルの読み込み
 	modelCube_ = Model::CreateFromOBJ("block");
-	modelSkyDome_ = Model::CreateFromOBJ("SkyDome",true);
+	modelSkyDome_ = Model::CreateFromOBJ("SkyDome", true);
 
 	// モデルの作成
 	model_ = Model::Create();
+	mapChipField_ = new MapChipField();
+
+	// マップチップデータの読み込み
+	mapChipField_->LoadMapChipCsv("Resources/mapchip.csv");
 
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
@@ -25,38 +29,32 @@ void GameScene::Initialize() {
 	if (camera_) {
 		camera_->Initialize();
 	}
+	GenerateBlooks() {
+		// 要素数
+		uint32_t kNumBlockVertical = mapChipField_->GetNumBlockVirtical();
+		uint32_t kNumBlockHorizontal = mapChipField_->GetNumBlockHorizontal();
+		// ブロック1個分の縦幅
+		const float kBlockWidth = 2.0f;
+		const float kBlockHeight = 2.0f;
 
-	// 要素数
-	const uint32_t kNumBlockVertical = 10;
-	const uint32_t kNumBlockHorizontal = 20;
-	// ブロック1個分の縦幅
-	const float kBlockWidth = 2.0f;
-	const float kBlockHeight = 2.0f;
+		// 要素数を変更する
+		worldTransformBlocks_.resize(kNumBlockVertical);
 
-	// 要素数を変更する
-	worldTransformBlocks_.resize(kNumBlockVertical);
+		for (uint32_t i = 0; i < kNumBlockVertical; ++i) {
+			worldTransformBlocks_[i].resize(kNumBlockHorizontal);
+		}
 
-	for (uint32_t i = 0; i < kNumBlockVertical; ++i) {
-		worldTransformBlocks_[i].resize(kNumBlockHorizontal);
-	}
-
-	// キューブの生成
-	for (uint32_t i = 0; i < kNumBlockVertical; ++i) {
-		for (uint32_t j = 0; j < kNumBlockHorizontal; ++j) {
-			// 市松模様条件：i + j が偶数のときだけ表示
-			if ((i + j) % 2 == 0) {
-				continue;
+		// キューブの生成
+		for (uint32_t i = 0; i < kNumBlockVertical; ++i) {
+			for (uint32_t j = 0; j < kNumBlockHorizontal; ++j) {
+				// 市松模様条件：i + j が偶数のときだけ表示
+				if (mapChipField_->GetMapChipTypeByIndex(j,i)==MapChipType::kBlock) {
+					WorldTransform* worldTransformBlock = new WorldTransform();
+					worldTransformBlock->Initialize();
+					worldTransformBlocks_[i][j] = WorldTransform;
+					worldTransformBlocks_[i][j]->translation_ = mapChipField_->GetMapPositionTypeByIndex(j, i);
+				}
 			}
-			// ワールドトランスフォームのインスタンスを生成
-			worldTransformBlocks_[i][j] = new WorldTransform();
-			// ワールドトランスフォームの初期化
-			worldTransformBlocks_[i][j]->Initialize();
-			// ワールドトランスフォームの位置を設定
-			worldTransformBlocks_[i][j]->translation_.x = kBlockWidth * j;
-			// ワールドトランスフォームの位置を設定
-			worldTransformBlocks_[i][j]->translation_.y = kBlockHeight * i;
-			// カメラの位置を設定
-			debugCamera_ = new DebugCamera(i, j);
 		}
 	}
 }
@@ -79,20 +77,16 @@ void GameScene::Update() {
 		}
 	}
 
-
 #ifdef DEBUG
-	if (Input::GetInstance()->TriggerKeyPush(DIK_O) {
-		isDebugCameraActive_ = !isDebugCameraActive_;
-	})
-	// カメラの更新
-	if (isDebugCameraActive_) {
-		debugCamera_->Update();
-		camera_->matView_ = debugCamera_->GetCamera().matView;
-		camera_->matProjection_ = debugCamera_->GetCamera().matProjection;
-	}
-	else {
-		camera_->UpdateMatrix();
-	}
+	if (Input::GetInstance()->TriggerKeyPush(DIK_O) { isDebugCameraActive_ = !isDebugCameraActive_; })
+		// カメラの更新
+		if (isDebugCameraActive_) {
+			debugCamera_->Update();
+			camera_->matView_ = debugCamera_->GetCamera().matView;
+			camera_->matProjection_ = debugCamera_->GetCamera().matProjection;
+		} else {
+			camera_->UpdateMatrix();
+		}
 #endif
 }
 

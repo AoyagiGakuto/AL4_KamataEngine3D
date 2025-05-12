@@ -15,6 +15,7 @@ struct MapChipData {
 };
 
 class MapChipField {
+public:
 	MapChipData mapChipData_;                                            // マップチップデータ
 	MapChipType GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex); // 指定したインデックスのマップチップデータを取得する
 	void ResetMapChipData();                                             // マップチップデータのリセット
