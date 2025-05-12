@@ -1,14 +1,14 @@
-#pragma once  
-#include <cstdint>  
-#include <vector>  
+#pragma once
 #include <KamataEngine.h>
+#include <cstdint>
+#include <vector>
 
 using namespace KamataEngine;
 
 enum class MapChipType {
 	kBlank, // 空白
 	kBlock, // ブロック
-};  
+};
 
 struct MapChipData {
 	std::vector<std::vector<MapChipType>> data;
@@ -16,15 +16,18 @@ struct MapChipData {
 
 class MapChipField {
 public:
-	MapChipData mapChipData_;                                            // マップチップデータ
-	MapChipType GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex); // 指定したインデックスのマップチップデータを取得する
-	void ResetMapChipData();                                             // マップチップデータのリセット
-	void LoadMapChipCsv(const std::string& filePath);                    // マップチップデータの読み込み
+	MapChipData mapChipData_;
+	MapChipType GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex);
+	void ResetMapChipData();
+	void LoadMapChipCsv(const std::string& filePath);
 	Vector3 GetMapPositionTypeByIndex(uint32_t xIndex, uint32_t yIndex);
 
-private:
-	static inline const float kBlockWidth = 1.0f;          // ブロック1個分の横幅
-	static inline const float kBlockHeight = 1.0f;         // ブロック1個分の縦幅
-	static inline const uint32_t kNumBlockVertical = 20;   // 縦のブロック数
-	static inline const uint32_t kNumBlockHorizontal = 20; // 横のブロック数
+	// Add missing methods to fix the error
+	uint32_t GetNumBlockVirtical() const { return kNumBlockVertical; }
+	uint32_t GetNumBlockHorizontal() const { return kNumBlockHorizontal; }
+
+	static inline const float kBlockWidth = 1.0f;
+	static inline const float kBlockHeight = 1.0f;
+	static inline const uint32_t kNumBlockVertical = 20;
+	static inline const uint32_t kNumBlockHorizontal = 100;
 };

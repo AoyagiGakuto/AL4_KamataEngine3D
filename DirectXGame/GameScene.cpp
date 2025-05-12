@@ -1,6 +1,7 @@
 #include "GameScene.h"
 #include "MyMath.h"
 
+
 using namespace KamataEngine;
 
 //========================================
@@ -29,31 +30,32 @@ void GameScene::Initialize() {
 	if (camera_) {
 		camera_->Initialize();
 	}
-	GenerateBlooks() {
-		// 要素数
-		uint32_t kNumBlockVertical = mapChipField_->GetNumBlockVirtical();
-		uint32_t kNumBlockHorizontal = mapChipField_->GetNumBlockHorizontal();
-		// ブロック1個分の縦幅
-		const float kBlockWidth = 2.0f;
-		const float kBlockHeight = 2.0f;
+}
 
-		// 要素数を変更する
-		worldTransformBlocks_.resize(kNumBlockVertical);
+void GameScene::GenerateBlooks() {
+	// 要素数
+	uint32_t kNumBlockVertical = mapChipField_->GetNumBlockVirtical();
+	uint32_t kNumBlockHorizontal = mapChipField_->GetNumBlockHorizontal();
+	// ブロック1個分の縦幅
+	const float kBlockWidth = 2.0f;
+	const float kBlockHeight = 2.0f;
 
-		for (uint32_t i = 0; i < kNumBlockVertical; ++i) {
-			worldTransformBlocks_[i].resize(kNumBlockHorizontal);
-		}
+	// 要素数を変更する
+	worldTransformBlocks_.resize(kNumBlockVertical);
 
-		// キューブの生成
-		for (uint32_t i = 0; i < kNumBlockVertical; ++i) {
-			for (uint32_t j = 0; j < kNumBlockHorizontal; ++j) {
-				// 市松模様条件：i + j が偶数のときだけ表示
-				if (mapChipField_->GetMapChipTypeByIndex(j,i)==MapChipType::kBlock) {
-					WorldTransform* worldTransformBlock = new WorldTransform();
-					worldTransformBlock->Initialize();
-					worldTransformBlocks_[i][j] = WorldTransform;
-					worldTransformBlocks_[i][j]->translation_ = mapChipField_->GetMapPositionTypeByIndex(j, i);
-				}
+	for (uint32_t i = 0; i < kNumBlockVertical; ++i) {
+		worldTransformBlocks_[i].resize(kNumBlockHorizontal);
+	}
+
+	// キューブの生成
+	for (uint32_t i = 0; i < kNumBlockVertical; ++i) {
+		for (uint32_t j = 0; j < kNumBlockHorizontal; ++j) {
+			// 市松模様条件：i + j が偶数のときだけ表示
+			if (mapChipField_->GetMapChipTypeByIndex(j, i) == MapChipType::kBlock) {
+				WorldTransform* worldTransform = new WorldTransform();
+				worldTransform->Initialize();
+				worldTransformBlocks_[i][j] = worldTransform;
+				worldTransformBlocks_[i][j]->translation_ = mapChipField_->GetMapPositionTypeByIndex(j, i);
 			}
 		}
 	}
