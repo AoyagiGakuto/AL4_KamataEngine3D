@@ -22,10 +22,10 @@ public:
 	void LoadMapChipCsv(const std::string& filePath);
 	Vector3 GetMapPositionTypeByIndex(uint32_t xIndex, uint32_t yIndex);
 
-	// Add missing methods to fix the error
 	uint32_t GetNumBlockVirtical() const { return kNumBlockVertical; }
 	uint32_t GetNumBlockHorizontal() const { return kNumBlockHorizontal; }
 
+	private:
 	static inline const float kBlockWidth = 1.0f;
 	static inline const float kBlockHeight = 1.0f;
 	static inline const uint32_t kNumBlockVertical = 20;
