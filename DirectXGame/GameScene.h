@@ -2,6 +2,7 @@
 #include "KamataEngine.h"
 #include <vector>
 #include "Skydome.h"
+#include "MapChipField.h"
 
 using namespace KamataEngine;
 
@@ -39,5 +40,9 @@ private:
 	DebugCamera* debugCamera_ = nullptr;
 
 	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
+
+	MapChipField* mapChipField_;
+
+	void GenerateBlooks();
 
 };
