@@ -29,6 +29,7 @@ void GameScene::Initialize() {
 	if (camera_) {
 		camera_->Initialize();
 	}
+
 	GenerateBlooks();
 }
 
