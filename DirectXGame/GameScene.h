@@ -3,6 +3,7 @@
 #include <vector>
 #include "Skydome.h"
 #include "MapChipField.h"
+#include "Player.h"
 
 using namespace KamataEngine;
 
@@ -44,5 +45,11 @@ private:
 	MapChipField* mapChipField_;
 
 	void GenerateBlooks();
+
+	Player* player_ = nullptr;
+
+	 Model* modelPlayer_ = nullptr;
+
+
 
 };

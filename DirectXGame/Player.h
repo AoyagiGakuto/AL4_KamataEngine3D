@@ -6,7 +6,7 @@ using namespace KamataEngine;
 class Player {
 public:
 	// 初期化
-	void Initialize(Model* model, uint32_t textureHandle, Camera* camera);
+	void Initialize(Model* model, Camera* camera, const Vector3& position);
 	// 更新
 	void Update();
 	// 描画
@@ -16,9 +16,16 @@ private:
 	// ワールド変換データ
 	WorldTransform worldTransform_;
 	// モデル
-	Model* model_ = nullptr;
+	Model* modelPlayer_ = nullptr;
 	// カメラ
 	Camera* camera_ = nullptr;
 	// テクスチャハンドル
 	uint32_t textureHandle_ = 0u;
+
+	// 移動速度
+	Vector3 velocity_ = {};
+
+	// 加速度定数
+	float kAcceleration = 0.1f;
+
 };

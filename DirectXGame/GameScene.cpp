@@ -11,10 +11,13 @@ void GameScene::Initialize() {
 	// モデルの読み込み
 	modelCube_ = Model::CreateFromOBJ("block");
 	modelSkyDome_ = Model::CreateFromOBJ("SkyDome", true);
+	modelPlayer_ = Model::CreateFromOBJ("player");
 
 	// モデルの作成
 	model_ = Model::Create();
 	mapChipField_ = new MapChipField();
+
+	player_ = new Player();
 
 	// マップチップデータの読み込み
 	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
@@ -31,6 +34,12 @@ void GameScene::Initialize() {
 	}
 
 	GenerateBlooks();
+
+	// 座標をマップチップ番号で指定
+	Vector3 playerPosition = mapChipField_->GetMapPositionTypeByIndex(0, 0);
+
+	// プレイヤーの初期化
+	player_->Initialize(modelPlayer_, camera_, playerPosition);
 }
 
 void GameScene::GenerateBlooks() {
@@ -75,6 +84,7 @@ void GameScene::Update() {
 			worldTransformBlock->TransferMatrix();
 		}
 	}
+	player_->Update();
 
 #ifdef DEBUG
 	if (Input::GetInstance()->TriggerKeyPush(DIK_O) { isDebugCameraActive_ = !isDebugCameraActive_; })
@@ -112,6 +122,8 @@ void GameScene::Draw() {
 
 	// スカイドームの描画
 	modelSkyDome_->Draw(worldTransform_, *camera_);
+
+	player_->Draw();
 
 	// スプライト描画後処理
 	Model::PostDraw();
