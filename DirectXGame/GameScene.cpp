@@ -123,7 +123,7 @@ void GameScene::Draw() {
 	// スカイドームの描画
 	modelSkyDome_->Draw(worldTransform_, *camera_);
 
-	player_->Draw();
+	modelPlayer_->Draw(worldTransform_, *camera_);
 
 	// スプライト描画後処理
 	Model::PostDraw();

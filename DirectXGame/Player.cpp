@@ -9,7 +9,7 @@ void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	assert(model);
 
 	// モデルの設定
-	modelPlayer_ = model;
+	model_ =  model;
 
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
@@ -42,5 +42,5 @@ void Player::Update() {
 
 void Player::Draw() {
 	// モデルの描画
-	modelPlayer_->Draw(worldTransform_, *camera_, textureHandle_);
+	model_->Draw(worldTransform_, *camera_);
 }

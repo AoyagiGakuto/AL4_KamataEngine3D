@@ -16,7 +16,7 @@ private:
 	// ワールド変換データ
 	WorldTransform worldTransform_;
 	// モデル
-	Model* modelPlayer_ = nullptr;
+	Model* model_ = nullptr;
 	// カメラ
 	Camera* camera_ = nullptr;
 	// テクスチャハンドル
