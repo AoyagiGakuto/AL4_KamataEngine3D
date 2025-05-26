@@ -1,10 +1,17 @@
 #include "MyMath.h"
 
+#include <cmath>
+#include <numbers>
+
 using namespace KamataEngine;
 using namespace MathUtility;
 
-Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotation, const Vector3& translation) 
-{ 
+float EaseInOut(float x1, float x2, float t) {
+	float easedT = (std::cosf(std::numbers::pi_v<float>*t)-1.0f) /2.0f;
+	return Lerp(x1,x2,easedT);
+}
+
+Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotation, const Vector3& translation) {
 	// スケーリング行列
 	Matrix4x4 matScale = MakeScaleMatrix(scale);
 

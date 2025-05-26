@@ -84,6 +84,7 @@ void GameScene::Update() {
 			worldTransformBlock->TransferMatrix();
 		}
 	}
+
 	player_->Update();
 
 #ifdef DEBUG
