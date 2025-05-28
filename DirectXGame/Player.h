@@ -4,8 +4,8 @@
 using namespace KamataEngine;
 
 enum class LRDirection {
-	kLeft,  // 左
 	kRight, // 右
+	kLeft,  // 左
 };
 
 class Player {
