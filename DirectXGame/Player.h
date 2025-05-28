@@ -38,7 +38,7 @@ private:
 	LRDirection lrDirection_ = LRDirection::kRight; // 左右方向の初期値
 	float turnFirstRotation_ = 0.0f;                // 最初の回転角度
 	float turnTimer_ = 0.0f;                        // 回転タイマー
-	static inline const float kTimeTurn = 0.3f;     // 回転にかかる時間
+	static inline const float kTimeTurn = 0.1f;     // 回転にかかる時間
 	static inline const float kGravityAcceleration = 0.01f; // 重力加速度
 	static inline const float kLimitFallSpeed = 0.5f;       // 落下速度の制限値
 	static inline const float kJumpAcceleration = 0.3f;     // ジャンプ加速度

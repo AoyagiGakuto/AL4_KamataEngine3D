@@ -93,7 +93,9 @@ void Player::Update() {
 		    std::numbers::pi_v<float> * 3.0f / 2.0f // kLeft
 		};
 		float destinationRotationY = destinationRotationYTable[static_cast<uint32_t>(lrDirection_)];
-		worldTransform_.rotation_.y = EaseInOut(destinationRotationY, turnFirstRotation_, turnTimer_ / kTimeTurn);
+		float t = 1.0f - (turnTimer_ / kTimeTurn);
+		t = std::clamp(t, 0.0f, 1.0f);
+		worldTransform_.rotation_.y = EaseInOut(turnFirstRotation_, destinationRotationY, t);
 	}
 
 	// アフィン変換行列の作成
