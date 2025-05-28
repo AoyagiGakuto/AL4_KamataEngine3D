@@ -25,7 +25,6 @@ Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotation, const 
 	Matrix4x4 matTrans = MakeTranslateMatrix(translation);
 
 	// スケーリング、回転、平行移動
-	Matrix4x4 matWorld = matTrans * matRot * matScale;
-
+	Matrix4x4 matWorld = matScale * matRot * matTrans;
 	return matWorld;
 }
