@@ -37,7 +37,7 @@ void Player::Update() {
 				acceleration.z = -kAttenuation; // 左移動
 				if (lrDirection_ != LRDirection::kLeft) {
 					lrDirection_ = LRDirection::kLeft;
-					turnFirstRotation_ = worldTransform_.rotation_.y;
+					turnFirstRotationY_ = worldTransform_.rotation_.y;
 					turnTimer_ = kTimeTurn;
 				}
 			} else if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
@@ -47,7 +47,7 @@ void Player::Update() {
 				acceleration.z = kAttenuation; // 右移動
 				if (lrDirection_ != LRDirection::kRight) {
 					lrDirection_ = LRDirection::kRight;
-					turnFirstRotation_ = worldTransform_.rotation_.y;
+					turnFirstRotationY_ = worldTransform_.rotation_.y;
 					turnTimer_ = kTimeTurn;
 				}
 			}
@@ -95,7 +95,7 @@ void Player::Update() {
 		float destinationRotationY = destinationRotationYTable[static_cast<uint32_t>(lrDirection_)];
 		float t = 1.0f - (turnTimer_ / kTimeTurn);
 		t = std::clamp(t, 0.0f, 1.0f);
-		worldTransform_.rotation_.y = EaseInOut(turnFirstRotation_, destinationRotationY, t);
+		worldTransform_.rotation_.y = EaseInOut(destinationRotationY,turnFirstRotationY_,turnTimer_/kTimeTurn);
 	}
 
 	// アフィン変換行列の作成
