@@ -1,5 +1,6 @@
 #include "GameScene.h"
 #include "MyMath.h"
+#include "CameraController.h"
 
 using namespace KamataEngine;
 
@@ -24,6 +25,8 @@ void GameScene::Initialize() {
 
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
+
+	// カメラコントロールの初期化
 
 	// カメラのインスタンス作成
 	camera_ = new Camera();
@@ -85,6 +88,7 @@ void GameScene::Update() {
 		}
 	}
 
+	camera_->Update();
 	player_->Update();
 
 #ifdef DEBUG
