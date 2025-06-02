@@ -5,6 +5,14 @@
 using namespace KamataEngine;
 using namespace MathUtility;
 
+/*
+struct Rect {
+	float lef= 0.0f;
+	float top =;
+	float right;
+	float bottom;
+}; */
+
 class CameraController {
 public:
 	void Initialize();

@@ -30,9 +30,7 @@ void GameScene::Initialize() {
 	camera_ = new Camera();
 
 	// カメラの初期化
-	if (camera_) {
-		camera_->Initialize();
-	}
+	camera_->Initialize();
 
 	GenerateBlooks();
 
@@ -46,6 +44,7 @@ void GameScene::Initialize() {
 	cameraController_ = new CameraController();
 	cameraController_->SetTarget(player_);
 	cameraController_->Initialize();
+	cameraController_->Reset();
 }
 
 void GameScene::GenerateBlooks() {
