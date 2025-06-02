@@ -100,11 +100,11 @@ void GameScene::Update() {
 	// カメラの更新
 	if (isDebugCameraActive_) {
 		debugCamera_->Update();
-		camera_->matView_ = debugCamera_->GetCamera().matView;
-		camera_->matProjection_ = debugCamera_->GetCamera().matProjection;
+		camera_->matView = debugCamera_->GetCamera().matView;
+		camera_->matProjection = debugCamera_->GetCamera().matProjection;
 	} else {
-		camera_.matView = CameraController_->GetViewProjection().matView;
-		camera_.matProjection = CameraController_->GetViewProjection().matProjection;
+		camera_->matView = cameraController_->GetViewProjection().matView;
+		camera_->matProjection = cameraController_->GetViewProjection().matProjection;
 		camera_->TransferMatrix();
 	}
 #endif
