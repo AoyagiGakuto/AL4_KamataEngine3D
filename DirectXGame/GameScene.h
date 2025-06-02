@@ -4,6 +4,7 @@
 #include "Skydome.h"
 #include "MapChipField.h"
 #include "Player.h"
+#include "CameraController.h"
 
 using namespace KamataEngine;
 
@@ -30,12 +31,14 @@ private:
 	// スプライト
 	Model* model_ = nullptr;
 
+	Model* modelPlayer_ = nullptr;
+
 	// ワールドトランスフォーム
 	WorldTransform worldTransform_;
 
 	// カメラ
 	Camera* camera_;
-	bool isDebugCameraActive = false;
+	bool isDebugCameraActive_ = false;
 	
 	// デバッグカメラ
 	DebugCamera* debugCamera_ = nullptr;
@@ -48,8 +51,6 @@ private:
 
 	Player* player_ = nullptr;
 
-	 Model* modelPlayer_ = nullptr;
-
-
+	CameraController* cameraController_ = nullptr;
 
 };

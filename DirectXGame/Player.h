@@ -17,6 +17,8 @@ public:
 	// 描画
 	void Draw();
 
+	const WorldTransform& GetWorldTransform() const { return worldTransform_; } // ワールド変換データの取得
+
 private:
 	// ワールド変換データ
 	WorldTransform worldTransform_;
@@ -42,5 +44,4 @@ private:
 	static inline const float kGravityAcceleration = 0.01f; // 重力加速度
 	static inline const float kLimitFallSpeed = 0.5f;       // 落下速度の制限値
 	static inline const float kJumpAcceleration = 0.3f;     // ジャンプ加速度
-	const WorldTransform& GetWorldTransform() const { return worldTransform_; } // ワールド変換データの取得
 };

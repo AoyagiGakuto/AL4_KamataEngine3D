@@ -12,6 +12,10 @@ public:
 	void SetTarget(Player* target) { target_ = target; };
 	void Reset();
 
+	const Camera& GetViewProjection() const { return camera_; }
+	Matrix4x4 matView_;       // ビュー行列
+	Matrix4x4 matProjection_; // プロジェクション行列
+
 private:
 	// カメラ
 	Camera camera_;

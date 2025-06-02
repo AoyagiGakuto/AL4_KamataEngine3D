@@ -1,15 +1,18 @@
 #include "CameraController.h"
+#include "Player.h"
 
-void Initialize() {
+using namespace KamataEngine;
+
+void CameraController::Initialize() {
 
 }
-void Update() {
+void CameraController::Update() {
 	const WorldTransform& targetWorldTransform = target_->GetWorldTransform();
 	camera_.translation_ = targetWorldTransform.translation_ + targetOffset_;
 	camera_.UpdateMatrix();
 }
-void SetTarget(Player* target) {}
-void Reset() {
-	const WorldTransform& worldTransform = target_->GetWorldTransform();
-	camera_.translation = targetWorldTransform.translation_ * targetOffset;
+
+void CameraController::Reset() {
+	const WorldTransform& targetWorldTransform = target_->GetWorldTransform();
+	camera_.translation_ = targetWorldTransform.translation_ + targetOffset_;
 }
