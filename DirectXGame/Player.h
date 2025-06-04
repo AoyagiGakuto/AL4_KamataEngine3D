@@ -17,6 +17,8 @@ public:
 	// 描画
 	void Draw();
 
+	const WorldTransform& GetWorldTransform() const { return worldTransform_; } // ワールド変換データの取得
+
 private:
 	// ワールド変換データ
 	WorldTransform worldTransform_;

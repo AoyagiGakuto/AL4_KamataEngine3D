@@ -1,4 +1,5 @@
 #include "GameScene.h"
+#include "CameraController.h"
 #include "MyMath.h"
 
 using namespace KamataEngine;
@@ -29,9 +30,7 @@ void GameScene::Initialize() {
 	camera_ = new Camera();
 
 	// カメラの初期化
-	if (camera_) {
-		camera_->Initialize();
-	}
+	camera_->Initialize();
 
 	GenerateBlooks();
 
@@ -40,6 +39,12 @@ void GameScene::Initialize() {
 
 	// プレイヤーの初期化
 	player_->Initialize(modelPlayer_, camera_, playerPosition);
+
+	// カメラコントロールの初期化
+	cameraController_ = new CameraController();
+	cameraController_->SetTarget(player_);
+	cameraController_->Initialize();
+	cameraController_->Reset();
 }
 
 void GameScene::GenerateBlooks() {
@@ -86,17 +91,22 @@ void GameScene::Update() {
 	}
 
 	player_->Update();
+	cameraController_->Update();
 
 #ifdef DEBUG
-	if (Input::GetInstance()->TriggerKeyPush(DIK_O) { isDebugCameraActive_ = !isDebugCameraActive_; })
-		// カメラの更新
-		if (isDebugCameraActive_) {
-			debugCamera_->Update();
-			camera_->matView_ = debugCamera_->GetCamera().matView;
-			camera_->matProjection_ = debugCamera_->GetCamera().matProjection;
-		} else {
-			camera_->UpdateMatrix();
-		}
+	if (Input::GetInstance()->PushKey(DIK_O)) {
+		isDebugCameraActive_ = !isDebugCameraActive_;
+	}
+	// カメラの更新
+	if (isDebugCameraActive_) {
+		debugCamera_->Update();
+		camera_->matView = debugCamera_->GetCamera().matView;
+		camera_->matProjection = debugCamera_->GetCamera().matProjection;
+	} else {
+		camera_->matView = cameraController_->GetViewProjection().matView;
+		camera_->matProjection = cameraController_->GetViewProjection().matProjection;
+		camera_->TransferMatrix();
+	}
 #endif
 }
 
@@ -140,6 +150,7 @@ GameScene::~GameScene() {
 	delete modelCube_;
 	delete modelSkyDome_;
 	delete debugCamera_;
+	delete cameraController_;
 	delete mapChipField_;
 
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
