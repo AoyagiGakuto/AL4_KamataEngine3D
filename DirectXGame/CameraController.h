@@ -6,7 +6,7 @@ using namespace KamataEngine;
 using namespace MathUtility;
 
 struct Rect {
-	float lef = 0.0f;
+	float left = 0.0f;
 	float top = 1.0;
 	float right = 0.0f;
 	float bottom = 1.0f;
