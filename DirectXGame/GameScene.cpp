@@ -93,7 +93,6 @@ void GameScene::Update() {
 	player_->Update();
 	cameraController_->Update();
 
-#ifdef DEBUG
 	if (Input::GetInstance()->PushKey(DIK_O)) {
 		isDebugCameraActive_ = !isDebugCameraActive_;
 	}
@@ -107,7 +106,6 @@ void GameScene::Update() {
 		camera_->matProjection = cameraController_->GetViewProjection().matProjection;
 		camera_->TransferMatrix();
 	}
-#endif
 }
 
 //========================================

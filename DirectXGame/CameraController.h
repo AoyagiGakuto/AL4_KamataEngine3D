@@ -5,19 +5,19 @@
 using namespace KamataEngine;
 using namespace MathUtility;
 
-/*
 struct Rect {
-	float lef= 0.0f;
-	float top =;
-	float right;
-	float bottom;
-}; */
+	float lef = 0.0f;
+	float top = 1.0;
+	float right = 0.0f;
+	float bottom = 1.0f;
+};
 
 class CameraController {
 public:
 	void Initialize();
 	void Update();
 	void SetTarget(Player* target) { target_ = target; };
+	void SetMovableArea(const Rect& area) { movebleArea_ = area; }
 	void Reset();
 
 	const Camera& GetViewProjection() const { return camera_; }
@@ -29,4 +29,5 @@ private:
 	Camera camera_;
 	Player* target_ = nullptr;
 	Vector3 targetOffset_ = {0, 0, -15.0f};
+	Rect movebleArea_ = {0, 100, 0, 100};
 };
