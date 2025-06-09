@@ -10,7 +10,14 @@ enum class LRDirection {
 	kLeft,  // 左
 };
 
-
+struct CollisionMapInfo {
+	// 衝突しているかどうか
+	bool isCollision = false; 
+	// 着地しているかどうか
+	bool isOnGround = false;
+	// 壁に当たったかどうか
+	bool isHitWall = false;
+};
 
 class Player {
 public:
