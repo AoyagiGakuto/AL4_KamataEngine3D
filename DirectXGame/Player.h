@@ -22,8 +22,8 @@ public:
 	void Draw();
 	void InputMove(); // 移動入力の処理
 
-	const WorldTransform& GetWorldTransform() const { return worldTransform_; } // ワールド変換データの取得
-	const Vector3& GetVelocity() const { return velocity_; }                    // 速度の取得
+	const WorldTransform& GetWorldTransform() const { return worldTransform_; }        // ワールド変換データの取得
+	const Vector3& GetVelocity() const { return velocity_; }                           // 速度の取得
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; } // マップチップフィールドの設定
 
 private:
@@ -52,6 +52,6 @@ private:
 	static inline const float kLimitFallSpeed = 0.5f;       // 落下速度の制限値
 	static inline const float kJumpAcceleration = 0.3f;     // ジャンプ加速度
 	MapChipField* mapChipField_ = nullptr;
-	static inline const float kWidth = 0.8f; // プレイヤーの幅
+	static inline const float kWidth = 0.8f;  // プレイヤーの幅
 	static inline const float kHeight = 0.8f; // プレイヤーの高さ
 };
