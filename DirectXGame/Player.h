@@ -21,6 +21,14 @@ struct CollisionMapInfo {
 	Vector3 move = {0.0f, 0.0f, 0.0f};
 };
 
+enum Corner {
+	kRightBottom, // 右下
+	kLeftBottom,  // 左下
+	kRightTop,    // 右上
+	kLeftTop,     // 左上
+	kNumCorner
+};
+
 class Player {
 public:
 	// 初期化
@@ -30,6 +38,8 @@ public:
 	// 描画
 	void Draw();
 	void InputMove(); // 移動入力の処理
+	// マップ衝突判定
+	void CollisionMapCheck(CollisionMapInfo& Info);
 
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; }        // ワールド変換データの取得
 	const Vector3& GetVelocity() const { return velocity_; }                           // 速度の取得

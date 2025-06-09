@@ -65,7 +65,7 @@ void Player::Update() {
 		    std::numbers::pi_v<float> * 3.0f / 2.0f // kLeft
 		};
 		float destinationRotationY = destinationRotationYTable[static_cast<uint32_t>(lrDirection_)];
-		worldTransform_.rotation_.y = EaseInOut(destinationRotationY,turnFirstRotationY_,turnTimer_/kTimeTurn);
+		worldTransform_.rotation_.y = EaseInOut(destinationRotationY, turnFirstRotationY_, turnTimer_ / kTimeTurn);
 	}
 
 	// アフィン変換行列の作成
@@ -109,4 +109,19 @@ void Player::InputMove() {
 		velocity_ = Vector3(0, -kGravityAcceleration, 0);
 		velocity_.y = std::max(velocity_.y, -kLimitFallSpeed);
 	}
+}
+
+void Player::CollisionMapCheck(CollisionMapInfo& Info) {
+	CollisionMapInfo collisionMapInfo;
+	collisionMapInfo.move = velocity_;
+	//	マップ衝突チェック
+	CollisionMapCheck(collisionMapInfo);
+	// マップ衝突判定上方向
+	CollisionMapInfo isCollision(Info);
+	// マップ衝突判定下方向
+	CollisionMapInfo isOnGround(Info);
+	// マップ衝突判定左方向
+	CollisionMapInfo isHitWall(Info);
+	// マップ衝突判定右方向
+	CollisionMapInfo isHitWall(Info);
 }
