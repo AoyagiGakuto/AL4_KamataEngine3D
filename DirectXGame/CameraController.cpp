@@ -17,7 +17,8 @@ void CameraController::Initialize() {
 void CameraController::Update() {
 	const WorldTransform& targetWorldTransform = target_->GetWorldTransform();
 	// 追尾対象とオフセットからカメラの目標座標を計算
-	targetPosition_ = targetWorldTransform.translation_ + targetOffset_;
+	Vector3 targetVelocity = target_->GetVelocity();
+	targetPosition_ = targetWorldTransform.translation_ + targetOffset_ + targetVelocity * kVelocityBias;
 	// 座標補間によりゆったり追従
 	camera_.translation_.x = Lerp(camera_.translation_.x, targetPosition_.x, kInterpolationRate);
 	

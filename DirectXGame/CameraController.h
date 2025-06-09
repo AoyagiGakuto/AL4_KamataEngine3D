@@ -35,4 +35,5 @@ private:
 	Rect movebleArea_ = {0, 100, 0, 100};
 	// 座標線形保管割合
 	static inline const float kInterpolationRate = 0.08f;
+	static inline const float kVelocityBias = 30.0f;
 };
