@@ -43,6 +43,8 @@ void GameScene::Initialize() {
 	// カメラコントロールの初期化
 	cameraController_ = new CameraController();
 	cameraController_->SetTarget(player_);
+	CameraController::Rect cameraArea = {12.0f, 100-12.0f, 6.0f, 6.0f};
+	cameraController_->SetMovableArea(cameraArea);
 	cameraController_->Initialize();
 	cameraController_->Reset();
 }

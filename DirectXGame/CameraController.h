@@ -5,15 +5,16 @@
 using namespace KamataEngine;
 using namespace MathUtility;
 
-struct Rect {
-	float left = 0.0f;
-	float top = 1.0;
-	float right = 0.0f;
-	float bottom = 1.0f;
-};
-
 class CameraController {
 public:
+
+	struct Rect {
+		float left = 0.0f;
+		float right = 1.0;
+		float bottom = 0.0f;
+		float top = 1.0f;
+	};
+
 	void Initialize();
 	void Update();
 	void SetTarget(Player* target) { target_ = target; };
@@ -29,5 +30,9 @@ private:
 	Camera camera_;
 	Player* target_ = nullptr;
 	Vector3 targetOffset_ = {0, 0, -15.0f};
+	// カメラの目標座標
+	KamataEngine::Vector3 targetPosition_ = {0, 0, 0};
 	Rect movebleArea_ = {0, 100, 0, 100};
+	// 座標線形保管割合
+	static inline const float kInterpolationRate = 0.1f;
 };
