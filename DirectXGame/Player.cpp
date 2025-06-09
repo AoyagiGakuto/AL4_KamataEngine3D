@@ -125,3 +125,19 @@ void Player::CollisionMapCheck(CollisionMapInfo& Info) {
 	// マップ衝突判定右方向
 	CollisionMapInfo isHitWall(Info);
 }
+
+Vector3 CornerPosition(const Vector3& center, Corner corner) {
+	if (corner == kRightBottom) {
+		return center + {+kWidth / 2.0f, -kHeight / 2.0f, 0};
+	}
+
+	else if (corner == kLeftBottom) {
+		return center + {-kWidth / 2.0f, -kHeight / 2.0f, 0};
+	}
+
+	else if (corner == kRightTop) {
+		return center + {+kWidth / 2.0f, +kHeight / 2.0f, 0};
+	} else {
+		return center + {-kWidth / 2.0f, +kHeight / 2.0f, 0};
+	}
+}
