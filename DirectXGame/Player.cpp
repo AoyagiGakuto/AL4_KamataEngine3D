@@ -115,16 +115,24 @@ void Player::CollisionMapCheck(CollisionMapInfo& Info) {
 	CollisionMapInfo collisionMapInfo;
 	collisionMapInfo.move = velocity_;
 	//	マップ衝突チェック
-	CollisionMapCheck(collisionMapInfo);
+	CheckMapCollision(collisionMapInfo);
 	// マップ衝突判定上方向
-	CollisionMapInfo isCollision(Info);
+	CheckMapCollisionUp(info);
 	// マップ衝突判定下方向
-	CollisionMapInfo isOnGround(Info);
+	CheckMapCollisionDown(info);
 	// マップ衝突判定左方向
-	CollisionMapInfo isHitWall(Info);
+	CheckMapCollisionLeft(info);
 	// マップ衝突判定右方向
-	CollisionMapInfo isHitWall(Info);
+	CheckMapCollisionRight(info);
 }
+
+void Player::CheckMapCollisionUp(CollisionMapInfo& Info) {
+	std::array<Vector3, kNumCorner> positionsNew;
+	for (uint32_t i = 0; i < kNumCorner; ++i) {
+		positionsNew[i] = CornerPosition(worldTransform_.translation_ + Info.move, static_cast<Corner>(i));
+	}
+}
+
 
 Vector3 CornerPosition(const Vector3& center, Corner corner) {
 	if (corner == kRightBottom) {
@@ -140,4 +148,12 @@ Vector3 CornerPosition(const Vector3& center, Corner corner) {
 	} else {
 		return center + {-kWidth / 2.0f, +kHeight / 2.0f, 0};
 	}
+	Vector3 offsetTable[kNumCorner] = {
+		{+kWidth / 2.0f, -kHeight / 2.0f, 0}, // kRightBottom
+		{-kWidth / 2.0f, -kHeight / 2.0f, 0}, // kLeftBottom
+		{+kWidth / 2.0f, +kHeight / 2.0f, 0}, // kRightTop
+		{-kWidth / 2.0f, +kHeight / 2.0f, 0}  // kLeftTop
+	};
+
+	return center + offsetTable[static_cast<uint32_t>(corner)];
 }

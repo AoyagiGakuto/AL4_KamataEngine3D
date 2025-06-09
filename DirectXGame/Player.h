@@ -41,6 +41,7 @@ public:
 	// マップ衝突判定
 	void CollisionMapCheck(CollisionMapInfo& Info);
 	
+	void CheckMapCollisionUp(CollisionMapInfo& Info);
 
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; }        // ワールド変換データの取得
 	const Vector3& GetVelocity() const { return velocity_; }                           // 速度の取得
