@@ -3,6 +3,8 @@
 
 using namespace KamataEngine;
 
+class MapChipField;
+
 enum class LRDirection {
 	kRight, // 右
 	kLeft,  // 左
@@ -19,6 +21,7 @@ public:
 
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; } // ワールド変換データの取得
 	const Vector3& GetVelocity() const { return velocity_; }                    // 速度の取得
+	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; } // マップチップフィールドの設定
 
 private:
 	// ワールド変換データ
@@ -38,11 +41,14 @@ private:
 	// 加速度定数
 	float kAcceleration = 0.1f;
 
-	LRDirection lrDirection_ = LRDirection::kRight; // 左右方向の初期値
-	float turnFirstRotationY_ = 0.0f;                // 最初の回転角度
-	float turnTimer_ = 0.0f;                        // 回転タイマー
-	static inline const float kTimeTurn = 0.3f;     // 回転にかかる時間
+	LRDirection lrDirection_ = LRDirection::kRight;         // 左右方向の初期値
+	float turnFirstRotationY_ = 0.0f;                       // 最初の回転角度
+	float turnTimer_ = 0.0f;                                // 回転タイマー
+	static inline const float kTimeTurn = 0.3f;             // 回転にかかる時間
 	static inline const float kGravityAcceleration = 0.01f; // 重力加速度
 	static inline const float kLimitFallSpeed = 0.5f;       // 落下速度の制限値
 	static inline const float kJumpAcceleration = 0.3f;     // ジャンプ加速度
+	MapChipField* mapChipField_ = nullptr;
+	static inline const float kWidth = 0.8f; // プレイヤーの幅
+	static inline const float kHeight = 0.8f; // プレイヤーの高さ
 };

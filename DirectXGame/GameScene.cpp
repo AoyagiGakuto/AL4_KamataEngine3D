@@ -39,6 +39,7 @@ void GameScene::Initialize() {
 
 	// プレイヤーの初期化
 	player_->Initialize(modelPlayer_, camera_, playerPosition);
+	player_->SetMapChipField(mapChipField_);
 
 	// カメラコントロールの初期化
 	cameraController_ = new CameraController();
