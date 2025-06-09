@@ -36,5 +36,5 @@ private:
 	// 座標線形保管割合
 	static inline const float kInterpolationRate = 0.08f;
 	static inline const float kVelocityBias = 30.0f;
-	static inline const Rect targetMargin = {-9.0, 9.0f, -5.0f, 5.0f};
+	static inline const Rect targetMargin = {6.0f, 100 - 12.0f, 5.0f, 5.0f};
 };
