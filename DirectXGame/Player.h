@@ -17,6 +17,8 @@ struct CollisionMapInfo {
 	bool isOnGround = false;
 	// 壁に当たったかどうか
 	bool isHitWall = false;
+	// 移動量
+	Vector3 move = {0.0f, 0.0f, 0.0f};
 };
 
 class Player {
