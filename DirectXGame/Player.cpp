@@ -26,37 +26,9 @@ void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 }
 
 void Player::Update() {
-	if (OnGround_) {
-		// 横移動入力
-		if (Input::GetInstance()->PushKey(DIK_LEFT) || Input::GetInstance()->PushKey(DIK_RIGHT)) {
-			Vector3 acceleration = {};
-			if (Input::GetInstance()->PushKey(DIK_LEFT)) {
-				if (velocity_.x < 0.0f) {
-					velocity_.x *= (1.0f - kAttenuation);
-				}
-				acceleration.x = -kAttenuation; // 左移動
-				if (lrDirection_ != LRDirection::kLeft) {
-					lrDirection_ = LRDirection::kLeft;
-					turnFirstRotationY_ = worldTransform_.rotation_.y;
-					turnTimer_ = kTimeTurn;
-				}
-			} else if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
-				if (velocity_.x > 0.0f) {
-					velocity_.x *= (1.0f - kAttenuation);
-				}
-				acceleration.x = kAttenuation; // 右移動
-				if (lrDirection_ != LRDirection::kRight) {
-					lrDirection_ = LRDirection::kRight;
-					turnFirstRotationY_ = worldTransform_.rotation_.y;
-					turnTimer_ = kTimeTurn;
-				}
-			}
-			velocity_ += acceleration;
-			velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
-		} else {
-			velocity_.x *= (1.0f - kAttenuation); // 慣性減衰
-		}
+	InputMove();
 
+	if (OnGround_) {
 		// ジャンプ入力
 		if (Input::GetInstance()->PushKey(DIK_UP)) {
 			velocity_.y = kJumpVelocity;
@@ -104,3 +76,37 @@ void Player::Update() {
 }
 
 void Player::Draw() { model_->Draw(worldTransform_, *camera_); }
+
+void Player::InputMove() {
+	if (OnGround_) {
+		if (Input::GetInstance()->PushKey(DIK_LEFT) || Input::GetInstance()->PushKey(DIK_RIGHT)) {
+			Vector3 acceleration = {};
+			if (Input::GetInstance()->PushKey(DIK_LEFT)) {
+				if (velocity_.x < 0.0f) {
+					velocity_.x *= (1.0f - kAttenuation);
+				}
+				acceleration.x = -kAttenuation; // 左移動
+				if (lrDirection_ != LRDirection::kLeft) {
+					lrDirection_ = LRDirection::kLeft;
+					turnFirstRotationY_ = worldTransform_.rotation_.y;
+					turnTimer_ = kTimeTurn;
+				}
+			} else if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
+				if (velocity_.x > 0.0f) {
+					velocity_.x *= (1.0f - kAttenuation);
+				}
+				acceleration.x = kAttenuation; // 右移動
+				if (lrDirection_ != LRDirection::kRight) {
+					lrDirection_ = LRDirection::kRight;
+					turnFirstRotationY_ = worldTransform_.rotation_.y;
+					turnTimer_ = kTimeTurn;
+				}
+			}
+			velocity_ += acceleration;
+			velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
+		}
+	} else {
+		velocity_ = Vector3(0, -kGravityAcceleration, 0);
+		velocity_.y = std::max(velocity_.y, -kLimitFallSpeed);
+	}
+}

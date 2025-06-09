@@ -10,6 +10,8 @@ enum class LRDirection {
 	kLeft,  // 左
 };
 
+
+
 class Player {
 public:
 	// 初期化
@@ -18,6 +20,7 @@ public:
 	void Update();
 	// 描画
 	void Draw();
+	void InputMove(); // 移動入力の処理
 
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; } // ワールド変換データの取得
 	const Vector3& GetVelocity() const { return velocity_; }                    // 速度の取得
