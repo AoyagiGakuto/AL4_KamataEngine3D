@@ -34,5 +34,5 @@ private:
 	KamataEngine::Vector3 targetPosition_ = {0, 0, 0};
 	Rect movebleArea_ = {0, 100, 0, 100};
 	// 座標線形保管割合
-	static inline const float kInterpolationRate = 0.1f;
+	static inline const float kInterpolationRate = 0.08f;
 };

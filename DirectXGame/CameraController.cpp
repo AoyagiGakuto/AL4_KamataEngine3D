@@ -16,11 +16,11 @@ void CameraController::Initialize() {
 
 void CameraController::Update() {
 	const WorldTransform& targetWorldTransform = target_->GetWorldTransform();
-	camera_.translation_ = targetWorldTransform.translation_ + targetOffset_;
 	// 追尾対象とオフセットからカメラの目標座標を計算
 	targetPosition_ = targetWorldTransform.translation_ + targetOffset_;
 	// 座標補間によりゆったり追従
 	camera_.translation_.x = Lerp(camera_.translation_.x, targetPosition_.x, kInterpolationRate);
+	
 	camera_.translation_.x = max(camera_.translation_.x, movebleArea_.left);
 	camera_.translation_.x = min(camera_.translation_.x, movebleArea_.right);
 	camera_.translation_.y = max(camera_.translation_.y, movebleArea_.bottom);
