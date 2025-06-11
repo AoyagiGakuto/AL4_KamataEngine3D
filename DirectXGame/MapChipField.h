@@ -19,6 +19,13 @@ struct IndexSet {
 	uint32_t yIndex;
 };
 
+struct Rect {
+	float left;
+	float right;
+	float bottom;
+	float top;
+};
+
 class MapChipField {
 public:
 	MapChipData mapChipData_;
