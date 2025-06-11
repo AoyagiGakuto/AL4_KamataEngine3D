@@ -14,10 +14,16 @@ struct MapChipData {
 	std::vector<std::vector<MapChipType>> data;
 };
 
+struct IndexSet {
+	uint32_t xIndex;
+	uint32_t yIndex;
+};
+
 class MapChipField {
 public:
 	MapChipData mapChipData_;
 	MapChipType GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex);
+	IndexSet GetMapChipINdexSetByPosition(const Vector3 position);
 	void ResetMapChipData();
 	void LoadMapChipCsv(const std::string& filePath);
 	Vector3 GetMapPositionTypeByIndex(uint32_t xIndex, uint32_t yIndex);

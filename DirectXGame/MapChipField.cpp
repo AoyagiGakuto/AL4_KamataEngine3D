@@ -24,6 +24,13 @@ MapChipType MapChipField::GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex
     return mapChipData_.data[yIndex][xIndex];
 }
 
+IndexSet MapChipField::GetMapChipINdexSetByPosition(const Vector3 position) {
+	IndexSet indexSet;
+	indexSet.xIndex = static_cast<uint32_t>(position.x / kBlockWidth);
+	indexSet.yIndex = static_cast<uint32_t>(position.y / kBlockHeight);
+	return indexSet;
+}
+
 void MapChipField::ResetMapChipData() {
 	mapChipData_.data.clear(); // 既存のデータをクリア
 	mapChipData_.data.resize(kNumBlockVertical);
