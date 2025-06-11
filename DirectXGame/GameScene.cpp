@@ -52,7 +52,7 @@ void GameScene::Initialize() {
 
 void GameScene::GenerateBlooks() {
 	// 要素数
-	uint32_t kNumBlockVertical = mapChipField_->GetNumBlockVirtical();
+	uint32_t kNumBlockVertical = mapChipField_->GetNumBlockVertical(); 
 	uint32_t kNumBlockHorizontal = mapChipField_->GetNumBlockHorizontal();
 
 	// 要素数を変更する

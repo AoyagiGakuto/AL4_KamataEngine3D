@@ -30,18 +30,17 @@ class MapChipField {
 public:
 	MapChipData mapChipData_;
 	MapChipType GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex);
-	IndexSet GetMapChipINdexSetByPosition(const Vector3 position);
+	IndexSet GetMapChipIndexSetByPosition(const Vector3 position); // ← IndexSet
 	void ResetMapChipData();
 	void LoadMapChipCsv(const std::string& filePath);
 	Vector3 GetMapPositionTypeByIndex(uint32_t xIndex, uint32_t yIndex);
 
-	uint32_t GetNumBlockVirtical() const { return kNumBlockVertical; }
+	uint32_t GetNumBlockVertical() const { return kNumBlockVertical; } // ← Vertical
 	uint32_t GetNumBlockHorizontal() const { return kNumBlockHorizontal; }
 
 	Rect GetRectByIndex(uint32_t xIndex, uint32_t yIndex);
 
-
-	private:
+private:
 	static inline const float kBlockWidth = 1.0f;
 	static inline const float kBlockHeight = 1.0f;
 	static inline const uint32_t kNumBlockVertical = 20;

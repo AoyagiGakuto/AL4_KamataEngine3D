@@ -1,9 +1,9 @@
 #include "MapChipField.h"
-#include <map>
-#include <string>
-#include <fstream>
-#include <sstream>
 #include <cassert>
+#include <fstream>
+#include <map>
+#include <sstream>
+#include <string>
 
 namespace {
 std::map<std::string, MapChipType> mapChipTable = {
@@ -13,18 +13,16 @@ std::map<std::string, MapChipType> mapChipTable = {
 }
 
 MapChipType MapChipField::GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex) {
-	if (xIndex < 0 || kNumBlockHorizontal - 1 < xIndex) {
+	if (xIndex >= kNumBlockHorizontal) {
 		return MapChipType::kBlank;
 	}
-
-	if (yIndex < 0 || kNumBlockVertical - 1 < yIndex) {
+	if (yIndex >= kNumBlockVertical) {
 		return MapChipType::kBlank;
 	}
-
-    return mapChipData_.data[yIndex][xIndex];
+	return mapChipData_.data[yIndex][xIndex];
 }
 
-IndexSet MapChipField::GetMapChipINdexSetByPosition(const Vector3 position) {
+IndexSet MapChipField::GetMapChipIndexSetByPosition(const Vector3 position) {
 	IndexSet indexSet;
 	indexSet.xIndex = static_cast<uint32_t>(position.x / kBlockWidth);
 	indexSet.yIndex = static_cast<uint32_t>(position.y / kBlockHeight);
@@ -32,7 +30,7 @@ IndexSet MapChipField::GetMapChipINdexSetByPosition(const Vector3 position) {
 }
 
 void MapChipField::ResetMapChipData() {
-	mapChipData_.data.clear(); // 既存のデータをクリア
+	mapChipData_.data.clear();
 	mapChipData_.data.resize(kNumBlockVertical);
 	for (std::vector<MapChipType>& mapChipLine : mapChipData_.data) {
 		mapChipLine.resize(kNumBlockHorizontal);
@@ -42,14 +40,11 @@ void MapChipField::ResetMapChipData() {
 void MapChipField::LoadMapChipCsv(const std::string& filePath) {
 	ResetMapChipData();
 
-	std::ifstream file;
-	file.open(filePath);
+	std::ifstream file(filePath);
 	assert(file.is_open());
 
 	std::stringstream mapChipCsv;
-
 	mapChipCsv << file.rdbuf();
-
 	file.close();
 
 	for (uint32_t i = 0; i < kNumBlockVertical; ++i) {
@@ -74,6 +69,5 @@ Rect MapChipField::GetRectByIndex(uint32_t xIndex, uint32_t yIndex) {
 	rect.right = rect.left + kBlockWidth;
 	rect.bottom = yIndex * kBlockHeight;
 	rect.top = rect.bottom + kBlockHeight;
-
 	return rect;
 }
