@@ -135,6 +135,14 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& Info) {
 	if (Info.move.y <= 0.0f) {
 		return; // 上方向の移動ではない
 	}
+	MapChipType mapChipType;
+	bool hit = false;
+	MapChipField::IndexSet indexSet;
+	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kRightTop]);
+	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
+	if (mapChipType != MapChipType::kBlock) {
+		hit = true;
+	}
 }
 
 
