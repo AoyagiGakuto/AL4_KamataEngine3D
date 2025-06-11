@@ -132,6 +132,9 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& Info) {
 	for (uint32_t i = 0; i < kNumCorner; ++i) {
 		positionsNew[i] = CornerPosition(worldTransform_.translation_ + Info.move, static_cast<Corner>(i));
 	}
+	if (info.move.y <= 0.0f) {
+		return; // 上方向の移動ではない
+	}
 }
 
 void Player::CheckMapCollisionDown(CollisionMapInfo& Info) {
