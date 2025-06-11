@@ -41,8 +41,15 @@ public:
 	// マップ衝突判定
 	void CollisionMapCheck(CollisionMapInfo& Info);
 	
+	void CheckMapCollision(CollisionMapInfo& Info);
+
 	void CheckMapCollisionUp(CollisionMapInfo& Info);
 
+	void CheckMapCollisionDown(CollisionMapInfo& Info);
+
+	void CheckMapCollisionLeft(CollisionMapInfo& Info);
+
+	void CheckMapCollisionRight(CollisionMapInfo& Info);
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; }        // ワールド変換データの取得
 	const Vector3& GetVelocity() const { return velocity_; }                           // 速度の取得
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; } // マップチップフィールドの設定

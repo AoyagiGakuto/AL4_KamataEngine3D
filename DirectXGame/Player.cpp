@@ -126,6 +126,7 @@ void Player::CollisionMapCheck(CollisionMapInfo& Info) {
 	CheckMapCollisionRight(info);
 }
 
+// p14やってる
 void Player::CheckMapCollisionUp(CollisionMapInfo& Info) {
 	std::array<Vector3, kNumCorner> positionsNew;
 	for (uint32_t i = 0; i < kNumCorner; ++i) {
@@ -133,6 +134,26 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& Info) {
 	}
 }
 
+void Player::CheckMapCollisionDown(CollisionMapInfo& Info) {
+	std::array<Vector3, kNumCorner> positionsNew;
+	for (uint32_t i = 0; i < kNumCorner; ++i) {
+		positionsNew[i] = CornerPosition(worldTransform_.translation_ + Info.move, static_cast<Corner>(i));
+	}
+}
+
+void Player::CheckMapCollisionLeft(CollisionMapInfo& Info) {
+	std::array<Vector3, kNumCorner> positionsNew;
+	for (uint32_t i = 0; i < kNumCorner; ++i) {
+		positionsNew[i] = CornerPosition(worldTransform_.translation_ + Info.move, static_cast<Corner>(i));
+	}
+}
+
+void Player::CheckMapCollisionRight(CollisionMapInfo& Info) {
+	std::array<Vector3, kNumCorner> positionsNew;
+	for (uint32_t i = 0; i < kNumCorner; ++i) {
+		positionsNew[i] = CornerPosition(worldTransform_.translation_ + Info.move, static_cast<Corner>(i));
+	}
+}
 
 Vector3 CornerPosition(const Vector3& center, Corner corner) {
 	if (corner == kRightBottom) {
