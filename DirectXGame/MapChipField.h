@@ -38,6 +38,9 @@ public:
 	uint32_t GetNumBlockVirtical() const { return kNumBlockVertical; }
 	uint32_t GetNumBlockHorizontal() const { return kNumBlockHorizontal; }
 
+	Rect GetRectByIndex(uint32_t xIndex, uint32_t yIndex);
+
+
 	private:
 	static inline const float kBlockWidth = 1.0f;
 	static inline const float kBlockHeight = 1.0f;
