@@ -143,6 +143,12 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& Info) {
 	if (mapChipType != MapChipType::kBlock) {
 		hit = true;
 	}
+	if (hit) {
+		indexSet = mapChipField_->GetMapChipIndexSetByPosition();
+		MapChipField::Rect rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
+		Info.move.y = std::max(0.0f, move.y);
+		Info.isCollision = true;
+	}
 }
 
 

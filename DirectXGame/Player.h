@@ -82,4 +82,5 @@ private:
 	MapChipField* mapChipField_ = nullptr;
 	static inline const float kWidth = 0.8f;  // プレイヤーの幅
 	static inline const float kHeight = 0.8f; // プレイヤーの高さ
+	static inline const float kBlank = 0.0f;
 };
