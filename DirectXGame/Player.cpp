@@ -117,13 +117,13 @@ void Player::CollisionMapCheck(CollisionMapInfo& Info) {
 	//	マップ衝突チェック
 	CheckMapCollision(collisionMapInfo);
 	// マップ衝突判定上方向
-	CheckMapCollisionUp(info);
+	CheckMapCollisionUp(Info);
 	// マップ衝突判定下方向
-	CheckMapCollisionDown(info);
+	CheckMapCollisionDown(Info);
 	// マップ衝突判定左方向
-	CheckMapCollisionLeft(info);
+	CheckMapCollisionLeft(Info);
 	// マップ衝突判定右方向
-	CheckMapCollisionRight(info);
+	CheckMapCollisionRight(Info);
 }
 
 // p14やってる
@@ -132,10 +132,11 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& Info) {
 	for (uint32_t i = 0; i < kNumCorner; ++i) {
 		positionsNew[i] = CornerPosition(worldTransform_.translation_ + Info.move, static_cast<Corner>(i));
 	}
-	if (info.move.y <= 0.0f) {
+	if (Info.move.y <= 0.0f) {
 		return; // 上方向の移動ではない
 	}
 }
+
 
 void Player::CheckMapCollisionDown(CollisionMapInfo& Info) {
 	std::array<Vector3, kNumCorner> positionsNew;
