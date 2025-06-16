@@ -18,7 +18,6 @@ bool landing = false;
 void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	assert(model);
 	model_ = model;
-
 	worldTransform_.translation_ = position;
 	camera_ = camera;
 	worldTransform_.Initialize();
