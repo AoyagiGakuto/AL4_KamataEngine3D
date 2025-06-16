@@ -25,26 +25,33 @@ void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	camera_ = camera;
 	OnGround_ = true;
 }
-
 void Player::Update() {
 	InputMove();
 
-	CollisionMapInfo collisionInfo;
-	collisionInfo.move = velocity_;
-	CollisionMapCheck(collisionInfo);
-
-	worldTransform_.translation_ += collisionInfo.move;
-
-	if (collisionInfo.isCeiling) {
-		velocity_.y = 0;
+	// --- X方向のみ移動・補正 ---
+	CollisionMapInfo colX;
+	colX.move = {velocity_.x, 0.0f, 0.0f};
+	CollisionMapCheck(colX);
+	worldTransform_.translation_ += colX.move;
+	if (colX.isHitWall) {
+		velocity_.x = 0;
 	}
 
-	OnGround_ = collisionInfo.isOnGround;
-	if (OnGround_) {
-		velocity_.y = 0;
+	// --- Y方向のみ移動・補正 ---
+	CollisionMapInfo colY;
+	colY.move = {0.0f, velocity_.y, 0.0f};
+	CollisionMapCheck(colY);
+	worldTransform_.translation_ += colY.move;
+
+	if (colY.isOnGround) {
+		OnGround_ = true;
 	} else {
-		velocity_.y -= kGravity;
+		velocity_.y -= kGravityAcceleration;
 		velocity_.y = std::max(velocity_.y, -kLimitFallSpeed);
+		OnGround_ = false;
+	}
+	if (colY.isCeiling) {
+		velocity_.y = 0;
 	}
 
 	AnimateTurn();
