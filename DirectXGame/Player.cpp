@@ -100,9 +100,16 @@ void Player::InputMove() {
 void Player::AnimateTurn() {
 	if (turnTimer_ > 0.0f) {
 		turnTimer_ -= 1.0f / 60.0f;
+		if (turnTimer_ < 0.0f)
+			turnTimer_ = 0.0f; // 負値防止
 		float destinationRotationYTable[] = {std::numbers::pi_v<float> / 2.0f, std::numbers::pi_v<float> * 3.0f / 2.0f};
 		float destinationRotationY = destinationRotationYTable[static_cast<uint32_t>(lrDirection_)];
-		worldTransform_.rotation_.y = EaseInOut(destinationRotationY, turnFirstRotationY_, turnTimer_ / kTimeTurn);
+		float t = turnTimer_ / kTimeTurn;
+		worldTransform_.rotation_.y = EaseInOut(destinationRotationY, turnFirstRotationY_, t);
+		// ---- ここがポイント ----
+		if (turnTimer_ <= 0.0f) {
+			worldTransform_.rotation_.y = destinationRotationY; // 完全にピッタリ揃える
+		}
 	}
 }
 
