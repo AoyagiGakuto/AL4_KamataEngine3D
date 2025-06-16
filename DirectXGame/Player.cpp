@@ -28,7 +28,7 @@ void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 void Player::Update() {
 	InputMove();
 
-	// --- X方向のみ移動・補正 ---
+	// --- X方向のみ移動---
 	CollisionMapInfo colX;
 	colX.move = {velocity_.x, 0.0f, 0.0f};
 	CollisionMapCheck(colX);
@@ -37,7 +37,7 @@ void Player::Update() {
 		velocity_.x = 0;
 	}
 
-	// --- Y方向のみ移動・補正 ---
+	// --- Y方向のみ移動---
 	CollisionMapInfo colY;
 	colY.move = {0.0f, velocity_.y, 0.0f};
 	CollisionMapCheck(colY);
