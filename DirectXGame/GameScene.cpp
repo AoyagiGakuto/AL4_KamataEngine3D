@@ -39,17 +39,20 @@ void GameScene::Initialize() {
 
 	// プレイヤーの初期化
 	player_->Initialize(modelPlayer_, camera_, playerPosition);
+	player_->SetMapChipField(mapChipField_);
 
 	// カメラコントロールの初期化
 	cameraController_ = new CameraController();
 	cameraController_->SetTarget(player_);
+	CameraController::Rect cameraArea = {12.0f, 100-12.0f, 6.0f, 6.0f};
+	cameraController_->SetMovableArea(cameraArea);
 	cameraController_->Initialize();
 	cameraController_->Reset();
 }
 
 void GameScene::GenerateBlooks() {
 	// 要素数
-	uint32_t kNumBlockVertical = mapChipField_->GetNumBlockVirtical();
+	uint32_t kNumBlockVertical = mapChipField_->GetNumBlockVertical(); 
 	uint32_t kNumBlockHorizontal = mapChipField_->GetNumBlockHorizontal();
 
 	// 要素数を変更する
@@ -93,7 +96,6 @@ void GameScene::Update() {
 	player_->Update();
 	cameraController_->Update();
 
-#ifdef DEBUG
 	if (Input::GetInstance()->PushKey(DIK_O)) {
 		isDebugCameraActive_ = !isDebugCameraActive_;
 	}
@@ -107,7 +109,6 @@ void GameScene::Update() {
 		camera_->matProjection = cameraController_->GetViewProjection().matProjection;
 		camera_->TransferMatrix();
 	}
-#endif
 }
 
 //========================================
