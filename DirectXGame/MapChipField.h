@@ -14,13 +14,13 @@ struct MapChipData {
 	std::vector<std::vector<MapChipType>> data;
 };
 
-struct IndexSet {
-	uint32_t xIndex;
-	uint32_t yIndex;
-};
-
 class MapChipField {
 public:
+	struct IndexSet {
+		uint32_t xIndex;
+		uint32_t yIndex;
+	};
+
 	struct Rect {
 		float left;
 		float right;

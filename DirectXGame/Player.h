@@ -14,6 +14,7 @@ struct CollisionMapInfo {
 	bool isCollision = false;
 	bool isOnGround = false;
 	bool isHitWall = false;
+	bool isCeiling = false;
 	Vector3 move = {0.0f, 0.0f, 0.0f};
 };
 
@@ -25,13 +26,14 @@ public:
 	void Update();
 	void Draw();
 	void InputMove();
+	void AnimateTurn();
 	void CollisionMapCheck(CollisionMapInfo& Info);
 
 	void CheckMapCollision(CollisionMapInfo& Info);
 	void CheckMapCollisionUp(CollisionMapInfo& Info);
-	//void CheckMapCollisionDown(CollisionMapInfo& Info);
-	//void CheckMapCollisionLeft(CollisionMapInfo& Info);
-	//void CheckMapCollisionRight(CollisionMapInfo& Info);
+	void CheckMapCollisionDown(CollisionMapInfo& Info);
+	void CheckMapCollisionLeft(CollisionMapInfo& Info);
+	void CheckMapCollisionRight(CollisionMapInfo& Info);
 
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
 	const Vector3& GetVelocity() const { return velocity_; }
@@ -40,6 +42,10 @@ public:
 	static inline const float kWidth = 0.8f;
 	static inline const float kHeight = 0.8f;
 	static inline const float kBlank = 0.1f;
+	static inline const float kTimeTurn = 0.3f;
+	static inline const float kGravityAcceleration = 0.01f;
+	static inline const float kLimitFallSpeed = 0.5f;
+	static inline const float kJumpAcceleration = 0.3f;
 
 private:
 	WorldTransform worldTransform_;
@@ -52,10 +58,6 @@ private:
 	LRDirection lrDirection_ = LRDirection::kRight;
 	float turnFirstRotationY_ = 0.0f;
 	float turnTimer_ = 0.0f;
-	static inline const float kTimeTurn = 0.3f;
-	static inline const float kGravityAcceleration = 0.01f;
-	static inline const float kLimitFallSpeed = 0.5f;
-	static inline const float kJumpAcceleration = 0.3f;
 	MapChipField* mapChipField_ = nullptr;
 };
 
