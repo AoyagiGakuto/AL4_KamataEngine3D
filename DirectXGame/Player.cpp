@@ -19,10 +19,10 @@ bool landing = false;
 void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	assert(model);
 	model_ = model;
-	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
-	worldTransform_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
 	camera_ = camera;
+	worldTransform_.Initialize();
+	worldTransform_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
 	OnGround_ = true;
 }
 void Player::Update() {
@@ -89,10 +89,13 @@ void Player::InputMove() {
 			velocity_ += acceleration;
 			velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
 		}
-		if (Input::GetInstance()->PushKey(DIK_UP)) {
-			velocity_.y = kJumpVelocity;
-			OnGround_ = false;
-			landing = false;
+
+		if (OnGround_) {
+			if (Input::GetInstance()->PushKey(DIK_UP)) {
+				velocity_.y = kJumpVelocity;
+				OnGround_ = false;
+				landing = false;
+			}
 		}
 	}
 }
