@@ -203,6 +203,33 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& Info) {
 	}
 }
 
+AABB Player::GetAABB() {
+	AABB aabb;
+
+	aabb.min = {
+		worldTransform_.translation_.x - Player::kWidth / 2.0f + Player::kBlank,
+		worldTransform_.translation_.y - Player::kHeight / 2.0f + Player::kBlank,
+		worldTransform_.translation_.z - Player::kWidth / 2.0f + Player::kBlank
+	};
+
+	aabb.max = {
+		worldTransform_.translation_.x + Player::kWidth / 2.0f - Player::kBlank,
+		worldTransform_.translation_.y + Player::kHeight / 2.0f - Player::kBlank,
+		worldTransform_.translation_.z + Player::kWidth / 2.0f - Player::kBlank
+	};
+
+	return aabb; 
+}
+
+Vector3 Player::GetWorldPosition() {
+	Vector3 worldPos;
+	worldPos.x = worldTransform_.translation_.x;
+	worldPos.y = worldTransform_.translation_.y + Player::kHeight / 2.0f; // プレイヤーの中心位置を考慮
+	worldPos.z = worldTransform_.translation_.z;
+	return worldPos; 
+}
+
+
 Vector3 CornerPosition(const Vector3& center, Corner corner) {
 	switch (corner) {
 	case kRightBottom:

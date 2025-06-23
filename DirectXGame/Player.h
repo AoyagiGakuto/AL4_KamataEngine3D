@@ -1,5 +1,6 @@
 #pragma once
 #include "KamataEngine.h"
+#include "MyMath.h"
 
 using namespace KamataEngine;
 
@@ -39,6 +40,8 @@ public:
 	const Vector3& GetVelocity() const { return velocity_; }
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
 
+	AABB GetAABB();
+
 	static inline const float kWidth = 0.8f;
 	static inline const float kHeight = 0.8f;
 	static inline const float kBlank = 0.1f;
@@ -59,6 +62,7 @@ private:
 	float turnFirstRotationY_ = 0.0f;
 	float turnTimer_ = 0.0f;
 	MapChipField* mapChipField_ = nullptr;
+	Vector3 GetWorldPosition();
 };
 
 Vector3 CornerPosition(const Vector3& center, Corner corner);
