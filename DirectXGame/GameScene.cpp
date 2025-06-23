@@ -48,6 +48,7 @@ void GameScene::Initialize() {
 	for (int32_t i = 0; i < 1; ++i) {
 		Enemy* newEnemy = new Enemy();
 		Vector3 enemyPosition = mapChipField_->GetMapPositionTypeByIndex(30 + i, 18);
+		enemyPosition.y -= MapChipField::kBlockHeight / 2.0f; // "kBlockHeight" を静的メンバーとしてアクセス  
 		newEnemy->Initialize(modelEnemy_, camera_, enemyPosition);
 		newEnemy->SetMapChipField(mapChipField_);
 		newEnemy->SetScale({0.4f, 0.4f, 0.4f});                          // Enemyの大きさを小さくする
