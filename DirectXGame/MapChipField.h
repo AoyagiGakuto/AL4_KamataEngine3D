@@ -38,10 +38,11 @@ public:
 
 	uint32_t GetNumBlockVertical() const { return kNumBlockVertical; }
 	uint32_t GetNumBlockHorizontal() const { return kNumBlockHorizontal; }
+	static inline const float kBlockHeight = 1.0f;
 
 private:
 	static inline const float kBlockWidth = 1.0f;
-	static inline const float kBlockHeight = 1.0f;
+	
 	static inline const uint32_t kNumBlockVertical = 20;
 	static inline const uint32_t kNumBlockHorizontal = 100;
 };

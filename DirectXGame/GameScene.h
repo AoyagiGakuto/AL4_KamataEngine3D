@@ -4,6 +4,7 @@
 #include "Skydome.h"
 #include "MapChipField.h"
 #include "Player.h"
+#include "Enemy.h"
 #include "CameraController.h"
 
 using namespace KamataEngine;
@@ -33,6 +34,8 @@ private:
 
 	Model* modelPlayer_ = nullptr;
 
+	Model* modelEnemy_ = nullptr;
+
 	// ワールドトランスフォーム
 	WorldTransform worldTransform_;
 
@@ -50,6 +53,8 @@ private:
 	void GenerateBlooks();
 
 	Player* player_ = nullptr;
+
+	Enemy* enemy_ = nullptr;	
 
 	CameraController* cameraController_ = nullptr;
 
