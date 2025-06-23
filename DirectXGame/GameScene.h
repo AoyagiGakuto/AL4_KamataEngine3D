@@ -54,7 +54,7 @@ private:
 
 	Player* player_ = nullptr;
 
-	Enemy* enemy_ = nullptr;	
+	std::list<Enemy*> enemies_;
 
 	CameraController* cameraController_ = nullptr;
 
