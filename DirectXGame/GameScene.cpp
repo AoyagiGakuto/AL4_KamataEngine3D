@@ -21,7 +21,7 @@ void GameScene::Initialize() {
 	mapChipField_ = new MapChipField();
 
 	player_ = new Player();
-	for (int32_t i = 0; i < 10; ++i) {
+	for (int32_t i = 0; i < 1; ++i) {
 		Enemy* newEnemy = new Enemy();
 		Vector3 enemyPosition = mapChipField_->GetMapPositionTypeByIndex(30 + i, 18);
 		newEnemy->Initialize(modelEnemy_, camera_, enemyPosition);
