@@ -31,5 +31,5 @@ private:
 	Model* model_ = nullptr;
 	Camera* camera_ = nullptr;
 	Vector3 velocity_ = {};
-	MapChipField* mapChipField_ = nullptr; // 追加
+	MapChipField* mapChipField_ = nullptr;
 };
