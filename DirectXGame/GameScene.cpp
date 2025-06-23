@@ -1,6 +1,7 @@
 #include "GameScene.h"
 #include "CameraController.h"
 #include "MyMath.h"
+#include <numbers>
 
 using namespace KamataEngine;
 
@@ -13,12 +14,14 @@ void GameScene::Initialize() {
 	modelCube_ = Model::CreateFromOBJ("block");
 	modelSkyDome_ = Model::CreateFromOBJ("SkyDome", true);
 	modelPlayer_ = Model::CreateFromOBJ("player");
+	modelEnemy_ = Model::CreateFromOBJ("Ninja");
 
 	// モデルの作成
 	model_ = Model::Create();
 	mapChipField_ = new MapChipField();
 
 	player_ = new Player();
+	enemy_ = new Enemy();
 
 	// マップチップデータの読み込み
 	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
@@ -35,11 +38,24 @@ void GameScene::Initialize() {
 	GenerateBlooks();
 
 	// 座標をマップチップ番号で指定
-	Vector3 playerPosition = mapChipField_->GetMapPositionTypeByIndex(1, 18);
+	Vector3 playerPosition = mapChipField_->GetMapPositionTypeByIndex(25, 18);
 
 	// プレイヤーの初期化
 	player_->Initialize(modelPlayer_, camera_, playerPosition);
 	player_->SetMapChipField(mapChipField_);
+
+	// 敵の初期化  
+    Vector3 enemyPosition = mapChipField_->GetMapPositionTypeByIndex(30, 18);  
+    enemyPosition.y -= MapChipField::kBlockHeight / 2.0f; // "kBlockHeight" を静的メンバーとしてアクセス  
+    enemy_->Initialize(modelEnemy_, camera_, enemyPosition);  
+    enemy_->SetMapChipField(mapChipField_);
+	enemy_->SetMapChipField(mapChipField_);
+
+	// Enemyの大きさを小さくする
+	enemy_->SetScale({0.4f, 0.4f, 0.4f});
+
+	// EnemyをPlayerとは逆方向に向ける
+	enemy_->SetRotationY(std::numbers::pi_v<float> * 3.0f / 2.0f);
 
 	// カメラコントロールの初期化
 	cameraController_ = new CameraController();
@@ -94,6 +110,7 @@ void GameScene::Update() {
 	}
 
 	player_->Update();
+	enemy_->Update();
 	cameraController_->Update();
 
 	if (Input::GetInstance()->PushKey(DIK_O)) {
@@ -136,6 +153,7 @@ void GameScene::Draw() {
 	modelSkyDome_->Draw(worldTransform_, *camera_);
 
 	player_->Draw();
+	enemy_->Draw();
 
 	// スプライト描画後処理
 	Model::PostDraw();
