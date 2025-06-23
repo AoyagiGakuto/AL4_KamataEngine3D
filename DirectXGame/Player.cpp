@@ -123,6 +123,11 @@ void Player::CollisionMapCheck(CollisionMapInfo& Info) {
 	CheckMapCollisionRight(Info);
 }
 
+void Player::OnCollision(const Enemy* enemy) {
+	(void)enemy;
+	velocity_ += Vector3(0.0f, kJumpAcceleration, 0.0f);
+}
+
 void Player::CheckMapCollision(CollisionMapInfo& Info) {
 	// 必要に応じて個別の方向だけ呼び出してもOK
 	CheckMapCollisionUp(Info);

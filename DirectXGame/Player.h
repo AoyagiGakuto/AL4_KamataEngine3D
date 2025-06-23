@@ -5,6 +5,7 @@
 using namespace KamataEngine;
 
 class MapChipField;
+class Enemy;
 
 enum class LRDirection {
 	kRight,
@@ -29,7 +30,7 @@ public:
 	void InputMove();
 	void AnimateTurn();
 	void CollisionMapCheck(CollisionMapInfo& Info);
-
+	void OnCollision(const Enemy* enemy);
 	void CheckMapCollision(CollisionMapInfo& Info);
 	void CheckMapCollisionUp(CollisionMapInfo& Info);
 	void CheckMapCollisionDown(CollisionMapInfo& Info);

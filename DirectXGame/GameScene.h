@@ -19,6 +19,7 @@ public:
 
 	// 更新
 	void Update();
+	void CheckAllCollisions();
 
 	// 描画
 	void Draw();

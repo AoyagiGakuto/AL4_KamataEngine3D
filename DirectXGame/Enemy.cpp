@@ -39,3 +39,23 @@ void Enemy::Draw() {
 		model_->Draw(worldTransform_, *camera_);
 	}
 }
+
+void Enemy::OnCollision(const Player* player) { (void)player; }
+
+AABB Enemy::GetAABB() {
+	AABB aabb;
+
+	aabb.min = {
+		worldTransform_.translation_.x - Enemy::kWidth / 2.0f,
+		worldTransform_.translation_.y - Enemy::kHeight / 2.0f,
+	    worldTransform_.translation_.z - Enemy::kWidth / 2.0f
+	};
+
+	aabb.max = {
+	    worldTransform_.translation_.x + Enemy::kWidth / 2.0f, 
+		worldTransform_.translation_.y + Enemy::kHeight / 2.0f,
+	    worldTransform_.translation_.z + Enemy::kWidth / 2.0f
+	};
+
+	return aabb;
+}
