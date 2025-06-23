@@ -21,7 +21,15 @@ void GameScene::Initialize() {
 	mapChipField_ = new MapChipField();
 
 	player_ = new Player();
-	enemy_ = new Enemy();
+	for (int32_t i = 0; i < 10; ++i) {
+		Enemy* newEnemy = new Enemy();
+		Vector3 enemyPosition = mapChipField_->GetMapPositionTypeByIndex(30 + i, 18);
+		newEnemy->Initialize(modelEnemy_, camera_, enemyPosition);
+		newEnemy->SetMapChipField(mapChipField_);
+		newEnemy->SetScale({0.4f, 0.4f, 0.4f}); // Enemyの大きさを小さくする
+		newEnemy->SetRotationY(std::numbers::pi_v<float> * 3.0f / 2.0f); // EnemyをPlayerとは逆方向に向ける
+		enemies_.push_back(newEnemy);
+	}
 
 	// マップチップデータの読み込み
 	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
@@ -44,18 +52,7 @@ void GameScene::Initialize() {
 	player_->Initialize(modelPlayer_, camera_, playerPosition);
 	player_->SetMapChipField(mapChipField_);
 
-	// 敵の初期化  
-    Vector3 enemyPosition = mapChipField_->GetMapPositionTypeByIndex(30, 18);  
-    enemyPosition.y -= MapChipField::kBlockHeight / 2.0f; // "kBlockHeight" を静的メンバーとしてアクセス  
-    enemy_->Initialize(modelEnemy_, camera_, enemyPosition);  
-    enemy_->SetMapChipField(mapChipField_);
-	enemy_->SetMapChipField(mapChipField_);
-
-	// Enemyの大きさを小さくする
-	enemy_->SetScale({0.4f, 0.4f, 0.4f});
-
-	// EnemyをPlayerとは逆方向に向ける
-	enemy_->SetRotationY(std::numbers::pi_v<float> * 3.0f / 2.0f);
+    //enemyPosition.y -= MapChipField::kBlockHeight / 2.0f; // "kBlockHeight" を静的メンバーとしてアクセス  
 
 	// カメラコントロールの初期化
 	cameraController_ = new CameraController();
@@ -110,7 +107,11 @@ void GameScene::Update() {
 	}
 
 	player_->Update();
-	enemy_->Update();
+	
+	for(Enemy* enemy : enemies_) {
+		enemy->Update();
+	}
+
 	cameraController_->Update();
 
 	if (Input::GetInstance()->PushKey(DIK_O)) {
@@ -153,7 +154,10 @@ void GameScene::Draw() {
 	modelSkyDome_->Draw(worldTransform_, *camera_);
 
 	player_->Draw();
-	enemy_->Draw();
+	
+	for (Enemy* enemy : enemies_) {
+		enemy->Draw();
+	}
 
 	// スプライト描画後処理
 	Model::PostDraw();
@@ -171,6 +175,10 @@ GameScene::~GameScene() {
 	delete debugCamera_;
 	delete cameraController_;
 	delete mapChipField_;
+	delete player_;
+	for (Enemy* enemy : enemies_) {
+		delete enemy;
+	}
 
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
