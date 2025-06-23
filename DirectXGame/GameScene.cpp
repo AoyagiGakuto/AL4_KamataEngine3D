@@ -21,15 +21,6 @@ void GameScene::Initialize() {
 	mapChipField_ = new MapChipField();
 
 	player_ = new Player();
-	for (int32_t i = 0; i < 1; ++i) {
-		Enemy* newEnemy = new Enemy();
-		Vector3 enemyPosition = mapChipField_->GetMapPositionTypeByIndex(30 + i, 18);
-		newEnemy->Initialize(modelEnemy_, camera_, enemyPosition);
-		newEnemy->SetMapChipField(mapChipField_);
-		newEnemy->SetScale({0.4f, 0.4f, 0.4f}); // Enemyの大きさを小さくする
-		newEnemy->SetRotationY(std::numbers::pi_v<float> * 3.0f / 2.0f); // EnemyをPlayerとは逆方向に向ける
-		enemies_.push_back(newEnemy);
-	}
 
 	// マップチップデータの読み込み
 	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
@@ -52,12 +43,23 @@ void GameScene::Initialize() {
 	player_->Initialize(modelPlayer_, camera_, playerPosition);
 	player_->SetMapChipField(mapChipField_);
 
-    //enemyPosition.y -= MapChipField::kBlockHeight / 2.0f; // "kBlockHeight" を静的メンバーとしてアクセス  
+	// enemyPosition.y -= MapChipField::kBlockHeight / 2.0f; // "kBlockHeight" を静的メンバーとしてアクセス
+
+	for (int32_t i = 0; i < 1; ++i) {
+		Enemy* newEnemy = new Enemy();
+		Vector3 enemyPosition = mapChipField_->GetMapPositionTypeByIndex(30 + i, 18);
+		enemyPosition.y -= MapChipField::kBlockHeight / 2.0f; // "kBlockHeight" を静的メンバーとしてアクセス
+		newEnemy->Initialize(modelEnemy_, camera_, enemyPosition);
+		newEnemy->SetMapChipField(mapChipField_);
+		newEnemy->SetScale({0.4f, 0.4f, 0.4f});                          // Enemyの大きさを小さくする
+		newEnemy->SetRotationY(std::numbers::pi_v<float> * 3.0f / 2.0f); // EnemyをPlayerとは逆方向に向ける
+		enemies_.push_back(newEnemy);
+	}
 
 	// カメラコントロールの初期化
 	cameraController_ = new CameraController();
 	cameraController_->SetTarget(player_);
-	CameraController::Rect cameraArea = {12.0f, 100-12.0f, 6.0f, 6.0f};
+	CameraController::Rect cameraArea = {12.0f, 100 - 12.0f, 6.0f, 6.0f};
 	cameraController_->SetMovableArea(cameraArea);
 	cameraController_->Initialize();
 	cameraController_->Reset();
@@ -65,7 +67,7 @@ void GameScene::Initialize() {
 
 void GameScene::GenerateBlooks() {
 	// 要素数
-	uint32_t kNumBlockVertical = mapChipField_->GetNumBlockVertical(); 
+	uint32_t kNumBlockVertical = mapChipField_->GetNumBlockVertical();
 	uint32_t kNumBlockHorizontal = mapChipField_->GetNumBlockHorizontal();
 
 	// 要素数を変更する
@@ -107,8 +109,8 @@ void GameScene::Update() {
 	}
 
 	player_->Update();
-	
-	for(Enemy* enemy : enemies_) {
+
+	for (Enemy* enemy : enemies_) {
 		enemy->Update();
 	}
 
@@ -127,6 +129,24 @@ void GameScene::Update() {
 		camera_->matProjection = cameraController_->GetViewProjection().matProjection;
 		camera_->TransferMatrix();
 	}
+}
+
+void GameScene::CheckAllCollisions() {
+#pragma region 自キャラと敵キャラの当たり判定
+	AABB aabb1, aabb2;
+	aabb1 = player_->GetAABB();
+	for (Enemy* enemy : enemies_) {
+		aabb2 = enemy->GetAABB();
+		// AABBの交差判定
+		if (aabb1.min.x < aabb2.max.x && aabb1.max.x > aabb2.min.x &&
+			aabb1.min.y < aabb2.max.y && aabb1.max.y > aabb2.min.y &&
+			aabb1.min.z < aabb2.max.z && aabb1.max.z > aabb2.min.z) {
+			// 当たった場合の処理
+			player_->OnCollision(enemy);
+			enemy->OnCollision(player_);
+		}
+	}
+#pragma endregion 自キャラと敵キャラの当たり判定
 }
 
 //========================================
@@ -154,7 +174,7 @@ void GameScene::Draw() {
 	modelSkyDome_->Draw(worldTransform_, *camera_);
 
 	player_->Draw();
-	
+
 	for (Enemy* enemy : enemies_) {
 		enemy->Draw();
 	}

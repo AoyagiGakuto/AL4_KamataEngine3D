@@ -1,9 +1,11 @@
 #pragma once
 #include "KamataEngine.h"
+#include "MyMath.h"
 
 using namespace KamataEngine;
 
 class MapChipField;
+class Enemy;
 
 enum class LRDirection {
 	kRight,
@@ -28,7 +30,7 @@ public:
 	void InputMove();
 	void AnimateTurn();
 	void CollisionMapCheck(CollisionMapInfo& Info);
-
+	void OnCollision(const Enemy* enemy);
 	void CheckMapCollision(CollisionMapInfo& Info);
 	void CheckMapCollisionUp(CollisionMapInfo& Info);
 	void CheckMapCollisionDown(CollisionMapInfo& Info);
@@ -38,6 +40,8 @@ public:
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
 	const Vector3& GetVelocity() const { return velocity_; }
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
+
+	AABB GetAABB();
 
 	static inline const float kWidth = 0.8f;
 	static inline const float kHeight = 0.8f;
@@ -59,6 +63,7 @@ private:
 	float turnFirstRotationY_ = 0.0f;
 	float turnTimer_ = 0.0f;
 	MapChipField* mapChipField_ = nullptr;
+	Vector3 GetWorldPosition();
 };
 
 Vector3 CornerPosition(const Vector3& center, Corner corner);
