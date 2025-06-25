@@ -113,6 +113,8 @@ void GameScene::Update() {
 	for (Enemy* enemy : enemies_) {
 		enemy->Update();
 	}
+	// ここで衝突判定を呼び出す
+	CheckAllCollisions();
 
 	cameraController_->Update();
 
