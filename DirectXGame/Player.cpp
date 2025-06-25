@@ -116,6 +116,7 @@ void Player::AnimateTurn() {
 	}
 }
 
+
 void Player::CollisionMapCheck(CollisionMapInfo& Info) {
 	CheckMapCollisionDown(Info);
 	CheckMapCollisionUp(Info);
