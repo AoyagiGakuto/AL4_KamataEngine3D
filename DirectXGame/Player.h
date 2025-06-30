@@ -6,6 +6,7 @@ using namespace KamataEngine;
 
 class MapChipField;
 class Enemy;
+class DearthParticles;
 
 enum class LRDirection {
 	kRight,
@@ -56,6 +57,7 @@ private:
 	Model* model_ = nullptr;
 	bool OnGround_ = true;
 	Camera* camera_ = nullptr;
+    DearthParticles* dearthParticles = nullptr;
 	uint32_t textureHandle_ = 0u;
 	Vector3 velocity_ = {};
 	float kAcceleration = 0.1f;
