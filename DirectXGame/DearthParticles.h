@@ -1,29 +1,44 @@
-#pragma once  
-#include "Player.h"  
-#include "MapChipField.h"  
-#include "MyMath.h"  
-#include <algorithm>  
-#include <array>  
-#include <numbers>  
+#pragma once
+#include "MapChipField.h"
+#include "MyMath.h"
+#include "Player.h"
+#include <algorithm>
+#include <numbers>
+#include <vector>
+#include <array>
 
-struct Particle {  
-	WorldTransform transform;  
-	Vector3 velocity;  
-	float life; // 残り寿命  
-};  
+using namespace KamataEngine;
 
-class DearthParticles {  
-public:  
-	void Initialize(Model* model);  
-	void Update();  
-	void Draw();  
+struct Particle {
+	Vector3 velocity;
+	float life; // 残り寿命
+};
 
-	// 8方向にパーティクルを生成  
-	void Emit8Directions(const Vector3& position, float speed, float life);  
+struct WouldTransform {
+	WorldTransform transform_;
+	Vector3 translation_;
 
-private:  
+	void initialize() {
+		transform_.Initialize();
+		translation_ = {0, 0, 0};
+	}
+};
+
+class DearthParticles {
+public:
+	void Initialize(Model* model, Camera* camera, const Vector3& position);
+	void Update();
+	void Draw();
+
+	void Emit8Directions(const KamataEngine::Vector3& position, float speed, float life);
+
+	void SetCamera(KamataEngine::Camera* camera) { camera_ = camera; }
+
+private:
+	WorldTransform worldTransform_;
 	std::vector<Particle> particles_;
-	Camera* camera_ = nullptr;
-	Model* model_ = nullptr;  
-	DearthParticles* dearthParticles_ = nullptr;  
+	KamataEngine::Camera* camera_ = nullptr;
+	KamataEngine::Model* model_ = nullptr;
+	static inline const uint32_t kNumParticles = 8;
+	std::array<WouldTransform, kNumParticles> wouldTransforms_;
 };
