@@ -2,6 +2,7 @@
 #include "Player.h"
 #include "MapChipField.h"
 #include "MyMath.h"
+#include "DearthParticles.h"
 #include <algorithm>
 #include <array>
 #include <numbers>
@@ -126,7 +127,9 @@ void Player::CollisionMapCheck(CollisionMapInfo& Info) {
 
 void Player::OnCollision(const Enemy* enemy) {
 	(void)enemy;
-	velocity_ += Vector3(0.0f, kJumpAcceleration, 0.0f);
+	if (dearthParticles) {
+		dearthParticles->Update();
+	}
 }
 
 void Player::CheckMapCollision(CollisionMapInfo& Info) {

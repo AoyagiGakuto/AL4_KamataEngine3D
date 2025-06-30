@@ -37,6 +37,8 @@ private:
 
 	Model* modelEnemy_ = nullptr;
 
+	Model* modelDearthParticles_ = nullptr;
+
 	// ワールドトランスフォーム
 	WorldTransform worldTransform_;
 

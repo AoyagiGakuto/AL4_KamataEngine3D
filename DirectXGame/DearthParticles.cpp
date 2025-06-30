@@ -1,17 +1,22 @@
 #include "DearthParticles.h"
 #include <numbers>
 
-void DearthParticles::Initialize(Model* model) {
+void DearthParticles::Initialize(Model* model, Camera* camera, const Vector3& position) {
+	assert(model);
     model_ = model;
-    particles_.clear();
+	camera_ = camera;
+	for (WouldTransform& wouldTransform : wouldTransforms_) {
+		wouldTransform.initialize();
+		worldTransform_.translation_ = position;
+    }
 }
 
 void DearthParticles::Update() {
     // パーティクルの更新
     for (auto& p : particles_) {
-        p.transform.translation_.x += p.velocity.x;
-        p.transform.translation_.y += p.velocity.y;
-        p.transform.translation_.z += p.velocity.z;
+		worldTransform_.translation_.x += p.velocity.x;
+		worldTransform_.translation_.y += p.velocity.y;
+		worldTransform_.translation_.z += p.velocity.z;
         p.life -= 1.0f / 60.0f; // 60FPS想定
     }
     // 寿命が尽きたパーティクルを削除
@@ -22,11 +27,19 @@ void DearthParticles::Update() {
     );
 }
 
-void DearthParticles::Draw() {
-if (!model_) return;
-    for (const auto& p : particles_) {
-        model_->Draw(p.transform, *camera_);
-    }
+void DearthParticles::Draw() {  
+    if (!model_) return;  
+    for (const auto& p : particles_) {  
+        // パーティクルの位置を反映して描画  
+        WorldTransform particleTransform;  
+        particleTransform.scale_ = worldTransform_.scale_;  
+        particleTransform.rotation_ = worldTransform_.rotation_;  
+        particleTransform.translation_ = worldTransform_.translation_;  
+        particleTransform.translation_.x += p.velocity.x;  
+        particleTransform.translation_.y += p.velocity.y;  
+        particleTransform.translation_.z += p.velocity.z;  
+        model_->Draw(particleTransform, *camera_);  
+    }  
 }
 
 void DearthParticles::Emit8Directions(const Vector3& position, float speed, float life) {
@@ -39,7 +52,7 @@ void DearthParticles::Emit8Directions(const Vector3& position, float speed, floa
             0.0f // 2DならZは0
         };
         Particle p;
-        p.transform.translation_ = position;
+		worldTransform_.translation_ = position;
         p.velocity = vel;
         p.life = life;
         particles_.push_back(p);
