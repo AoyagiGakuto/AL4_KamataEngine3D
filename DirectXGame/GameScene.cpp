@@ -43,16 +43,17 @@ void GameScene::Initialize() {
 	player_->Initialize(modelPlayer_, camera_, playerPosition);
 	player_->SetMapChipField(mapChipField_);
 
-	// enemyPosition.y -= MapChipField::kBlockHeight / 2.0f; // "kBlockHeight" を静的メンバーとしてアクセス
-
-	for (int32_t i = 0; i < 1; ++i) {
+	// 敵を複数体配置
+	const int enemyCount = 5;
+	for (int32_t i = 0; i < enemyCount; ++i) {
 		Enemy* newEnemy = new Enemy();
-		Vector3 enemyPosition = mapChipField_->GetMapPositionTypeByIndex(30 + i, 18);
-		enemyPosition.y -= MapChipField::kBlockHeight / 2.0f; // "kBlockHeight" を静的メンバーとしてアクセス
+		// x座標をずらして配置
+		Vector3 enemyPosition = mapChipField_->GetMapPositionTypeByIndex(30 + i * 2, 18);
+		enemyPosition.y -= MapChipField::kBlockHeight / 2.0f;
 		newEnemy->Initialize(modelEnemy_, camera_, enemyPosition);
 		newEnemy->SetMapChipField(mapChipField_);
-		newEnemy->SetScale({0.4f, 0.4f, 0.4f});                          // Enemyの大きさを小さくする
-		newEnemy->SetRotationY(std::numbers::pi_v<float> * 3.0f / 2.0f); // EnemyをPlayerとは逆方向に向ける
+		newEnemy->SetScale({0.4f, 0.4f, 0.4f});
+		newEnemy->SetRotationY(std::numbers::pi_v<float> * 3.0f / 2.0f);
 		enemies_.push_back(newEnemy);
 	}
 
