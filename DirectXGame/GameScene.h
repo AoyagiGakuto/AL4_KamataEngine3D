@@ -31,6 +31,9 @@ private:
 	Model* modelCube_ = nullptr;
 	Model* modelSkyDome_ = nullptr;
 
+	int particleTimer_ = 0;
+	int particleInterval_ = 10; // 10フレームごとに発射
+
 	// スプライト
 	Model* model_ = nullptr;
 

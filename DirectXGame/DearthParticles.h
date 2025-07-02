@@ -27,9 +27,7 @@ struct WouldTransform {
 
 class DearthParticles {
 public:
-	// コンストラクタでモデルを受け取る
-	DearthParticles(Model* model);
-	void Initialize(Camera* camera, const Vector3& position);
+	void Initialize(Model* model,Camera* camera, const Vector3& position);
 	void Update();
 	void Draw();
 	void Emit8Directions(const KamataEngine::Vector3& position, float speed, float life);
@@ -39,9 +37,10 @@ private:
 	ObjectColor objectColor_;
 	Vector4 color_;
 	WorldTransform worldTransform_;
+	Vector4 whiteColor = {1.0f, 1.0f, 1.0f, 1.0f};
 	std::vector<Particle> particles_;
-	KamataEngine::Camera* camera_ = nullptr;
-	KamataEngine::Model* model_ = nullptr;
+	Camera* camera_ = nullptr;
+	Model* model_ = nullptr;
 	static inline const uint32_t kNumParticles = 8;
 	std::array<WouldTransform, kNumParticles> wouldTransforms_;
 	bool isFinished_ = false; // パーティクルが終了したかどうか
@@ -49,5 +48,5 @@ private:
 	static inline const float kDuration = 1.0f; // パーティクルの寿命
 	static inline const float kspeed = 0.1f;     // パーティクルの速度
 	static inline const float kAngleUnit = //2π/ 分割数　
-	    std::numbers::pi_v<float> / 4.0f;        // 45度ずつの角度
+	std::numbers::pi_v<float> / 4.0f;        // 45度ずつの角度
 };

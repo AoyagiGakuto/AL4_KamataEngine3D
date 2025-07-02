@@ -1,18 +1,15 @@
 #include "DearthParticles.h"
-#include <algorithm> // std::remove_if, std::clamp
+#include <algorithm>
 #include <numbers>
 
-DearthParticles::DearthParticles(Model* model) {
+void DearthParticles::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	assert(model);
 	model_ = model;
-}
-
-void DearthParticles::Initialize(Camera* camera, const Vector3& position) {
 	camera_ = camera;
 	worldTransform_.translation_ = position;
 	worldTransform_.Initialize();
-	objectColor_.Initialize();
 	color_ = {1.0f, 1.0f, 1.0f, 1.0f};
+	objectColor_.Initialize();
 	isFinished_ = false;
 	counter_ = 0.0f;
 	particles_.clear();
@@ -26,12 +23,27 @@ void DearthParticles::Update() {
 		p.position.z += p.velocity.z;
 		p.life -= 1.0f / 60.0f; // 60FPS想定
 	}
+
+	// wouldTransforms_をparticles_に合わせて更新
+	for (size_t i = 0; i < wouldTransforms_.size(); ++i) {
+		if (i < particles_.size()) {
+			wouldTransforms_[i].translation_ = particles_[i].position;
+			wouldTransforms_[i].transform_.translation_ = particles_[i].position;
+			wouldTransforms_[i].transform_.Initialize();
+		} else {
+			// パーティクルが足りない場合は無効な位置にするなど
+			wouldTransforms_[i].translation_ = {0, 0, 0};
+			wouldTransforms_[i].transform_.translation_ = {0, 0, 0};
+			wouldTransforms_[i].transform_.Initialize();
+		}
+	}
+
+	color_.w = std::clamp(counter_ / kDuration, 0.0f, 1.0f);
+
+	objectColor_.SetColor(color_);
+
 	// 寿命が尽きたパーティクルを削除
-	particles_.erase(
-		std::remove_if(particles_.begin(), particles_.end(),
-			[](const Particle& p) { return p.life <= 0.0f; }),
-		particles_.end()
-	);
+	particles_.erase(std::remove_if(particles_.begin(), particles_.end(), [](const Particle& p) { return p.life <= 0.0f; }), particles_.end());
 
 	counter_ += 1.0f / 60.0f;
 	if (counter_ >= kDuration) {
@@ -39,22 +51,14 @@ void DearthParticles::Update() {
 		isFinished_ = true;
 	}
 
-	color_.w = std::clamp(color_.w - 0.01f, 0.0f, 1.0f); // 色の透明度を減少
-	objectColor_.SetColor(color_);
-
 	if (isFinished_) {
 		return;
 	}
 }
 
 void DearthParticles::Draw() {
-	if (!model_ || !camera_)
-		return;
-	for (const auto& p : particles_) {
-		WorldTransform wt;
-		wt.translation_ = p.position;
-		wt.Initialize();
-		model_->Draw(wt, *camera_, &objectColor_);
+	for (auto& worldTransform : wouldTransforms_) {
+		model_->Draw(worldTransform.transform_, *camera_, &objectColor_);
 	}
 }
 
@@ -66,9 +70,8 @@ void DearthParticles::Emit8Directions(const Vector3& position, float speed, floa
 	for (int i = 0; i < 8; ++i) {
 		float angle = i * (pi_v<float> / 4.0f); // 45度ずつ
 		Vector3 vel = {
-			std::cos(angle) * speed,
-			std::sin(angle) * speed,
-			0.0f // 2DならZは0
+		    std::cos(angle) * speed, std::sin(angle) * speed,
+		    0.0f // 2DならZは0
 		};
 		Particle p;
 		p.position = position;

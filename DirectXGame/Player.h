@@ -40,7 +40,7 @@ public:
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
 	const Vector3& GetVelocity() const { return velocity_; }
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
-
+	Vector3 GetPosition() const { return worldTransform_.translation_; }
 	AABB GetAABB();
 
 	static inline const float kWidth = 0.8f;

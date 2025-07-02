@@ -17,8 +17,8 @@ void GameScene::Initialize() {
 	modelEnemy_ = Model::CreateFromOBJ("Ninja");
 	modelDearthParticles_ = Model::CreateFromOBJ("block");
 
-	//dearthParticles
-	// モデルの作成
+	// dearthParticles
+	//  モデルの作成
 	model_ = Model::Create();
 	mapChipField_ = new MapChipField();
 
@@ -33,10 +33,6 @@ void GameScene::Initialize() {
 	// カメラのインスタンス作成
 	camera_ = new Camera();
 
-	debugCamera_ = new DebugCamera();
-
-	dearthParticles_ = new DearthParticles(modelDearthParticles_);
-	
 	// カメラの初期化
 	camera_->Initialize();
 
@@ -46,9 +42,12 @@ void GameScene::Initialize() {
 	Vector3 playerPosition = mapChipField_->GetMapPositionTypeByIndex(25, 18);
 
 	// プレイヤーの初期化
-	player_->Initialize(modelPlayer_, camera_, playerPosition); 
+	player_->Initialize(modelPlayer_, camera_, playerPosition);
 
 	player_->SetMapChipField(mapChipField_);
+
+	dearthParticles_ = new DearthParticles;
+	dearthParticles_->Initialize(modelDearthParticles_, camera_, playerPosition);
 
 	// enemyPosition.y -= MapChipField::kBlockHeight / 2.0f; // "kBlockHeight" を静的メンバーとしてアクセス
 
@@ -117,6 +116,14 @@ void GameScene::Update() {
 
 	player_->Update();
 
+	Vector3 playerPos = player_->GetPosition();
+	particleTimer_++;
+
+	if (particleTimer_ >= particleInterval_) {
+		dearthParticles_->Emit8Directions(playerPos, 0.2f, 1.0f);
+		particleTimer_ = 0;
+	}
+
 	dearthParticles_->Update();
 
 	for (Enemy* enemy : enemies_) {
@@ -150,9 +157,7 @@ void GameScene::CheckAllCollisions() {
 	for (Enemy* enemy : enemies_) {
 		aabb2 = enemy->GetAABB();
 		// AABBの交差判定
-		if (aabb1.min.x < aabb2.max.x && aabb1.max.x > aabb2.min.x &&
-			aabb1.min.y < aabb2.max.y && aabb1.max.y > aabb2.min.y &&
-			aabb1.min.z < aabb2.max.z && aabb1.max.z > aabb2.min.z) {
+		if (aabb1.min.x < aabb2.max.x && aabb1.max.x > aabb2.min.x && aabb1.min.y < aabb2.max.y && aabb1.max.y > aabb2.min.y && aabb1.min.z < aabb2.max.z && aabb1.max.z > aabb2.min.z) {
 			// 当たった場合の処理
 			player_->OnCollision(enemy);
 			enemy->OnCollision(player_);
