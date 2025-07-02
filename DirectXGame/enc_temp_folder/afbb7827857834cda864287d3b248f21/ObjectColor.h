@@ -28,7 +28,7 @@ public:
 	/// <summary>
 	/// アクセッサ
 	/// </summary>
-	//void SetColor(const Vector4& color) { constMap_->color_ = color; }
+	void SetColor(const Vector4& color) { constMap_->color_ = color; }
 
 	const Vector4& GetColor() const { return constMap_->color_; }
 

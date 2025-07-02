@@ -14,6 +14,7 @@ void DearthParticles::Initialize(Camera* camera, const Vector3& position) {
 	objectColor_.Initialize();
 	color_ = {1.0f, 1.0f, 1.0f, 1.0f};
 	isFinished_ = false;
+	objectColor_.Initialize();
 	counter_ = 0.0f;
 	particles_.clear();
 }

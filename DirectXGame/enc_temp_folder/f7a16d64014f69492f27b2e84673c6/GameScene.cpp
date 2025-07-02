@@ -33,8 +33,6 @@ void GameScene::Initialize() {
 	// カメラのインスタンス作成
 	camera_ = new Camera();
 
-	debugCamera_ = new DebugCamera();
-
 	dearthParticles_ = new DearthParticles(modelDearthParticles_);
 	
 	// カメラの初期化

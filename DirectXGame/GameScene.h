@@ -4,6 +4,7 @@
 #include "Skydome.h"
 #include "MapChipField.h"
 #include "Player.h"
+#include "DearthParticles.h"
 #include "Enemy.h"
 #include "CameraController.h"
 
@@ -37,6 +38,8 @@ private:
 
 	Model* modelEnemy_ = nullptr;
 
+    DearthParticles* dearthParticles_ = nullptr;
+    
 	Model* modelDearthParticles_ = nullptr;
 
 	// ワールドトランスフォーム
