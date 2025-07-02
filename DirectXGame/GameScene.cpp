@@ -17,8 +17,8 @@ void GameScene::Initialize() {
 	modelEnemy_ = Model::CreateFromOBJ("Ninja");
 	modelDearthParticles_ = Model::CreateFromOBJ("block");
 
-	//dearthParticles
-	// モデルの作成
+	// dearthParticles
+	//  モデルの作成
 	model_ = Model::Create();
 	mapChipField_ = new MapChipField();
 
@@ -43,7 +43,11 @@ void GameScene::Initialize() {
 
 	// プレイヤーの初期化
 	player_->Initialize(modelPlayer_, camera_, playerPosition);
+
 	player_->SetMapChipField(mapChipField_);
+
+	dearthParticles_ = new DearthParticles;
+	dearthParticles_->Initialize(modelDearthParticles_, camera_, playerPosition);
 
 	// enemyPosition.y -= MapChipField::kBlockHeight / 2.0f; // "kBlockHeight" を静的メンバーとしてアクセス
 
@@ -112,9 +116,20 @@ void GameScene::Update() {
 
 	player_->Update();
 
+	Vector3 playerPos = player_->GetPosition();
+	particleTimer_++;
+
+	if (particleTimer_ >= particleInterval_) {
+		dearthParticles_->Emit8Directions(playerPos, 0.2f, 1.0f);
+		particleTimer_ = 0;
+	}
+
+	dearthParticles_->Update();
+
 	for (Enemy* enemy : enemies_) {
 		enemy->Update();
 	}
+
 	// ここで衝突判定を呼び出す
 	CheckAllCollisions();
 
@@ -142,9 +157,7 @@ void GameScene::CheckAllCollisions() {
 	for (Enemy* enemy : enemies_) {
 		aabb2 = enemy->GetAABB();
 		// AABBの交差判定
-		if (aabb1.min.x < aabb2.max.x && aabb1.max.x > aabb2.min.x &&
-			aabb1.min.y < aabb2.max.y && aabb1.max.y > aabb2.min.y &&
-			aabb1.min.z < aabb2.max.z && aabb1.max.z > aabb2.min.z) {
+		if (aabb1.min.x < aabb2.max.x && aabb1.max.x > aabb2.min.x && aabb1.min.y < aabb2.max.y && aabb1.max.y > aabb2.min.y && aabb1.min.z < aabb2.max.z && aabb1.max.z > aabb2.min.z) {
 			// 当たった場合の処理
 			player_->OnCollision(enemy);
 			enemy->OnCollision(player_);
@@ -180,9 +193,7 @@ void GameScene::Draw() {
 	player_->Draw();
 
 	// パーティクルの描画を追加
-	if (player_->dearthParticles) {
-		player_->dearthParticles->Draw();
-	}
+	dearthParticles_->Draw();
 
 	for (Enemy* enemy : enemies_) {
 		enemy->Draw();
@@ -202,6 +213,8 @@ GameScene::~GameScene() {
 	delete modelCube_;
 	delete modelSkyDome_;
 	delete modelDearthParticles_;
+	delete dearthParticles_;
+	dearthParticles_ = nullptr;
 	delete debugCamera_;
 	delete cameraController_;
 	delete mapChipField_;

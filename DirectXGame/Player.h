@@ -6,7 +6,6 @@ using namespace KamataEngine;
 
 class MapChipField;
 class Enemy;
-class DearthParticles;
 
 enum class LRDirection {
 	kRight,
@@ -41,7 +40,7 @@ public:
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
 	const Vector3& GetVelocity() const { return velocity_; }
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
-
+	Vector3 GetPosition() const { return worldTransform_.translation_; }
 	AABB GetAABB();
 
 	static inline const float kWidth = 0.8f;
@@ -57,7 +56,6 @@ private:
 	Model* model_ = nullptr;
 	bool OnGround_ = true;
 	Camera* camera_ = nullptr;
-    DearthParticles* dearthParticles = nullptr;
 	uint32_t textureHandle_ = 0u;
 	Vector3 velocity_ = {};
 	float kAcceleration = 0.1f;

@@ -4,6 +4,7 @@
 #include "Skydome.h"
 #include "MapChipField.h"
 #include "Player.h"
+#include "DearthParticles.h"
 #include "Enemy.h"
 #include "CameraController.h"
 
@@ -30,6 +31,9 @@ private:
 	Model* modelCube_ = nullptr;
 	Model* modelSkyDome_ = nullptr;
 
+	int particleTimer_ = 0;
+	int particleInterval_ = 10; // 10フレームごとに発射
+
 	// スプライト
 	Model* model_ = nullptr;
 
@@ -37,6 +41,8 @@ private:
 
 	Model* modelEnemy_ = nullptr;
 
+    DearthParticles* dearthParticles_ = nullptr;
+    
 	Model* modelDearthParticles_ = nullptr;
 
 	// ワールドトランスフォーム

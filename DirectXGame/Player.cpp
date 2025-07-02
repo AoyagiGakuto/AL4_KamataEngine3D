@@ -127,9 +127,6 @@ void Player::CollisionMapCheck(CollisionMapInfo& Info) {
 
 void Player::OnCollision(const Enemy* enemy) {
 	(void)enemy;
-	if (dearthParticles) {
-		dearthParticles->Update();
-	}
 }
 
 void Player::CheckMapCollision(CollisionMapInfo& Info) {
