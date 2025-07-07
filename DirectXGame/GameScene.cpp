@@ -17,7 +17,6 @@ void GameScene::Initialize() {
 	modelEnemy_ = Model::CreateFromOBJ("Ninja");
 	modelDearthParticles_ = Model::CreateFromOBJ("block");
 
-	// dearthParticles
 	//  モデルの作成
 	model_ = Model::Create();
 	mapChipField_ = new MapChipField();
