@@ -119,12 +119,17 @@ void GameScene::Update() {
 	Vector3 playerPos = player_->GetPosition();
 	particleTimer_++;
 
-	if (particleTimer_ >= particleInterval_) {
-		dearthParticles_->Emit8Directions(playerPos, 0.2f, 1.0f);
+	// プレイヤーの位置を取得
+	if (player_ && dearthParticles_) {
+		// 毎フレームパーティクルを発生
+		dearthParticles_->Emit8Directions(playerPos, 0.1f, 1.0f);
 		particleTimer_ = 0;
 	}
 
-	dearthParticles_->Update();
+	// パーティクルの更新
+	if (dearthParticles_) {
+		dearthParticles_->Update();
+	}
 
 	for (Enemy* enemy : enemies_) {
 		enemy->Update();
