@@ -67,16 +67,21 @@ void DearthParticles::Emit8Directions(const Vector3& position, float speed, floa
 	particles_.clear();
 	isFinished_ = false;
 	counter_ = 0.0f;
-	for (int i = 0; i < 8; ++i) {
-		float angle = i * (pi_v<float> / 4.0f); // 45度ずつ
-		Vector3 vel = {
-		    std::cos(angle) * speed, std::sin(angle) * speed,
-		    0.0f // 2DならZは0
-		};
+
+	for (int i = 0; i < static_cast<int>(kNumParticles); ++i) {
+		float angle = i * kAngleUnit; // = π/4.0f
+		Vector3 vel = {std::cos(angle) * speed, std::sin(angle) * speed, 0.0f};
+
+		// パーティクル追加
 		Particle p;
 		p.position = position;
 		p.velocity = vel;
 		p.life = life;
 		particles_.push_back(p);
+
+		// transformの初期化
+		wouldTransforms_[i].transform_.Initialize();
+		wouldTransforms_[i].transform_.translation_ = position;
+		wouldTransforms_[i].translation_ = position;
 	}
 }

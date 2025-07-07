@@ -118,11 +118,12 @@ void GameScene::Update() {
 	Vector3 playerPos = player_->GetPosition();
 	particleTimer_++;
 
-	// プレイヤーの位置を取得
+	// 10フレームごとにパーティクルを発生
 	if (player_ && dearthParticles_) {
-		// 毎フレームパーティクルを発生
-		dearthParticles_->Emit8Directions(playerPos, 0.1f, 1.0f);
-		particleTimer_ = 0;
+		if (particleTimer_ >= particleInterval_) {
+			dearthParticles_->Emit8Directions(playerPos, 0.1f, 1.0f);
+			particleTimer_ = 0;
+		}
 	}
 
 	// パーティクルの更新

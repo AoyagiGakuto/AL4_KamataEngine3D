@@ -19,9 +19,11 @@ struct WouldTransform {
 	WorldTransform transform_;
 	Vector3 translation_;
 
-	void initialize() {
+	void initialize(const Vector3& pos) {
 		transform_.Initialize();
-		translation_ = {0, 0, 0};
+		transform_.translation_ = pos;
+		transform_.scale_ = {0.2f, 0.2f, 0.2f}; // ← 初期スケール
+		translation_ = pos;
 	}
 };
 
