@@ -15,7 +15,7 @@ void GameScene::Initialize() {
 	modelSkyDome_ = Model::CreateFromOBJ("SkyDome", true);
 	modelPlayer_ = Model::CreateFromOBJ("player");
 	modelEnemy_ = Model::CreateFromOBJ("Ninja");
-	modelDearthParticles_ = Model::CreateFromOBJ("block");
+	modelDearthParticles_ = Model::CreateFromOBJ("deathParticle");
 
 	//  モデルの作成
 	model_ = Model::Create();
