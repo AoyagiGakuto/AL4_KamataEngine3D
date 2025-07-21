@@ -198,7 +198,9 @@ void GameScene::Draw() {
 	player_->Draw();
 
 	// パーティクルの描画を追加
-	dearthParticles_->Draw();
+	if (dearthParticles_) {
+		dearthParticles_->Draw();
+	}
 
 	for (Enemy* enemy : enemies_) {
 		enemy->Draw();
@@ -218,11 +220,10 @@ GameScene::~GameScene() {
 	delete modelCube_;
 	delete modelSkyDome_;
 	delete modelDearthParticles_;
-	delete dearthParticles_;
-	dearthParticles_ = nullptr;
 	delete debugCamera_;
 	delete cameraController_;
 	delete mapChipField_;
+	delete dearthParticles_;
 	delete player_;
 	for (Enemy* enemy : enemies_) {
 		delete enemy;
