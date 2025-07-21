@@ -14,6 +14,19 @@ struct MapChipData {
 	std::vector<std::vector<MapChipType>> data;
 };
 
+struct Matrix4 {
+	std::array<std::array<float, 4>, 4> m{};
+
+	Matrix4() {
+		// 単位行列に初期化
+		for (int i = 0; i < 4; ++i)
+			for (int j = 0; j < 4; ++j)
+				m[i][j] = (i == j) ? 1.0f : 0.0f;
+	}
+
+	static Matrix4 Identity() { return Matrix4{}; }
+};
+
 class MapChipField {
 public:
 	struct IndexSet {

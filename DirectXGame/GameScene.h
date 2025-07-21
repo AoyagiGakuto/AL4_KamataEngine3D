@@ -33,6 +33,7 @@ private:
 
 	int particleTimer_ = 0;
 	int particleInterval_ = 10; // 10フレームごとに発射
+	int isParticleEmit_ = true;
 
 	// スプライト
 	Model* model_ = nullptr;

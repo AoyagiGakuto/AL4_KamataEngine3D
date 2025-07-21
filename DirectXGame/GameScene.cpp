@@ -47,6 +47,7 @@ void GameScene::Initialize() {
 
 	dearthParticles_ = new DearthParticles;
 	dearthParticles_->Initialize(modelDearthParticles_, camera_, playerPosition);
+	isParticleEmit_ = true;
 
 	// enemyPosition.y -= MapChipField::kBlockHeight / 2.0f; // "kBlockHeight" を静的メンバーとしてアクセス
 
@@ -119,7 +120,7 @@ void GameScene::Update() {
 	particleTimer_++;
 
 	// 10フレームごとにパーティクルを発生
-	if (player_ && dearthParticles_) {
+	if (player_ && isParticleEmit_) {
 		if (particleTimer_ >= particleInterval_) {
 			dearthParticles_->Emit8Directions(playerPos, 0.1f, 1.0f);
 			particleTimer_ = 0;
@@ -127,7 +128,7 @@ void GameScene::Update() {
 	}
 
 	// パーティクルの更新
-	if (dearthParticles_) {
+	if (isParticleEmit_) {
 		dearthParticles_->Update();
 	}
 
@@ -195,10 +196,10 @@ void GameScene::Draw() {
 	// スカイドームの描画
 	modelSkyDome_->Draw(worldTransform_, *camera_);
 
-	player_->Draw();
+	//player_->Draw();
 
 	// パーティクルの描画を追加
-	if (dearthParticles_) {
+	if (isParticleEmit_) {
 		dearthParticles_->Draw();
 	}
 
