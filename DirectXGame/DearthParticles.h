@@ -1,52 +1,33 @@
 #pragma once
-#include "MapChipField.h"
-#include "MyMath.h"
-#include "Player.h"
-#include <algorithm>
-#include <array>
-#include <numbers>
+#include "KamataEngine.h"
+#include <memory>
 #include <vector>
 
 using namespace KamataEngine;
 
-struct Particle {
-	Vector3 position;
-	Vector3 velocity;
-	float life;
-};
-
-struct WouldTransform {
-	WorldTransform transform_;
-	Vector3 translation_;
-
-	void initialize() {
-		transform_.Initialize();
-		translation_ = {0, 0, 0};
-	}
-};
-
-class DearthParticles {
+class DeathParticle {
 public:
-	void Initialize(Model* model, Camera* camera, const Vector3& position);
+	struct Particle {
+		WorldTransform transform;
+		Vector3 velocity;
+		float lifetime;
+		float maxLifetime;
+
+		// フェードアウト用
+		Vector4 color;
+		ObjectColor objectColor;
+	};
+
+	DeathParticle();
+	~DeathParticle();
+
+	void Initialize(Model* model, Camera* camera);
+	void Spawn(const Vector3& position);
 	void Update();
 	void Draw();
-	void Emit8Directions(const KamataEngine::Vector3& position, float speed, float life);
-	void SetCamera(KamataEngine::Camera* camera) { camera_ = camera; }
 
 private:
-	ObjectColor objectColor_;
-	Vector4 color_;
-	WorldTransform worldTransform_;
-	Vector4 whiteColor = {1.0f, 1.0f, 1.0f, 1.0f};
-	std::vector<Particle> particles_;
-	Camera* camera_ = nullptr;
+	std::vector<std::unique_ptr<Particle>> particles_;
 	Model* model_ = nullptr;
-	static inline const uint32_t kNumParticles = 8;
-	std::array<WouldTransform, kNumParticles> wouldTransforms_;
-	bool isFinished_ = false;                   // パーティクルが終了したかどうか
-	float counter_ = 0.0f;                      // パーティクルのカウンター
-	static inline const float kDuration = 1.0f; // パーティクルの寿命
-	static inline const float kspeed = 0.1f;    // パーティクルの速度
-	static inline const float kAngleUnit =      // 2π/ 分割数　
-	    std::numbers::pi_v<float> / 4.0f;       // 45度ずつの角度
+	Camera* camera_ = nullptr;
 };
