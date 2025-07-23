@@ -15,9 +15,8 @@ void GameScene::Initialize() {
 	modelSkyDome_ = Model::CreateFromOBJ("SkyDome", true);
 	modelPlayer_ = Model::CreateFromOBJ("player");
 	modelEnemy_ = Model::CreateFromOBJ("Ninja");
-	modelDearthParticles_ = Model::CreateFromOBJ("block");
+	modelDearthParticles_ = Model::CreateFromOBJ("deathParticle");
 
-	// dearthParticles
 	//  モデルの作成
 	model_ = Model::Create();
 	mapChipField_ = new MapChipField();
@@ -48,6 +47,7 @@ void GameScene::Initialize() {
 
 	dearthParticles_ = new DearthParticles;
 	dearthParticles_->Initialize(modelDearthParticles_, camera_, playerPosition);
+	isParticleEmit_ = true;
 
 	// enemyPosition.y -= MapChipField::kBlockHeight / 2.0f; // "kBlockHeight" を静的メンバーとしてアクセス
 
@@ -119,12 +119,18 @@ void GameScene::Update() {
 	Vector3 playerPos = player_->GetPosition();
 	particleTimer_++;
 
-	if (particleTimer_ >= particleInterval_) {
-		dearthParticles_->Emit8Directions(playerPos, 0.2f, 1.0f);
-		particleTimer_ = 0;
+	// 10フレームごとにパーティクルを発生
+	if (player_ && isParticleEmit_) {
+		if (particleTimer_ >= particleInterval_) {
+			dearthParticles_->Emit8Directions(playerPos, 0.1f, 1.0f);
+			particleTimer_ = 0;
+		}
 	}
 
-	dearthParticles_->Update();
+	// パーティクルの更新
+	if (isParticleEmit_) {
+		dearthParticles_->Update();
+	}
 
 	for (Enemy* enemy : enemies_) {
 		enemy->Update();
@@ -193,7 +199,9 @@ void GameScene::Draw() {
 	player_->Draw();
 
 	// パーティクルの描画を追加
-	dearthParticles_->Draw();
+	if (isParticleEmit_) {
+		dearthParticles_->Draw();
+	}
 
 	for (Enemy* enemy : enemies_) {
 		enemy->Draw();
@@ -213,11 +221,10 @@ GameScene::~GameScene() {
 	delete modelCube_;
 	delete modelSkyDome_;
 	delete modelDearthParticles_;
-	delete dearthParticles_;
-	dearthParticles_ = nullptr;
 	delete debugCamera_;
 	delete cameraController_;
 	delete mapChipField_;
+	delete dearthParticles_;
 	delete player_;
 	for (Enemy* enemy : enemies_) {
 		delete enemy;
