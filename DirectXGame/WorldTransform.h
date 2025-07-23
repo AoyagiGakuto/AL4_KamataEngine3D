@@ -1,4 +1,4 @@
-#pragma once
+/* #pragma once
 #include "MyMath.h"
 #include "MapChipField.h"
 
@@ -22,3 +22,4 @@ public:
 		matWorld_ = MakeAffineMatrix(scale_, rotation_, translation_);
 	}
 };
+*/

@@ -196,7 +196,7 @@ void GameScene::Draw() {
 	// スカイドームの描画
 	modelSkyDome_->Draw(worldTransform_, *camera_);
 
-	//player_->Draw();
+	player_->Draw();
 
 	// パーティクルの描画を追加
 	if (isParticleEmit_) {
