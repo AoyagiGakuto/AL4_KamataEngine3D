@@ -1,40 +1,52 @@
 #pragma once
+#include "CameraController.h"
+#include "DeathParticle.h" // ← 追加
+#include "Enemy.h"
 #include "KamataEngine.h"
+#include "MapChipField.h"
 #include "Player.h"
+#include "Skydome.h"
+#include <memory>
+#include <vector>
 
 using namespace KamataEngine;
-using namespace MathUtility;
 
-class CameraController {
+class GameScene {
 public:
-
-	struct Rect {
-		float left = 0.0f;
-		float right = 1.0;
-		float bottom = 0.0f;
-		float top = 1.0f;
-	};
+	~GameScene();
 
 	void Initialize();
 	void Update();
-	void SetTarget(Player* target) { target_ = target; };
-	void SetMovableArea(const Rect& area) { movebleArea_ = area; }
-	void Reset();
-
-	const Camera& GetViewProjection() const { return camera_; }
-	Matrix4x4 matView_;       // ビュー行列
-	Matrix4x4 matProjection_; // プロジェクション行列
+	void Draw();
 
 private:
+	void GenerateBlooks();
+	void CheckAllCollisions();
+
+	// モデル
+	Model* modelCube_ = nullptr;
+	Model* modelSkyDome_ = nullptr;
+	Model* model_ = nullptr;
+	Model* modelPlayer_ = nullptr;
+	Model* modelEnemy_ = nullptr;
+	Model* modelDeathParticle_ = nullptr;
+
+	// ワールドトランスフォーム
+	WorldTransform worldTransform_;
+
 	// カメラ
-	Camera camera_;
-	Player* target_ = nullptr;
-	Vector3 targetOffset_ = {0, 0, -15.0f};
-	// カメラの目標座標
-	KamataEngine::Vector3 targetPosition_ = {0, 0, 0};
-	Rect movebleArea_ = {0, 100, 0, 100};
-	// 座標線形保管割合
-	static inline const float kInterpolationRate = 0.08f;
-	static inline const float kVelocityBias = 30.0f;
-	static inline const Rect targetMargin = {6.0f, 100 - 12.0f, 5.0f, 5.0f};
+	Camera* camera_;
+	bool isDebugCameraActive_ = false;
+	DebugCamera* debugCamera_ = nullptr;
+
+	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
+	MapChipField* mapChipField_ = nullptr;
+
+	Player* player_ = nullptr;
+	std::list<Enemy*> enemies_;
+	CameraController* cameraController_ = nullptr;
+
+	// デスパーティクル
+	DeathParticle deathParticle_;
+	float particleCooldown_ = 0.0f;
 };

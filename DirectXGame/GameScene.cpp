@@ -107,7 +107,7 @@ void GameScene::Update() {
 	// 死亡パーティクル演出
 	deathParticle_.Update();
 
-	 // ★プレイヤー死亡 & パーティクル終了でゲーム終了
+	 // プレイヤー死亡 & パーティクル終了でゲーム終了
 	if (player_->IsDead() && deathParticle_.IsFinished()) {
 		finished_ = true;
 	}
@@ -141,14 +141,11 @@ void GameScene::CheckAllCollisions() {
 		bool isHit = (aabb1.min.x < aabb2.max.x && aabb1.max.x > aabb2.min.x) && (aabb1.min.y < aabb2.max.y && aabb1.max.y > aabb2.min.y) && (aabb1.min.z < aabb2.max.z && aabb1.max.z > aabb2.min.z);
 
 		if (isHit) {
-			// ★プレイヤー死亡！
+			// プレイヤー死亡！
 			player_->Die();
 
-			// ★死亡演出（パーティクル発生）
+			// 死亡演出（パーティクル発生）
 			deathParticle_.Spawn(player_->GetWorldTransform().translation_);
-
-			// 必要なら敵側の処理も
-			// enemy->OnCollision(player_);
 
 			break; // 死亡したらループ終了
 		}
