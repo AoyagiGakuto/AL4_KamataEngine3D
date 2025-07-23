@@ -4,6 +4,8 @@
 
 using namespace KamataEngine;
 
+KamataEngine::Initialize(L"LE2D_02_アオヤギ_ガクト_AL3");
+
 // ======== グローバル ========
 DirectXCommon* dxCommon = nullptr;
 TitleScene* titleScene = nullptr;
