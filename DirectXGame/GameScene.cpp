@@ -83,6 +83,7 @@ void GameScene::Update() {
 		particleCooldown_ -= 1.0f / 60.0f;
 	}
 
+	// マップブロック更新
 	for (auto& line : worldTransformBlocks_) {
 		for (auto& block : line) {
 			if (!block)
@@ -92,16 +93,24 @@ void GameScene::Update() {
 		}
 	}
 
-	player_->Update();
+	// プレイヤーは死亡後止まるけど、敵は常に動く
+	if (!player_->IsDead()) {
+		player_->Update();
+		CheckAllCollisions(); // 衝突判定は生存中だけ
+	}
+
+	// 敵は死亡後も動く
 	for (Enemy* enemy : enemies_) {
 		enemy->Update();
 	}
 
-	// 衝突判定
-	CheckAllCollisions();
-
-	// デスパーティクル更新
+	// 死亡パーティクル演出
 	deathParticle_.Update();
+
+	 // プレイヤー死亡 & パーティクル終了でゲーム終了
+	if (player_->IsDead() && deathParticle_.IsFinished()) {
+		finished_ = true;
+	}
 
 	cameraController_->Update();
 
@@ -121,24 +130,28 @@ void GameScene::Update() {
 }
 
 void GameScene::CheckAllCollisions() {
+	if (player_->IsDead())
+		return; // すでに死亡なら判定しない
+
 	AABB aabb1 = player_->GetAABB();
 
 	for (Enemy* enemy : enemies_) {
 		AABB aabb2 = enemy->GetAABB();
-		if (aabb1.min.x < aabb2.max.x && aabb1.max.x > aabb2.min.x && aabb1.min.y < aabb2.max.y && aabb1.max.y > aabb2.min.y && aabb1.min.z < aabb2.max.z && aabb1.max.z > aabb2.min.z) {
 
-			if (particleCooldown_ <= 0.0f) {
-				player_->OnCollision(enemy);
-				enemy->OnCollision(player_);
+		bool isHit = (aabb1.min.x < aabb2.max.x && aabb1.max.x > aabb2.min.x) && (aabb1.min.y < aabb2.max.y && aabb1.max.y > aabb2.min.y) && (aabb1.min.z < aabb2.max.z && aabb1.max.z > aabb2.min.z);
 
-				// DeathParticle呼び出し
-				deathParticle_.Spawn(player_->GetWorldTransform().translation_);
+		if (isHit) {
+			// プレイヤー死亡！
+			player_->Die();
 
-				particleCooldown_ = 1.0f;
-			}
+			// 死亡演出（パーティクル発生）
+			deathParticle_.Spawn(player_->GetWorldTransform().translation_);
+
+			break; // 死亡したらループ終了
 		}
 	}
 }
+
 
 void GameScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();

@@ -30,12 +30,15 @@ public:
 	void InputMove();
 	void AnimateTurn();
 	void CollisionMapCheck(CollisionMapInfo& Info);
-	void OnCollision(const Enemy* enemy);
+	//void OnCollision(const Enemy* enemy);
 	void CheckMapCollision(CollisionMapInfo& Info);
 	void CheckMapCollisionUp(CollisionMapInfo& Info);
 	void CheckMapCollisionDown(CollisionMapInfo& Info);
 	void CheckMapCollisionLeft(CollisionMapInfo& Info);
 	void CheckMapCollisionRight(CollisionMapInfo& Info);
+	// 死亡管理
+    void Die();               // 死亡処理
+    bool IsDead() const;      // 死亡状態確認
 
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
 	const Vector3& GetVelocity() const { return velocity_; }
@@ -64,6 +67,7 @@ private:
 	float turnTimer_ = 0.0f;
 	MapChipField* mapChipField_ = nullptr;
 	Vector3 GetWorldPosition();
+	bool isDead_ = false;
 };
 
 Vector3 CornerPosition(const Vector3& center, Corner corner);

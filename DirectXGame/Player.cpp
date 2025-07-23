@@ -2,7 +2,6 @@
 #include "Player.h"
 #include "MapChipField.h"
 #include "MyMath.h"
-#include "DearthParticles.h"
 #include <algorithm>
 #include <array>
 #include <numbers>
@@ -60,7 +59,16 @@ void Player::Update() {
 	worldTransform_.TransferMatrix();
 }
 
-void Player::Draw() { model_->Draw(worldTransform_, *camera_); }
+void Player::Draw() {
+	if (isDead_) {
+		// 死亡後は描画しない
+		return;
+	}
+
+	if (!model_ || !camera_)
+		return;
+	model_->Draw(worldTransform_, *camera_);
+}
 
 void Player::InputMove() {
 	if (OnGround_) {
@@ -110,12 +118,18 @@ void Player::AnimateTurn() {
 		float destinationRotationY = destinationRotationYTable[static_cast<uint32_t>(lrDirection_)];
 		float t = turnTimer_ / kTimeTurn;
 		worldTransform_.rotation_.y = EaseInOut(destinationRotationY, turnFirstRotationY_, t);
-		// ---- ここがポイント ----
 		if (turnTimer_ <= 0.0f) {
 			worldTransform_.rotation_.y = destinationRotationY; // 完全にピッタリ揃える
 		}
 	}
 }
+
+void Player::Die() {
+	isDead_ = true;
+	velocity_ = {0.0f, 0.0f, 0.0f}; // 動きを止める
+}
+
+bool Player::IsDead() const { return isDead_; }
 
 
 void Player::CollisionMapCheck(CollisionMapInfo& Info) {
@@ -125,12 +139,12 @@ void Player::CollisionMapCheck(CollisionMapInfo& Info) {
 	CheckMapCollisionRight(Info);
 }
 
-void Player::OnCollision(const Enemy* enemy) {
-	(void)enemy;
-}
+//void Player::OnCollision(const Enemy* enemy) {
+	//(void)enemy;
+	//velocity_ += Vector3(0.0f, kJumpAcceleration, 0.0f);
+//}
 
 void Player::CheckMapCollision(CollisionMapInfo& Info) {
-	// 必要に応じて個別の方向だけ呼び出してもOK
 	CheckMapCollisionUp(Info);
 	CheckMapCollisionDown(Info);
 	CheckMapCollisionLeft(Info);
