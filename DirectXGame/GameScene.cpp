@@ -5,49 +5,35 @@
 
 using namespace KamataEngine;
 
-//========================================
-// 初期化処理
-//========================================
-
 void GameScene::Initialize() {
-	// モデルの読み込み
 	modelCube_ = Model::CreateFromOBJ("block");
 	modelSkyDome_ = Model::CreateFromOBJ("SkyDome", true);
 	modelPlayer_ = Model::CreateFromOBJ("player");
 	modelEnemy_ = Model::CreateFromOBJ("Ninja");
+	modelDeathParticle_ = Model::CreateFromOBJ("deathParticle");
 
-	// モデルの作成
 	model_ = Model::Create();
 	mapChipField_ = new MapChipField();
-
 	player_ = new Player();
 
-	// マップチップデータの読み込み
 	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
 
-	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
 
-	// カメラのインスタンス作成
 	camera_ = new Camera();
-
-	// カメラの初期化
 	camera_->Initialize();
 
 	GenerateBlooks();
 
-	// 座標をマップチップ番号で指定
+	// プレイヤー初期位置
 	Vector3 playerPosition = mapChipField_->GetMapPositionTypeByIndex(25, 18);
-
-	// プレイヤーの初期化
 	player_->Initialize(modelPlayer_, camera_, playerPosition);
 	player_->SetMapChipField(mapChipField_);
 
-	// 敵を複数体配置
+	// 敵配置
 	const int enemyCount = 5;
 	for (int32_t i = 0; i < enemyCount; ++i) {
 		Enemy* newEnemy = new Enemy();
-		// x座標をずらして配置
 		Vector3 enemyPosition = mapChipField_->GetMapPositionTypeByIndex(30 + i * 2, 18);
 		enemyPosition.y -= MapChipField::kBlockHeight / 2.0f;
 		newEnemy->Initialize(modelEnemy_, camera_, enemyPosition);
@@ -57,28 +43,29 @@ void GameScene::Initialize() {
 		enemies_.push_back(newEnemy);
 	}
 
-	// カメラコントロールの初期化
+	// カメラコントローラー
 	cameraController_ = new CameraController();
 	cameraController_->SetTarget(player_);
 	CameraController::Rect cameraArea = {12.0f, 100 - 12.0f, 6.0f, 6.0f};
 	cameraController_->SetMovableArea(cameraArea);
 	cameraController_->Initialize();
 	cameraController_->Reset();
+
+	// DeathParticle 初期化
+	deathParticle_.Initialize(modelDeathParticle_, camera_);
+
+	particleCooldown_ = 0.0f;
 }
 
 void GameScene::GenerateBlooks() {
-	// 要素数
 	uint32_t kNumBlockVertical = mapChipField_->GetNumBlockVertical();
 	uint32_t kNumBlockHorizontal = mapChipField_->GetNumBlockHorizontal();
 
-	// 要素数を変更する
 	worldTransformBlocks_.resize(kNumBlockVertical);
-
 	for (uint32_t i = 0; i < kNumBlockVertical; ++i) {
 		worldTransformBlocks_[i].resize(kNumBlockHorizontal);
 	}
 
-	// キューブの生成
 	for (uint32_t i = 0; i < kNumBlockVertical; ++i) {
 		for (uint32_t j = 0; j < kNumBlockHorizontal; ++j) {
 			if (mapChipField_->GetMapChipTypeByIndex(j, i) == MapChipType::kBlock) {
@@ -91,38 +78,37 @@ void GameScene::GenerateBlooks() {
 	}
 }
 
-//========================================
-// 更新処理
-//========================================
-
 void GameScene::Update() {
-	// 更新処理
-	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
-		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
-			if (!worldTransformBlock) {
+	if (particleCooldown_ > 0.0f) {
+		particleCooldown_ -= 1.0f / 60.0f;
+	}
+
+	for (auto& line : worldTransformBlocks_) {
+		for (auto& block : line) {
+			if (!block)
 				continue;
-			}
-			// アフィン変換行列の作成
-			worldTransformBlock->matWorld_ = MakeAffineMatrix(worldTransformBlock->scale_, worldTransformBlock->rotation_, worldTransformBlock->translation_);
-			// 定数バッファに転送する
-			worldTransformBlock->TransferMatrix();
+			block->matWorld_ = MakeAffineMatrix(block->scale_, block->rotation_, block->translation_);
+			block->TransferMatrix();
 		}
 	}
 
 	player_->Update();
-
 	for (Enemy* enemy : enemies_) {
 		enemy->Update();
 	}
-	// ここで衝突判定を呼び出す
+
+	// 衝突判定
 	CheckAllCollisions();
+
+	// デスパーティクル更新
+	deathParticle_.Update();
 
 	cameraController_->Update();
 
 	if (Input::GetInstance()->PushKey(DIK_O)) {
 		isDebugCameraActive_ = !isDebugCameraActive_;
 	}
-	// カメラの更新
+
 	if (isDebugCameraActive_) {
 		debugCamera_->Update();
 		camera_->matView = debugCamera_->GetCamera().matView;
@@ -135,63 +121,50 @@ void GameScene::Update() {
 }
 
 void GameScene::CheckAllCollisions() {
-#pragma region 自キャラと敵キャラの当たり判定
-	AABB aabb1, aabb2;
-	aabb1 = player_->GetAABB();
+	AABB aabb1 = player_->GetAABB();
+
 	for (Enemy* enemy : enemies_) {
-		aabb2 = enemy->GetAABB();
-		// AABBの交差判定
-		if (aabb1.min.x < aabb2.max.x && aabb1.max.x > aabb2.min.x &&
-			aabb1.min.y < aabb2.max.y && aabb1.max.y > aabb2.min.y &&
-			aabb1.min.z < aabb2.max.z && aabb1.max.z > aabb2.min.z) {
-			// 当たった場合の処理
-			player_->OnCollision(enemy);
-			enemy->OnCollision(player_);
+		AABB aabb2 = enemy->GetAABB();
+		if (aabb1.min.x < aabb2.max.x && aabb1.max.x > aabb2.min.x && aabb1.min.y < aabb2.max.y && aabb1.max.y > aabb2.min.y && aabb1.min.z < aabb2.max.z && aabb1.max.z > aabb2.min.z) {
+
+			if (particleCooldown_ <= 0.0f) {
+				player_->OnCollision(enemy);
+				enemy->OnCollision(player_);
+
+				// DeathParticle呼び出し
+				deathParticle_.Spawn(player_->GetWorldTransform().translation_);
+
+				particleCooldown_ = 1.0f;
+			}
 		}
 	}
-#pragma endregion 自キャラと敵キャラの当たり判定
 }
 
-//========================================
-// 描画処理
-//========================================
-
 void GameScene::Draw() {
-	// DirectXCommonのインスタンスを取得
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
-
-	// スプライト描画前処理
 	Model::PreDraw(dxCommon->GetCommandList());
 
-	// モデルの描画
-	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
-		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
-			if (!worldTransformBlock) {
+	for (auto& line : worldTransformBlocks_) {
+		for (auto& block : line) {
+			if (!block)
 				continue;
-			}
-			modelCube_->Draw(*worldTransformBlock, *camera_);
+			modelCube_->Draw(*block, *camera_);
 		}
 	}
 
-	// スカイドームの描画
 	modelSkyDome_->Draw(worldTransform_, *camera_);
-
 	player_->Draw();
-
 	for (Enemy* enemy : enemies_) {
 		enemy->Draw();
 	}
 
-	// スプライト描画後処理
+	// DeathParticle描画
+	deathParticle_.Draw();
+
 	Model::PostDraw();
 }
 
-//========================================
-// デストラクタ
-//========================================
-
 GameScene::~GameScene() {
-	// モデルの解放
 	delete model_;
 	delete modelCube_;
 	delete modelSkyDome_;
@@ -202,10 +175,9 @@ GameScene::~GameScene() {
 	for (Enemy* enemy : enemies_) {
 		delete enemy;
 	}
-
-	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
-		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
-			delete worldTransformBlock;
+	for (auto& line : worldTransformBlocks_) {
+		for (auto& block : line) {
+			delete block;
 		}
 	}
 	worldTransformBlocks_.clear();
