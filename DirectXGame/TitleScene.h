@@ -8,21 +8,27 @@ public:
 	TitleScene();
 	~TitleScene();
 
-	void Initialize(); // 初期化
-	void Update();     // 更新
-	void Draw();       // 描画
+	void Initialize();
+	void Update();
+	void Draw();
 
-	// 外から終了判定できるようにする
 	bool IsFinished() const { return finished_; }
 
 private:
-	bool finished_ = false; // シーン終了フラグ
+	bool finished_ = false;
 
+	// タイトルロゴ
 	Model* titleFontModel_ = nullptr;
 	WorldTransform titleTransform_;
-	Camera* camera_ = nullptr;
-
-	// 点滅演出用
 	float blinkTimer_ = 0.0f;
 	bool blinkVisible_ = true;
+
+	// 上下揺れ用タイマー
+	float logoMoveTimer_ = 0.0f;
+
+	// プレイヤー表示
+	Model* playerModel_ = nullptr;
+	WorldTransform playerTransform_;
+
+	Camera* camera_ = nullptr;
 };
