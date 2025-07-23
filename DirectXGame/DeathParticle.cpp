@@ -49,6 +49,7 @@ void DeathParticle::Spawn(const Vector3& position) {
 	}
 }
 
+
 void DeathParticle::Update() {
 	for (auto& p : particles_) {
 		// 位置更新
