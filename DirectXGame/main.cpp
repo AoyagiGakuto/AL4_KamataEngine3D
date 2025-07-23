@@ -4,8 +4,6 @@
 
 using namespace KamataEngine;
 
-KamataEngine::Initialize(L"LE2D_02_アオヤギ_ガクト_AL3");
-
 // ======== グローバル ========
 DirectXCommon* dxCommon = nullptr;
 TitleScene* titleScene = nullptr;
@@ -72,7 +70,8 @@ void ChangeScene() {
 }
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
-	KamataEngine::Initialize(L"MyGame");
+
+	KamataEngine::Initialize(L"LE2D_02_アオヤギ_ガクト_AL3");
 	dxCommon = DirectXCommon::GetInstance();
 
 	// ★最初はタイトルシーンから

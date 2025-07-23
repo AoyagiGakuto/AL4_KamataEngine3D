@@ -50,10 +50,10 @@ void TitleScene::Update() {
 
 	// ★タイトルロゴ上下にふわふわ揺れる
 	logoMoveTimer_ += 1.0f / 60.0f;
-	float baseY = 10.0f;                                     // ロゴの基準位置をさらに上へ
-	float offsetY = std::sin(logoMoveTimer_ * 2.0f) * 0.2f; // ±0.2の上下
+	float baseY = 10.0f;                                     
+	float offsetY = std::sin(logoMoveTimer_ * 2.0f) * 0.2f; 
 
-	// ✅ baseY + offsetY でちゃんと上に配置される
+	// baseY + offsetY でちゃんと上に配置される
 	titleTransform_.translation_.y = baseY + offsetY;
 
 	// 行列更新
