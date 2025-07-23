@@ -30,10 +30,11 @@ void DeathParticle::Spawn(const Vector3& position) {
 		p->transform.Initialize();
 		p->transform.translation_ = position;
 
+		// 速度設定
 		Vector3 dir = directions[i];
 		p->velocity = {dir.x * baseSpeed, dir.y * baseSpeed, dir.z * baseSpeed};
 
-		// プレイヤーくらいのサイズ
+		// サイズはプレイヤーくらい
 		p->transform.scale_ = {1.0f, 1.0f, 1.0f};
 
 		// 寿命設定
@@ -48,7 +49,6 @@ void DeathParticle::Spawn(const Vector3& position) {
 		particles_.push_back(std::move(p));
 	}
 }
-
 
 void DeathParticle::Update() {
 	for (auto& p : particles_) {
@@ -65,11 +65,11 @@ void DeathParticle::Update() {
 		// 寿命減少
 		p->lifetime -= 1.0f / 60.0f;
 
-		// 残り寿命比率でα値を計算
+		// 残り寿命比率（0.0～1.0）
 		float lifeRatio = p->lifetime / p->maxLifetime;
 		float alpha = std::clamp(lifeRatio, 0.0f, 1.0f);
 
-		// カラーのアルファ値だけ減らす
+		// フェードアウト（α値を減らす）
 		p->color.w = alpha;
 		p->objectColor.SetColor(p->color);
 
@@ -78,7 +78,7 @@ void DeathParticle::Update() {
 		p->transform.TransferMatrix();
 	}
 
-	// 寿命切れ削除
+	// 寿命切れのパーティクル削除
 	particles_.erase(std::remove_if(particles_.begin(), particles_.end(), [](const std::unique_ptr<Particle>& p) { return p->lifetime <= 0.0f; }), particles_.end());
 }
 
@@ -87,7 +87,11 @@ void DeathParticle::Draw() {
 		return;
 
 	for (auto& p : particles_) {
-		// 各パーティクルごとの objectColor を渡して描画
 		model_->Draw(p->transform, *camera_, &p->objectColor);
 	}
+}
+
+bool DeathParticle::IsFinished() const {
+	// パーティクルが全部消えたら true
+	return particles_.empty();
 }

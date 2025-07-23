@@ -18,6 +18,7 @@ public:
 	void Initialize();
 	void Update();
 	void Draw();
+	bool IsFinished() const { return finished_; }
 
 private:
 	void GenerateBlooks();
@@ -49,4 +50,5 @@ private:
 	// デスパーティクル
 	DeathParticle deathParticle_;
 	float particleCooldown_ = 0.0f;
+	bool finished_ = false; // シーン終了フラグ
 };

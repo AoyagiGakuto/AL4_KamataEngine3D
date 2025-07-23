@@ -1,53 +1,100 @@
-#include <Windows.h>
-#include "KamataEngine.h"
 #include "GameScene.h"
-#include "Skydome.h"
+#include "KamataEngine.h"
+#include "TitleScene.h"
 
-// Windowsアプリでのエントリーポイント(main関数)
-int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
-	
-	using namespace KamataEngine;
+using namespace KamataEngine;
 
-	// エンジンの初期化
-	KamataEngine::Initialize(L"LE2D_02_アオヤギ_ガクト_AL3");
+// ======== グローバル ========
+DirectXCommon* dxCommon = nullptr;
+TitleScene* titleScene = nullptr;
+GameScene* gameScene = nullptr;
 
-	// ゲームシーンのインスタンス作成
-	GameScene* gameScene = new GameScene();
+// シーン状態管理用enum
+enum class Scene {
+	kUnknown = 0,
+	kTitle,
+	kGame,
+};
 
-	// DirectXのインスタンスを取得
-	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
+Scene scene = Scene::kUnknown;
 
-	// ゲームシーンの初期化
-	gameScene->Initialize();
-
-	// メインループ
-	while (true) {
-		// エンジンの更新
-		if (KamataEngine::Update()) {
-			break;
-		}
-
-		// ゲームシーンの更新
+// ======== シーン更新 ========
+void UpdateScene() {
+	switch (scene) {
+	case Scene::kTitle:
+		titleScene->Update();
+		break;
+	case Scene::kGame:
 		gameScene->Update();
+		break;
+	}
+}
 
-		// 描画開始
+// ======== シーン描画 ========
+void DrawScene() {
+	switch (scene) {
+	case Scene::kTitle:
+		titleScene->Draw();
+		break;
+	case Scene::kGame:
+		gameScene->Draw();
+		break;
+	}
+}
+
+// ======== シーン切替 ========
+void ChangeScene() {
+	switch (scene) {
+	case Scene::kTitle:
+		if (titleScene->IsFinished()) {
+			delete titleScene;
+			titleScene = nullptr;
+
+			scene = Scene::kGame;
+			gameScene = new GameScene();
+			gameScene->Initialize();
+		}
+		break;
+
+	case Scene::kGame:
+		if (gameScene->IsFinished()) {
+			delete gameScene;
+			gameScene = nullptr;
+
+			scene = Scene::kTitle;
+			titleScene = new TitleScene();
+			titleScene->Initialize();
+		}
+		break;
+	}
+}
+
+int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
+	KamataEngine::Initialize(L"MyGame");
+	dxCommon = DirectXCommon::GetInstance();
+
+	// ★最初はタイトルシーンから
+	scene = Scene::kTitle;
+	titleScene = new TitleScene();
+	titleScene->Initialize();
+
+	while (true) {
+		if (KamataEngine::Update())
+			break;
+
 		dxCommon->PreDraw();
 
-		// ゲームシーンの描画
-		gameScene->Draw();
+		UpdateScene();
+		ChangeScene();
+		DrawScene();
 
-		// 描画終了
 		dxCommon->PostDraw();
 	}
 
-	// ゲームシーンの解放
+	// シーン解放
+	delete titleScene;
 	delete gameScene;
 
-	// nullptrの代入
-	gameScene = nullptr;
-
-	// エンジンの終了処理
 	KamataEngine::Finalize();
-
 	return 0;
 }

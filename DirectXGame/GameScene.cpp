@@ -93,7 +93,7 @@ void GameScene::Update() {
 		}
 	}
 
-	// ✅ プレイヤーは死亡後止まるけど、敵は常に動く
+	// プレイヤーは死亡後止まるけど、敵は常に動く
 	if (!player_->IsDead()) {
 		player_->Update();
 		CheckAllCollisions(); // 衝突判定は生存中だけ
@@ -106,6 +106,11 @@ void GameScene::Update() {
 
 	// 死亡パーティクル演出
 	deathParticle_.Update();
+
+	 // ★プレイヤー死亡 & パーティクル終了でゲーム終了
+	if (player_->IsDead() && deathParticle_.IsFinished()) {
+		finished_ = true;
+	}
 
 	cameraController_->Update();
 

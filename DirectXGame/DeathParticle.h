@@ -10,10 +10,10 @@ public:
 	struct Particle {
 		WorldTransform transform;
 		Vector3 velocity;
-		float lifetime;
-		float maxLifetime;
+		float lifetime;    // 残り寿命
+		float maxLifetime; // 最大寿命
 
-		// フェードアウト用
+		// フェードアウト用カラー
 		Vector4 color;
 		ObjectColor objectColor;
 	};
@@ -22,9 +22,12 @@ public:
 	~DeathParticle();
 
 	void Initialize(Model* model, Camera* camera);
-	void Spawn(const Vector3& position);
-	void Update();
-	void Draw();
+	void Spawn(const Vector3& position); // パーティクル生成
+	void Update();                       // 更新
+	void Draw();                         // 描画
+
+	// すべてのパーティクルが消えたら true
+	bool IsFinished() const;
 
 private:
 	std::vector<std::unique_ptr<Particle>> particles_;
