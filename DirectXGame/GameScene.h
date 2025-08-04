@@ -1,6 +1,6 @@
 #pragma once
 #include "CameraController.h"
-#include "DeathParticle.h" // ← 追加
+#include "DeathParticle.h"
 #include "Enemy.h"
 #include "KamataEngine.h"
 #include "MapChipField.h"

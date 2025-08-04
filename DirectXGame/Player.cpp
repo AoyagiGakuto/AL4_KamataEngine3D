@@ -118,7 +118,6 @@ void Player::AnimateTurn() {
 		float destinationRotationY = destinationRotationYTable[static_cast<uint32_t>(lrDirection_)];
 		float t = turnTimer_ / kTimeTurn;
 		worldTransform_.rotation_.y = EaseInOut(destinationRotationY, turnFirstRotationY_, t);
-		// ---- ここがポイント ----
 		if (turnTimer_ <= 0.0f) {
 			worldTransform_.rotation_.y = destinationRotationY; // 完全にピッタリ揃える
 		}
@@ -146,7 +145,6 @@ void Player::CollisionMapCheck(CollisionMapInfo& Info) {
 //}
 
 void Player::CheckMapCollision(CollisionMapInfo& Info) {
-	// 必要に応じて個別の方向だけ呼び出してもOK
 	CheckMapCollisionUp(Info);
 	CheckMapCollisionDown(Info);
 	CheckMapCollisionLeft(Info);
