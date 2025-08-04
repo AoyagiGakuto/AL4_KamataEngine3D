@@ -20,6 +20,7 @@ public:
 	void Draw();
 
 	bool IsFinished() const { return finished_; }
+	bool IsFadeFinished() const { return phase_ == Phase::kFadeOut && fade_->IsFinished(); }
 
 private:
 	bool finished_ = false;

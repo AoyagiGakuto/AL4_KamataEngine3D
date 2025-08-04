@@ -1,3 +1,4 @@
+
 #include "GameScene.h"
 #include "CameraController.h"
 #include "MyMath.h"
@@ -107,7 +108,7 @@ void GameScene::Update() {
 	// 死亡パーティクル演出
 	deathParticle_.Update();
 
-	 // プレイヤー死亡 & パーティクル終了でゲーム終了
+	// プレイヤー死亡 & パーティクル終了でゲーム終了
 	if (player_->IsDead() && deathParticle_.IsFinished()) {
 		finished_ = true;
 	}
@@ -151,7 +152,6 @@ void GameScene::CheckAllCollisions() {
 		}
 	}
 }
-
 
 void GameScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();

@@ -9,6 +9,15 @@
 #include <memory>
 #include <vector>
 
+// CameraController クラスの前方宣言または定義を追加
+class CameraController {
+public:
+	CameraController() = default;
+	~CameraController() = default;
+
+	// 必要に応じてメソッドやメンバ変数をここに追加
+};
+
 using namespace KamataEngine;
 
 class GameScene {
