@@ -8,7 +8,6 @@ TitleScene::~TitleScene() {
 	delete titleFontModel_;
 	delete playerModel_;
 	delete camera_;
-	delete fade_;
 }
 
 void TitleScene::Initialize() {
@@ -26,8 +25,6 @@ void TitleScene::Initialize() {
 	camera_ = new Camera();
 	camera_->Initialize();
 
-	fade_ = new Fade();
-	fade_->Initialize();
 	fade_->Start(Fade::Status::FadeIn, 1.0f);
 	phase_ = Phase::kFadeIn;
 

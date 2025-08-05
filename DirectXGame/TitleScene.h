@@ -40,6 +40,8 @@ private:
 
 	Camera* camera_ = nullptr;
 
-	Fade* fade_ = nullptr;
 	Phase phase_ = Phase::kFadeIn;
+	Fade* fade_ = nullptr; // 外部から渡す
+
+	void SetFade(Fade* fade) { fade_ = fade; }
 };

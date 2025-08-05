@@ -1,6 +1,7 @@
 #include "GameScene.h"
 #include "KamataEngine.h"
 #include "TitleScene.h"
+#include "Fade.h"
 
 using namespace KamataEngine;
 
@@ -8,6 +9,8 @@ using namespace KamataEngine;
 DirectXCommon* dxCommon = nullptr;
 TitleScene* titleScene = nullptr;
 GameScene* gameScene = nullptr;
+Fade fade;
+bool isSceneChanging = false;
 
 // シーン状態管理用enum
 enum class Scene {
@@ -20,6 +23,13 @@ Scene scene = Scene::kUnknown;
 
 // ======== シーン更新 ========
 void UpdateScene() {
+	fade.Update(); // フェードの更新を最初に
+
+	// フェード中はシーンのUpdateを止める
+	if (fade.IsFinished() == false && fade.GetStatus() != Fade::Status::None) {
+		return;
+	}
+
 	switch (scene) {
 	case Scene::kTitle:
 		titleScene->Update();
@@ -40,30 +50,46 @@ void DrawScene() {
 		gameScene->Draw();
 		break;
 	}
+	fade.Draw(); // 最後にフェードを描画
 }
 
 // ======== シーン切替 ========
 void ChangeScene() {
+	// シーン切り替え中は何もしない
+	if (isSceneChanging) {
+		// フェードアウトが終わったらシーン切り替え
+		if (fade.IsFinished() && fade.GetStatus() == Fade::Status::FadeOut) {
+			if (scene == Scene::kTitle) {
+				delete titleScene;
+				titleScene = nullptr;
+				scene = Scene::kGame;
+				gameScene = new GameScene();
+				gameScene->Initialize();
+			} else if (scene == Scene::kGame) {
+				delete gameScene;
+				gameScene = nullptr;
+				scene = Scene::kTitle;
+				titleScene = new TitleScene();
+				titleScene->Initialize();
+			}
+			// フェードイン開始
+			fade.Start(Fade::Status::FadeIn, 30.0f);
+			isSceneChanging = false;
+		}
+		return;
+	}
+
 	switch (scene) {
 	case Scene::kTitle:
 		if (titleScene->IsFinished()) {
-			delete titleScene;
-			titleScene = nullptr;
-
-			scene = Scene::kGame;
-			gameScene = new GameScene();
-			gameScene->Initialize();
+			fade.Start(Fade::Status::FadeOut, 30.0f); // フェードアウト開始
+			isSceneChanging = true;
 		}
 		break;
-
 	case Scene::kGame:
 		if (gameScene->IsFinished()) {
-			delete gameScene;
-			gameScene = nullptr;
-
-			scene = Scene::kTitle;
-			titleScene = new TitleScene();
-			titleScene->Initialize();
+			fade.Start(Fade::Status::FadeOut, 30.0f); // フェードアウト開始
+			isSceneChanging = true;
 		}
 		break;
 	}
@@ -78,6 +104,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	scene = Scene::kTitle;
 	titleScene = new TitleScene();
 	titleScene->Initialize();
+	fade.Initialize();
 
 	while (true) {
 		if (KamataEngine::Update())
@@ -85,8 +112,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		dxCommon->PreDraw();
 
-		UpdateScene();
 		ChangeScene();
+		UpdateScene();
 		DrawScene();
 
 		dxCommon->PostDraw();
