@@ -1,13 +1,19 @@
 #include "Fade.h"
 #include <algorithm>
-
 using namespace KamataEngine;
+
+// 画面サイズに合わせるヘルパ
+static inline void ResizeToBackbuffer(KamataEngine::Sprite* spr) {
+	auto* dx = DirectXCommon::GetInstance();
+	spr->SetSize(Vector2(static_cast<float>(dx->GetBackBufferWidth()), static_cast<float>(dx->GetBackBufferHeight())));
+	spr->SetPosition(Vector2(0.0f, 0.0f));
+}
 
 void Fade::Initialize() {
 	textureHandle = TextureManager::Load("white1x1.png");
 	sprite_ = Sprite::Create(textureHandle, {0, 0});
-	sprite_->SetSize(Vector2(1280, 720));
-	sprite_->SetColor(Vector4(0, 0, 0, 1));
+	sprite_->SetColor(Vector4(0, 0, 0, 1)); // 黒
+	ResizeToBackbuffer(sprite_);            // 初期フレームから全面
 }
 
 void Fade::Update() {
@@ -31,23 +37,27 @@ void Fade::Update() {
 		}
 		break;
 	}
+	ResizeToBackbuffer(sprite_); // ←毎フレーム合わせる
 }
 
 void Fade::Draw() {
 	if (status_ == Status::None)
 		return;
-	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
-	Sprite::PreDraw(dxCommon->GetCommandList());
+	auto* dx = DirectXCommon::GetInstance();
+	Sprite::PreDraw(dx->GetCommandList());
 	sprite_->Draw();
 	Sprite::PostDraw();
 }
 
 void Fade::Start(Status status, float duration) {
-	this->status_ = status;
-	this->duration_ = duration;
+	status_ = status;
+	duration_ = duration;
 	counter_ = 0.0f;
+	ResizeToBackbuffer(sprite_); // ←開始直後に全面
+	sprite_->SetColor(
+	    status_ == Status::FadeOut ? Vector4(0, 0, 0, 0.0f)   // 透明→黒へ
+	                               : Vector4(0, 0, 0, 1.0f)); // 黒→透明へ
 }
 
 void Fade::Stop() { status_ = Status::None; }
-
 bool Fade::IsFinished() const { return status_ == Status::None; }

@@ -1,17 +1,11 @@
 #pragma once
-#include "KamataEngine.h"
 #include "Fade.h"
+#include "KamataEngine.h"
 
 using namespace KamataEngine;
 
 class TitleScene {
 public:
-	enum class Phase {
-		kFadeIn,
-		kMain,
-		kFadeOut,
-	};
-
 	TitleScene();
 	~TitleScene();
 
@@ -20,9 +14,12 @@ public:
 	void Draw();
 
 	bool IsFinished() const { return finished_; }
-	bool IsFadeFinished() const { return phase_ == Phase::kFadeOut && fade_->IsFinished(); }
 
 private:
+	// フェーズ
+	enum class Phase { kFadeIn, kMain, kFadeOut };
+	Phase phase_ = Phase::kFadeIn;
+
 	bool finished_ = false;
 
 	// タイトルロゴ
@@ -31,17 +28,15 @@ private:
 	float blinkTimer_ = 0.0f;
 	bool blinkVisible_ = true;
 
-	// 上下揺れ用タイマー
+	// 上下揺れ
 	float logoMoveTimer_ = 0.0f;
 
-	// プレイヤー表示
+	// プレイヤー表示（オブジェとして）
 	Model* playerModel_ = nullptr;
 	WorldTransform playerTransform_;
 
 	Camera* camera_ = nullptr;
 
-	Phase phase_ = Phase::kFadeIn;
-	Fade* fade_ = nullptr; // 外部から渡す
-
-	void SetFade(Fade* fade) { fade_ = fade; }
+	// フェード（シーン内で管理）
+	Fade* fade_ = nullptr;
 };

@@ -2,6 +2,7 @@
 #include "CameraController.h"
 #include "DeathParticle.h"
 #include "Enemy.h"
+#include "Fade.h"
 #include "KamataEngine.h"
 #include "MapChipField.h"
 #include "Player.h"
@@ -23,6 +24,10 @@ public:
 private:
 	void GenerateBlooks();
 	void CheckAllCollisions();
+
+	// フェーズを追加：入る/遊ぶ/出る
+	enum class Phase { kFadeIn, kPlay, kFadeOut };
+	Phase phase_ = Phase::kFadeIn;
 
 	// モデル
 	Model* modelCube_ = nullptr;
@@ -50,5 +55,10 @@ private:
 	// デスパーティクル
 	DeathParticle deathParticle_;
 	float particleCooldown_ = 0.0f;
-	bool finished_ = false; // シーン終了フラグ
+
+	// シーン終了フラグ
+	bool finished_ = false;
+
+	// シーン内フェード
+	Fade* fade_ = nullptr;
 };

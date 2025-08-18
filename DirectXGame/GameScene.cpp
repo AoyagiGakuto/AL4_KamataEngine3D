@@ -56,6 +56,11 @@ void GameScene::Initialize() {
 	deathParticle_.Initialize(modelDeathParticle_, camera_);
 
 	particleCooldown_ = 0.0f;
+
+	fade_ = new Fade();
+	fade_->Initialize();
+	phase_ = Phase::kFadeIn;
+	fade_->Start(Fade::Status::FadeIn, 1.0f);
 }
 
 void GameScene::GenerateBlooks() {
@@ -108,9 +113,29 @@ void GameScene::Update() {
 	// 死亡パーティクル演出
 	deathParticle_.Update();
 
-	// プレイヤー死亡 & パーティクル終了でゲーム終了
-	if (player_->IsDead() && deathParticle_.IsFinished()) {
-		finished_ = true;
+
+	switch (phase_) {
+	case Phase::kFadeIn:
+		fade_->Update();
+		if (fade_->IsFinished()) {
+			phase_ = Phase::kPlay;
+		}
+		break;
+
+	case Phase::kPlay:
+		// プレイヤー死亡 & パーティクル終了 → フェードアウト開始（出るとき）
+		if (player_->IsDead() && deathParticle_.IsFinished()) {
+			phase_ = Phase::kFadeOut;
+			fade_->Start(Fade::Status::FadeOut, 1.0f);
+		}
+		break;
+
+	case Phase::kFadeOut:
+		fade_->Update();
+		if (fade_->IsFinished()) {
+			finished_ = true; // main がこれを見て TitleScene に切り替える
+		}
+		break;
 	}
 
 	cameraController_->Update();
@@ -175,6 +200,9 @@ void GameScene::Draw() {
 	deathParticle_.Draw();
 
 	Model::PostDraw();
+
+	if (fade_)
+		fade_->Draw();
 }
 
 GameScene::~GameScene() {
@@ -185,6 +213,7 @@ GameScene::~GameScene() {
 	delete cameraController_;
 	delete mapChipField_;
 	delete player_;
+	delete fade_;
 	for (Enemy* enemy : enemies_) {
 		delete enemy;
 	}
