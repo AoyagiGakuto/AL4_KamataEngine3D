@@ -1,10 +1,22 @@
-
 #include "GameScene.h"
 #include "CameraController.h"
 #include "MyMath.h"
 #include <numbers>
+#include <random>
 
 using namespace KamataEngine;
+
+static inline std::mt19937& Rng() {
+	static std::random_device rd;
+	static std::mt19937 mt(rd());
+	return mt;
+}
+static inline std::string PickRandom(const std::vector<std::string>& v) {
+	if (v.empty())
+		return "test";
+	std::uniform_int_distribution<size_t> d(0, v.size() - 1);
+	return v[d(Rng())];
+}
 
 void GameScene::Initialize() {
 	modelCube_ = Model::CreateFromOBJ("block");
@@ -31,17 +43,30 @@ void GameScene::Initialize() {
 	player_->Initialize(modelPlayer_, camera_, playerPosition);
 	player_->SetMapChipField(mapChipField_);
 
-	// 敵配置
-	const int enemyCount = 5;
-	for (int32_t i = 0; i < enemyCount; ++i) {
-		Enemy* newEnemy = new Enemy();
-		Vector3 enemyPosition = mapChipField_->GetMapPositionTypeByIndex(30 + i * 2, 18);
-		enemyPosition.y -= MapChipField::kBlockHeight / 2.0f;
-		newEnemy->Initialize(modelEnemy_, camera_, enemyPosition);
-		newEnemy->SetMapChipField(mapChipField_);
-		newEnemy->SetScale({0.4f, 0.4f, 0.4f});
-		newEnemy->SetRotationY(std::numbers::pi_v<float> * 3.0f / 2.0f);
-		enemies_.push_back(newEnemy);
+	// ===== 敵スポーン地点を定義（必要に応じて調整してOK） =====
+	std::vector<Vector3> spawnPoints;
+	{
+		// マップインデックス指定から中心座標に変換
+		auto pos = [&](uint32_t x, uint32_t y) {
+			Vector3 p = mapChipField_->GetMapPositionTypeByIndex(x, y);
+			p.y -= MapChipField::kBlockHeight / 2.0f;
+			return p;
+		};
+		spawnPoints.push_back(pos(30, 18));
+		spawnPoints.push_back(pos(34, 18));
+		spawnPoints.push_back(pos(40, 18));
+		spawnPoints.push_back(pos(46, 18));
+		spawnPoints.push_back(pos(54, 18));
+	}
+
+	// 敵生成
+	for (auto& p : spawnPoints) {
+		Enemy* e = new Enemy();
+		e->Initialize(modelEnemy_, camera_, p);
+		e->SetMapChipField(mapChipField_);
+		e->SetScale({0.4f, 0.4f, 0.4f});
+		e->SetRotationY(std::numbers::pi_v<float> * 3.0f / 2.0f);
+		enemies_.push_back(e);
 	}
 
 	// カメラコントローラー
@@ -57,10 +82,31 @@ void GameScene::Initialize() {
 
 	particleCooldown_ = 0.0f;
 
+	// フェード
 	fade_ = new Fade();
 	fade_->Initialize();
 	phase_ = Phase::kFadeIn;
 	fade_->Start(Fade::Status::FadeIn, 1.0f);
+
+	// タイピング初期化
+	typing_.Initialize(typingTimeLimit_);
+	typingTarget_ = nullptr;
+
+	// ===== ゴールの設置（見た目はキューブを大きめに） =====
+	goalTransform_.Initialize();
+	// 例：マップ右側にゴール
+	goalTransform_.translation_ = mapChipField_->GetMapPositionTypeByIndex(95, 18);
+	goalTransform_.scale_ = {1.5f, 2.0f, 1.5f};
+	goalTransform_.TransferMatrix();
+
+	// AABB（少し広め）
+	float gx = goalTransform_.translation_.x;
+	float gy = goalTransform_.translation_.y;
+	float gz = goalTransform_.translation_.z;
+	goalAabb_.min = {gx - 0.8f, gy - 1.0f, gz - 0.8f};
+	goalAabb_.max = {gx + 0.8f, gy + 1.0f, gz + 0.8f};
+
+	mapCleared_ = false;
 }
 
 void GameScene::GenerateBlooks() {
@@ -99,21 +145,7 @@ void GameScene::Update() {
 		}
 	}
 
-	// プレイヤーは死亡後止まるけど、敵は常に動く
-	if (!player_->IsDead()) {
-		player_->Update();
-		CheckAllCollisions(); // 衝突判定は生存中だけ
-	}
-
-	// 敵は死亡後も動く
-	for (Enemy* enemy : enemies_) {
-		enemy->Update();
-	}
-
-	// 死亡パーティクル演出
-	deathParticle_.Update();
-
-
+	// ===== フェーズ進行 =====
 	switch (phase_) {
 	case Phase::kFadeIn:
 		fade_->Update();
@@ -123,27 +155,83 @@ void GameScene::Update() {
 		break;
 
 	case Phase::kPlay:
-		// プレイヤー死亡 & パーティクル終了 → フェードアウト開始（出るとき）
+		// 通常プレイ
+		if (!player_->IsDead()) {
+			player_->Update();
+			CheckAllCollisions(); // ★敵接触で kTyping に入る
+			CheckGoalCollision(); // ★ゴール到達でクリア
+		}
+		for (Enemy* enemy : enemies_) {
+			enemy->Update();
+		}
+		// プレイヤー死亡 & パーティクル終了 → タイトルへ戻るフェード
 		if (player_->IsDead() && deathParticle_.IsFinished()) {
 			phase_ = Phase::kFadeOut;
 			fade_->Start(Fade::Status::FadeOut, 1.0f);
+		}
+		// クリア時：パーティクル待たずすぐフェード
+		if (mapCleared_) {
+			phase_ = Phase::kClearFadeOut;
+			fade_->Start(Fade::Status::FadeOut, 1.0f);
+		}
+		break;
+
+	case Phase::kTyping:
+		// タイピング進行
+		typing_.Update();
+
+		if (typing_.IsSuccess()) {
+			// 敵を倒す → 同じパーティクル演出
+			if (typingTarget_) {
+				// 敵位置（AABB中心）でパーティクル
+				AABB eaabb = typingTarget_->GetAABB();
+				deathParticle_.Spawn(AabbCenter(eaabb));
+				// 敵削除
+				for (auto it = enemies_.begin(); it != enemies_.end(); ++it) {
+					if (*it == typingTarget_) {
+						delete *it;
+						enemies_.erase(it);
+						break;
+					}
+				}
+			}
+			typingTarget_ = nullptr;
+			phase_ = Phase::kPlay;
+		} else if (typing_.IsTimeout()) {
+			// 失敗 → プレイヤー死亡（元コードは接触即死だったが、ここでは失敗時に死亡）
+			if (!player_->IsDead()) {
+				player_->Die();
+				// プレイヤー位置でパーティクル
+				deathParticle_.Spawn(player_->GetWorldTransform().translation_);
+			}
+			typingTarget_ = nullptr;
+			phase_ = Phase::kPlay; // 死亡処理は kPlay の分岐でフェードへ
 		}
 		break;
 
 	case Phase::kFadeOut:
 		fade_->Update();
 		if (fade_->IsFinished()) {
-			finished_ = true; // main がこれを見て TitleScene に切り替える
+			finished_ = true; // mainが見てTitleへ（元の設計のまま）
+		}
+		break;
+
+	case Phase::kClearFadeOut:
+		fade_->Update();
+		if (fade_->IsFinished()) {
+			finished_ = true; // クリア後もTitleへ戻る
 		}
 		break;
 	}
 
-	cameraController_->Update();
+	// 演出更新
+	deathParticle_.Update();
 
+	// カメラ
+	cameraController_->Update();
 	if (Input::GetInstance()->PushKey(DIK_O)) {
 		isDebugCameraActive_ = !isDebugCameraActive_;
 	}
-
 	if (isDebugCameraActive_) {
 		debugCamera_->Update();
 		camera_->matView = debugCamera_->GetCamera().matView;
@@ -157,24 +245,32 @@ void GameScene::Update() {
 
 void GameScene::CheckAllCollisions() {
 	if (player_->IsDead())
-		return; // すでに死亡なら判定しない
+		return;
 
 	AABB aabb1 = player_->GetAABB();
 
 	for (Enemy* enemy : enemies_) {
 		AABB aabb2 = enemy->GetAABB();
-
 		bool isHit = (aabb1.min.x < aabb2.max.x && aabb1.max.x > aabb2.min.x) && (aabb1.min.y < aabb2.max.y && aabb1.max.y > aabb2.min.y) && (aabb1.min.z < aabb2.max.z && aabb1.max.z > aabb2.min.z);
 
 		if (isHit) {
-			// プレイヤー死亡！
-			player_->Die();
-
-			// 死亡演出（パーティクル発生）
-			deathParticle_.Spawn(player_->GetWorldTransform().translation_);
-
-			break; // 死亡したらループ終了
+			// ★ここからは「タイピング勝負」に入る（元は即死亡→パーティクルだった実装）
+			//   参考（元実装の流れ）: 衝突→Die→Spawn→フェードへ :contentReference[oaicite:0]{index=0}
+			typingTarget_ = enemy;
+			typing_.Start(PickRandom(typingWords_), typingTimeLimit_);
+			phase_ = Phase::kTyping;
+			break;
 		}
+	}
+}
+
+void GameScene::CheckGoalCollision() {
+	// プレイヤーAABBとゴールAABBの交差
+	AABB pa = player_->GetAABB();
+	bool hit = (pa.min.x < goalAabb_.max.x && pa.max.x > goalAabb_.min.x) && (pa.min.y < goalAabb_.max.y && pa.max.y > goalAabb_.min.y) && (pa.min.z < goalAabb_.max.z && pa.max.z > goalAabb_.min.z);
+
+	if (hit) {
+		mapCleared_ = true;
 	}
 }
 
@@ -182,6 +278,7 @@ void GameScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 	Model::PreDraw(dxCommon->GetCommandList());
 
+	// マップ
 	for (auto& line : worldTransformBlocks_) {
 		for (auto& block : line) {
 			if (!block)
@@ -190,17 +287,28 @@ void GameScene::Draw() {
 		}
 	}
 
+	// スカイドーム
 	modelSkyDome_->Draw(worldTransform_, *camera_);
+
+	// ゴール（見た目：キューブ）
+	modelCube_->Draw(goalTransform_, *camera_);
+
+	// キャラクター
 	player_->Draw();
 	for (Enemy* enemy : enemies_) {
 		enemy->Draw();
 	}
 
-	// DeathParticle描画
+	// デスパーティクル
 	deathParticle_.Draw();
 
 	Model::PostDraw();
 
+	// タイピング中なら、ここでUI表示用の描画を挟みたい場合は実装してOK
+	// （このサンプルではエンジン非依存化のため何も描かない）
+	// typing_.DrawStub();
+
+	// フェード（常に最後）
 	if (fade_)
 		fade_->Draw();
 }
