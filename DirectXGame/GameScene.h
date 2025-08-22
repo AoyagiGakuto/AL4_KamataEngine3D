@@ -8,8 +8,11 @@
 #include "Player.h"
 #include "Skydome.h"
 #include "TypingChallenge.h"
+
 #include <list>
 #include <memory>
+#include <string>
+#include <unordered_map>
 #include <vector>
 
 using namespace KamataEngine;
@@ -29,7 +32,11 @@ private:
 	void CheckGoalCollision();
 	Vector3 AabbCenter(const AABB& aabb) { return {(aabb.min.x + aabb.max.x) * 0.5f, (aabb.min.y + aabb.max.y) * 0.5f, (aabb.min.z + aabb.max.z) * 0.5f}; }
 
-	// フェーズ：入る/遊ぶ/タイピング/出る/クリア（出る）
+	// ===== 単語OBJ（出題用） =====
+	Model* LoadWordModel(const std::string& word); // 単語OBJを読み込み（キャッシュ）
+	void UpdateWordTransformFollowPlayer();        // 単語OBJの追従位置更新
+
+	// フェーズ：入る/遊ぶ/タイピング/出る/クリア
 	enum class Phase { kFadeIn, kPlay, kTyping, kFadeOut, kClearFadeOut };
 	Phase phase_ = Phase::kFadeIn;
 
@@ -41,11 +48,11 @@ private:
 	Model* modelEnemy_ = nullptr;
 	Model* modelDeathParticle_ = nullptr;
 
-	// ワールドトランスフォーム
+	// 背景などに使うワールドトランスフォーム
 	WorldTransform worldTransform_;
 
 	// カメラ
-	Camera* camera_;
+	Camera* camera_ = nullptr;
 	bool isDebugCameraActive_ = false;
 	DebugCamera* debugCamera_ = nullptr;
 
@@ -70,8 +77,15 @@ private:
 	TypingChallenge typing_;
 	Enemy* typingTarget_ = nullptr;
 	float typingTimeLimit_ = 10.0f;
-	// 出題ワード（好きに増やする）
 	std::vector<std::string> typingWords_ = {"programming", "kamata", "vector", "matrix", "enemy", "player", "jump", "boost", "lockon", "beam", "apple", "sword"};
+
+	// 現在の出題単語（OBJ）表示用
+	std::unordered_map<std::string, Model*> wordCache_; // 単語→モデル
+	WorldTransform wordTransform_;                      // 単語OBJのワールド
+	std::string currentTypingWord_;                     // 今出してる単語
+	Vector3 typingAnchorOffset_ = {0.0f, 3.0f, 0.0f};   // プレイヤーからの相対位置
+	std::string wordPrefix_ = "";                       // 例: "word_"
+	std::string wordSuffix_ = "";                       // 例: "_mesh"
 
 	// ===== ゴール（AABBで判定、見た目はキューブ） =====
 	WorldTransform goalTransform_;

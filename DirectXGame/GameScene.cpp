@@ -6,6 +6,7 @@
 
 using namespace KamataEngine;
 
+// ランダムユーティリティ
 static inline std::mt19937& Rng() {
 	static std::random_device rd;
 	static std::mt19937 mt(rd());
@@ -20,7 +21,7 @@ static inline std::string PickRandom(const std::vector<std::string>& v) {
 
 void GameScene::Initialize() {
 	modelCube_ = Model::CreateFromOBJ("block");
-	modelSkyDome_ = Model::CreateFromOBJ("tenkixyuu", true);
+	modelSkyDome_ = Model::CreateFromOBJ("tenkixyuu", true); // 天球
 	modelPlayer_ = Model::CreateFromOBJ("player");
 	modelEnemy_ = Model::CreateFromOBJ("Ninja");
 	modelDeathParticle_ = Model::CreateFromOBJ("deathParticle");
@@ -43,10 +44,9 @@ void GameScene::Initialize() {
 	player_->Initialize(modelPlayer_, camera_, playerPosition);
 	player_->SetMapChipField(mapChipField_);
 
-	// ===== 敵スポーン地点を定義（必要に応じて調整してOK） =====
+	// ===== 敵スポーン地点（必要に応じて調整） =====
 	std::vector<Vector3> spawnPoints;
 	{
-		// マップインデックス指定から中心座標に変換
 		auto pos = [&](uint32_t x, uint32_t y) {
 			Vector3 p = mapChipField_->GetMapPositionTypeByIndex(x, y);
 			p.y -= MapChipField::kBlockHeight / 2.0f;
@@ -79,7 +79,6 @@ void GameScene::Initialize() {
 
 	// DeathParticle 初期化
 	deathParticle_.Initialize(modelDeathParticle_, camera_);
-
 	particleCooldown_ = 0.0f;
 
 	// フェード
@@ -92,9 +91,15 @@ void GameScene::Initialize() {
 	typing_.Initialize(typingTimeLimit_);
 	typingTarget_ = nullptr;
 
+	// 単語OBJのワールド
+	wordTransform_.Initialize();
+	wordTransform_.scale_ = {1.0f, 1.0f, 1.0f}; // 見た目調整
+	wordTransform_.rotation_ = {0.0f, 0.0f, 0.0f};
+	wordTransform_.translation_ = player_->GetWorldTransform().translation_ + typingAnchorOffset_;
+	wordTransform_.TransferMatrix();
+
 	// ===== ゴールの設置（見た目はキューブを大きめに） =====
 	goalTransform_.Initialize();
-	// 例：マップ右側にゴール
 	goalTransform_.translation_ = mapChipField_->GetMapPositionTypeByIndex(95, 18);
 	goalTransform_.scale_ = {1.5f, 2.0f, 1.5f};
 	goalTransform_.TransferMatrix();
@@ -180,10 +185,12 @@ void GameScene::Update() {
 		// タイピング進行
 		typing_.Update();
 
+		// ★ 単語OBJをプレイヤーに追従
+		UpdateWordTransformFollowPlayer();
+
 		if (typing_.IsSuccess()) {
 			// 敵を倒す → 同じパーティクル演出
 			if (typingTarget_) {
-				// 敵位置（AABB中心）でパーティクル
 				AABB eaabb = typingTarget_->GetAABB();
 				deathParticle_.Spawn(AabbCenter(eaabb));
 				// 敵削除
@@ -198,10 +205,9 @@ void GameScene::Update() {
 			typingTarget_ = nullptr;
 			phase_ = Phase::kPlay;
 		} else if (typing_.IsTimeout()) {
-			// 失敗 → プレイヤー死亡（元コードは接触即死だったが、ここでは失敗時に死亡）
+			// 失敗 → プレイヤー死亡
 			if (!player_->IsDead()) {
 				player_->Die();
-				// プレイヤー位置でパーティクル
 				deathParticle_.Spawn(player_->GetWorldTransform().translation_);
 			}
 			typingTarget_ = nullptr;
@@ -212,14 +218,14 @@ void GameScene::Update() {
 	case Phase::kFadeOut:
 		fade_->Update();
 		if (fade_->IsFinished()) {
-			finished_ = true; // mainが見てTitleへ（元の設計のまま）
+			finished_ = true; // main が見て Title へ
 		}
 		break;
 
 	case Phase::kClearFadeOut:
 		fade_->Update();
 		if (fade_->IsFinished()) {
-			finished_ = true; // クリア後もTitleへ戻る
+			finished_ = true; // クリア後も Title へ
 		}
 		break;
 	}
@@ -233,9 +239,11 @@ void GameScene::Update() {
 		isDebugCameraActive_ = !isDebugCameraActive_;
 	}
 	if (isDebugCameraActive_) {
-		debugCamera_->Update();
-		camera_->matView = debugCamera_->GetCamera().matView;
-		camera_->matProjection = debugCamera_->GetCamera().matProjection;
+		if (debugCamera_) {
+			debugCamera_->Update();
+			camera_->matView = debugCamera_->GetCamera().matView;
+			camera_->matProjection = debugCamera_->GetCamera().matProjection;
+		}
 	} else {
 		camera_->matView = cameraController_->GetViewProjection().matView;
 		camera_->matProjection = cameraController_->GetViewProjection().matProjection;
@@ -254,10 +262,13 @@ void GameScene::CheckAllCollisions() {
 		bool isHit = (aabb1.min.x < aabb2.max.x && aabb1.max.x > aabb2.min.x) && (aabb1.min.y < aabb2.max.y && aabb1.max.y > aabb2.min.y) && (aabb1.min.z < aabb2.max.z && aabb1.max.z > aabb2.min.z);
 
 		if (isHit) {
-			// ★ここからは「タイピング勝負」に入る（元は即死亡→パーティクルだった実装）
-			//   参考（元実装の流れ）: 衝突→Die→Spawn→フェードへ :contentReference[oaicite:0]{index=0}
+			// ★ タイピング開始：単語を選んでOBJを準備
 			typingTarget_ = enemy;
-			typing_.Start(PickRandom(typingWords_), typingTimeLimit_);
+			std::string word = PickRandom(typingWords_);
+			currentTypingWord_ = word; // ← 直接保持（GetTargetを使わない互換策）
+			typing_.Start(word, typingTimeLimit_);
+			LoadWordModel(currentTypingWord_); // キャッシュへ
+
 			phase_ = Phase::kTyping;
 			break;
 		}
@@ -290,6 +301,14 @@ void GameScene::Draw() {
 	// スカイドーム
 	modelSkyDome_->Draw(worldTransform_, *camera_);
 
+	// ★ タイピング中だけ単語OBJを表示
+	if (phase_ == Phase::kTyping) {
+		auto it = wordCache_.find(currentTypingWord_);
+		if (it != wordCache_.end() && it->second) {
+			it->second->Draw(wordTransform_, *camera_);
+		}
+	}
+
 	// ゴール（見た目：キューブ）
 	modelCube_->Draw(goalTransform_, *camera_);
 
@@ -304,13 +323,29 @@ void GameScene::Draw() {
 
 	Model::PostDraw();
 
-	// タイピング中なら、ここでUI表示用の描画を挟みたい場合は実装してOK
-	// （このサンプルではエンジン非依存化のため何も描かない）
-	// typing_.DrawStub();
-
 	// フェード（常に最後）
 	if (fade_)
 		fade_->Draw();
+}
+
+Model* GameScene::LoadWordModel(const std::string& word) {
+	auto it = wordCache_.find(word);
+	if (it != wordCache_.end())
+		return it->second;
+
+	std::string resName = wordPrefix_ + word + wordSuffix_; // 例: "programming"
+	Model* m = Model::CreateFromOBJ(resName.c_str());
+	wordCache_[word] = m; // nullptr でもキャッシュして以後の無駄ロード回避
+	return m;
+}
+
+void GameScene::UpdateWordTransformFollowPlayer() {
+	Vector3 base = player_->GetWorldTransform().translation_;
+	wordTransform_.translation_.x = base.x + typingAnchorOffset_.x;
+	wordTransform_.translation_.y = base.y + typingAnchorOffset_.y;
+	wordTransform_.translation_.z = base.z + typingAnchorOffset_.z;
+	wordTransform_.matWorld_ = MakeAffineMatrix(wordTransform_.scale_, wordTransform_.rotation_, wordTransform_.translation_);
+	wordTransform_.TransferMatrix();
 }
 
 GameScene::~GameScene() {
