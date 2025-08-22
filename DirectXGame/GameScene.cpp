@@ -20,7 +20,7 @@ static inline std::string PickRandom(const std::vector<std::string>& v) {
 
 void GameScene::Initialize() {
 	modelCube_ = Model::CreateFromOBJ("block");
-	modelSkyDome_ = Model::CreateFromOBJ("SkyDome", true);
+	modelSkyDome_ = Model::CreateFromOBJ("tenkixyuu", true);
 	modelPlayer_ = Model::CreateFromOBJ("player");
 	modelEnemy_ = Model::CreateFromOBJ("Ninja");
 	modelDeathParticle_ = Model::CreateFromOBJ("deathParticle");

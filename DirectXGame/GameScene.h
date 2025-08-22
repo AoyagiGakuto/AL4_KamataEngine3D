@@ -71,7 +71,7 @@ private:
 	Enemy* typingTarget_ = nullptr;
 	float typingTimeLimit_ = 10.0f;
 	// 出題ワード（好きに増やする）
-	std::vector<std::string> typingWords_ = {"gundam", "novice", "vector", "matrix", "enemy", "player", "jump", "boost", "lockon", "beam", "funnel", "sword"};
+	std::vector<std::string> typingWords_ = {"programming", "kamata", "vector", "matrix", "enemy", "player", "jump", "boost", "lockon", "beam", "apple", "sword"};
 
 	// ===== ゴール（AABBで判定、見た目はキューブ） =====
 	WorldTransform goalTransform_;

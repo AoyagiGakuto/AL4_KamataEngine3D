@@ -13,7 +13,7 @@ TitleScene::~TitleScene() {
 
 void TitleScene::Initialize() {
 	// タイトルロゴ
-	titleFontModel_ = Model::CreateFromOBJ("titleFont");
+	titleFontModel_ = Model::CreateFromOBJ("rittaitaiketu");
 	titleTransform_.Initialize();
 	titleTransform_.translation_ = {0.0f, 1.0f, 0.0f};
 	titleTransform_.scale_ = {2.0f, 2.0f, 2.0f};
