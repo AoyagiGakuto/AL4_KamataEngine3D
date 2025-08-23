@@ -98,20 +98,17 @@ void GameScene::Initialize() {
 
 	// 単語OBJのワールド（均等・小さめ）
 	wordTransform_.Initialize();
-	wordTransform_.scale_ = {0.4f, 0.4f, 0.4f};
+	wordTransform_.scale_ = {0.4f, 0.4f, 8.0f};
 	wordTransform_.rotation_ = {0.0f, 0.0f, 0.0f};
 	wordTransform_.translation_ = player_->GetWorldTransform().translation_ + typingAnchorOffset_;
 	wordTransform_.TransferMatrix();
 
 	// ハイライト（無ければ block にフォールバック）
 	modelHighlight_ = Model::CreateFromOBJ("highlight");
-	if (!modelHighlight_) {
-		modelHighlight_ = modelCube_;
-	}
 
 	hlTransform_.Initialize();
 	hlBackTransform_.Initialize();
-	hlBackTransform_.scale_ = {hlFullWidth_, hlHeight_, 0.02f};
+	hlBackTransform_.scale_ = {hlFullWidth_, hlHeight_, 1.0f};
 	hlTransform_.scale_ = {0.0f, hlHeight_, 0.12f}; // 厚み↑で確実に表示
 
 	// ===== ゴール =====
