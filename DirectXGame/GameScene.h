@@ -36,7 +36,7 @@ private:
 	Model* LoadWordModel(const std::string& word); // 単語OBJを読み込み（キャッシュ）
 	void UpdateWordTransformFollowPlayer();        // 単語OBJの追従位置更新
 
-	// フェーズ：入る/遊ぶ/タイピング/出る/クリア
+	// フェーズ
 	enum class Phase { kFadeIn, kPlay, kTyping, kFadeOut, kClearFadeOut };
 	Phase phase_ = Phase::kFadeIn;
 
@@ -70,7 +70,7 @@ private:
 	// シーン終了フラグ
 	bool finished_ = false;
 
-	// シーン内フェード
+	// フェード
 	Fade* fade_ = nullptr;
 
 	// ===== タイピング勝負 =====
@@ -80,25 +80,25 @@ private:
 	std::vector<std::string> typingWords_ = {"programming", "kamata", "vector", "matrix", "enemy", "player", "jump", "boost", "lockon", "beam", "apple", "sword"};
 
 	// 現在の出題単語（OBJ）表示用
-	std::unordered_map<std::string, Model*> wordCache_; // 単語→モデル
-	WorldTransform wordTransform_;                      // 単語OBJのワールド
-	std::string currentTypingWord_;                     // 今出してる単語
-	Vector3 typingAnchorOffset_ = {0.0f, 3.0f, 0.0f};   // プレイヤーからの相対位置
-	std::string wordPrefix_ = "";                       // 例: "word_"
-	std::string wordSuffix_ = "";                       // 例: "_mesh"
+	std::unordered_map<std::string, Model*> wordCache_;
+	WorldTransform wordTransform_;
+	std::string currentTypingWord_;
+	Vector3 typingAnchorOffset_ = {0.0f, 3.0f, 0.0f};
+	std::string wordPrefix_ = "";
+	std::string wordSuffix_ = "";
 	// 単語ごとのリソース名オーバーライド（例：player → playerMoji）
 	std::unordered_map<std::string, std::string> wordResOverride_;
 
 	// ==== 単語入力ハイライト（黄色バー） ====
-	Model* modelHighlight_ = nullptr; // 黄色い板（無ければ block を使用）
-	WorldTransform hlTransform_;      // 実際に伸び縮みするバー（黄色）
-	WorldTransform hlBackTransform_;  // 背景（全長バー）
-	float hlFullWidth_ = 6.0f;        // 単語の想定全幅（見た目で調整）
+	Model* modelHighlight_ = nullptr; // 無ければ block を使用
+	WorldTransform hlTransform_;      // 伸びるバー（入力済み）
+	WorldTransform hlBackTransform_;  // 背景バー（全長）
+	float hlFullWidth_ = 6.0f;        // 単語の想定全幅
 	float hlHeight_ = 0.25f;          // バーの高さ
-	float hlOffsetY_ = -1.2f;         // 単語OBJからのYオフセット（少し下）
-	float hlOffsetZ_ = -0.10f;        // 手前へ（-Z がカメラ側想定）
+	float hlOffsetY_ = -1.2f;         // 単語の少し下に
+	float hlOffsetZ_ = 0.0f;          // Zずらし無し（厚みで勝つ）
 
-	// ===== ゴール（AABBで判定、見た目はキューブ） =====
+	// ===== ゴール =====
 	WorldTransform goalTransform_;
 	AABB goalAabb_{};
 	bool mapCleared_ = false;
