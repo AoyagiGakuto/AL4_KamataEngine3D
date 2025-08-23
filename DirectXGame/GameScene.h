@@ -32,7 +32,7 @@ private:
 	void CheckGoalCollision();
 	Vector3 AabbCenter(const AABB& aabb) { return {(aabb.min.x + aabb.max.x) * 0.5f, (aabb.min.y + aabb.max.y) * 0.5f, (aabb.min.z + aabb.max.z) * 0.5f}; }
 
-	// ===== 単語OBJ（出題用） =====
+	// ==== 単語OBJ（出題用） ====
 	Model* LoadWordModel(const std::string& word); // 単語OBJを読み込み（キャッシュ）
 	void UpdateWordTransformFollowPlayer();        // 単語OBJの追従位置更新
 
@@ -86,6 +86,15 @@ private:
 	Vector3 typingAnchorOffset_ = {0.0f, 3.0f, 0.0f};   // プレイヤーからの相対位置
 	std::string wordPrefix_ = "";                       // 例: "word_"
 	std::string wordSuffix_ = "";                       // 例: "_mesh"
+
+	// ==== 単語入力ハイライト（黄色バー） ====
+	Model* modelHighlight_ = nullptr; // 黄色い板（無ければ block を使用）
+	WorldTransform hlTransform_;      // 実際に伸び縮みするバー（黄色）
+	WorldTransform hlBackTransform_;  // 背景（全長バー：薄い灰色想定）
+	float hlFullWidth_ = 4.0f;        // 単語の想定全幅（見た目に合わせて調整）
+	float hlHeight_ = 0.25f;          // バーの高さ
+	float hlOffsetY_ = -0.8f;         // 単語OBJからのYオフセット（下に出す）
+	float hlOffsetZ_ = 0.05f;         // 少し手前へ
 
 	// ===== ゴール（AABBで判定、見た目はキューブ） =====
 	WorldTransform goalTransform_;

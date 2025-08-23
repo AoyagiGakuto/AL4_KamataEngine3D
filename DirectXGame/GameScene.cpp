@@ -91,12 +91,22 @@ void GameScene::Initialize() {
 	typing_.Initialize(typingTimeLimit_);
 	typingTarget_ = nullptr;
 
-	// 単語OBJのワールド
+	// 単語OBJのワールド（★小さめに統一スケール）
 	wordTransform_.Initialize();
-	wordTransform_.scale_ = {1.0f, 1.0f, 1.0f}; // 見た目調整
+	wordTransform_.scale_ = {0.4f, 0.4f, 8.0f}; // ← でか過ぎ対策。必要に応じて調整してOK
 	wordTransform_.rotation_ = {0.0f, 0.0f, 0.0f};
 	wordTransform_.translation_ = player_->GetWorldTransform().translation_ + typingAnchorOffset_;
 	wordTransform_.TransferMatrix();
+
+	// ハイライトモデル（黄色板）を読み込み。無ければ block を使用
+	modelHighlight_ = Model::CreateFromOBJ("highlight");
+
+	// ハイライトTransform初期化（位置は毎フレ更新で追従）
+	hlTransform_.Initialize();
+	hlBackTransform_.Initialize();
+	// 初期スケール（横幅は後で割合で更新）
+	hlBackTransform_.scale_ = {hlFullWidth_, hlHeight_, 0.02f};
+	hlTransform_.scale_ = {0.0f, hlHeight_, 0.05f}; // 0から伸ばす
 
 	// ===== ゴールの設置（見た目はキューブを大きめに） =====
 	goalTransform_.Initialize();
@@ -181,12 +191,36 @@ void GameScene::Update() {
 		}
 		break;
 
-	case Phase::kTyping:
+	case Phase::kTyping: {
 		// タイピング進行
 		typing_.Update();
 
-		// ★ 単語OBJをプレイヤーに追従
+		// 単語OBJをプレイヤーに追従
 		UpdateWordTransformFollowPlayer();
+
+		// ===== 入力割合に応じて黄色バーを更新 =====
+		const size_t total = currentTypingWord_.size();
+		const size_t typed = typing_.GetTyped().size();
+		float ratio = (total > 0) ? static_cast<float>(typed) / static_cast<float>(total) : 0.0f;
+
+		// バーの中心位置（単語の真下に配置）
+		Vector3 base = wordTransform_.translation_;
+		base.y += hlOffsetY_;
+		base.z += hlOffsetZ_;
+
+		// 背景バー（全長）
+		hlBackTransform_.translation_ = base;
+		hlBackTransform_.matWorld_ = MakeAffineMatrix(hlBackTransform_.scale_, hlBackTransform_.rotation_, hlBackTransform_.translation_);
+		hlBackTransform_.TransferMatrix();
+
+		// 黄色バー：左から伸ばす（中心スケーリングなので左へずらす）
+		float leftGrowOffset = (ratio - 1.0f) * (hlFullWidth_ * 0.5f);
+		hlTransform_.translation_ = {base.x + leftGrowOffset, base.y, base.z};
+		hlTransform_.scale_.x = (std::max)(0.0f, hlFullWidth_ * ratio);
+		hlTransform_.scale_.y = hlHeight_;
+		hlTransform_.scale_.z = 0.05f;
+		hlTransform_.matWorld_ = MakeAffineMatrix(hlTransform_.scale_, hlTransform_.rotation_, hlTransform_.translation_);
+		hlTransform_.TransferMatrix();
 
 		if (typing_.IsSuccess()) {
 			// 敵を倒す → 同じパーティクル演出
@@ -213,7 +247,7 @@ void GameScene::Update() {
 			typingTarget_ = nullptr;
 			phase_ = Phase::kPlay; // 死亡処理は kPlay の分岐でフェードへ
 		}
-		break;
+	} break;
 
 	case Phase::kFadeOut:
 		fade_->Update();
@@ -265,7 +299,7 @@ void GameScene::CheckAllCollisions() {
 			// ★ タイピング開始：単語を選んでOBJを準備
 			typingTarget_ = enemy;
 			std::string word = PickRandom(typingWords_);
-			currentTypingWord_ = word; // ← 直接保持（GetTargetを使わない互換策）
+			currentTypingWord_ = word; // 直接保持（GetTargetを使わない）
 			typing_.Start(word, typingTimeLimit_);
 			LoadWordModel(currentTypingWord_); // キャッシュへ
 
@@ -301,8 +335,21 @@ void GameScene::Draw() {
 	// スカイドーム
 	modelSkyDome_->Draw(worldTransform_, *camera_);
 
-	// ★ タイピング中だけ単語OBJを表示
+	// タイピング中：ハイライトバー→単語OBJ
 	if (phase_ == Phase::kTyping) {
+		// 背景バー（全長）
+		if (modelHighlight_)
+			modelHighlight_->Draw(hlBackTransform_, *camera_);
+		else
+			modelCube_->Draw(hlBackTransform_, *camera_);
+
+		// 黄色バー（入力済み）
+		if (modelHighlight_)
+			modelHighlight_->Draw(hlTransform_, *camera_);
+		else
+			modelCube_->Draw(hlTransform_, *camera_);
+
+		// 単語OBJ
 		auto it = wordCache_.find(currentTypingWord_);
 		if (it != wordCache_.end() && it->second) {
 			it->second->Draw(wordTransform_, *camera_);
