@@ -48,7 +48,7 @@ private:
 	Model* modelEnemy_ = nullptr;
 	Model* modelDeathParticle_ = nullptr;
 
-	// 背景などに使うワールドトランスフォーム
+	// スカイドーム用ワールド
 	WorldTransform worldTransform_;
 
 	// カメラ
@@ -86,15 +86,17 @@ private:
 	Vector3 typingAnchorOffset_ = {0.0f, 3.0f, 0.0f};   // プレイヤーからの相対位置
 	std::string wordPrefix_ = "";                       // 例: "word_"
 	std::string wordSuffix_ = "";                       // 例: "_mesh"
+	// 単語ごとのリソース名オーバーライド（例：player → playerMoji）
+	std::unordered_map<std::string, std::string> wordResOverride_;
 
 	// ==== 単語入力ハイライト（黄色バー） ====
 	Model* modelHighlight_ = nullptr; // 黄色い板（無ければ block を使用）
 	WorldTransform hlTransform_;      // 実際に伸び縮みするバー（黄色）
-	WorldTransform hlBackTransform_;  // 背景（全長バー：薄い灰色想定）
-	float hlFullWidth_ = 4.0f;        // 単語の想定全幅（見た目に合わせて調整）
+	WorldTransform hlBackTransform_;  // 背景（全長バー）
+	float hlFullWidth_ = 6.0f;        // 単語の想定全幅（見た目で調整）
 	float hlHeight_ = 0.25f;          // バーの高さ
-	float hlOffsetY_ = -0.8f;         // 単語OBJからのYオフセット（下に出す）
-	float hlOffsetZ_ = 0.05f;         // 少し手前へ
+	float hlOffsetY_ = -1.2f;         // 単語OBJからのYオフセット（少し下）
+	float hlOffsetZ_ = -0.10f;        // 手前へ（-Z がカメラ側想定）
 
 	// ===== ゴール（AABBで判定、見た目はキューブ） =====
 	WorldTransform goalTransform_;

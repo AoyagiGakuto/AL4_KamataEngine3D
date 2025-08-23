@@ -1,6 +1,7 @@
 #include "GameScene.h"
 #include "CameraController.h"
 #include "MyMath.h"
+#include <algorithm> // std::max, std::clamp
 #include <numbers>
 #include <random>
 
@@ -32,6 +33,7 @@ void GameScene::Initialize() {
 
 	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
 
+	// スカイドーム用WTはいったん初期化だけ
 	worldTransform_.Initialize();
 
 	camera_ = new Camera();
@@ -91,22 +93,28 @@ void GameScene::Initialize() {
 	typing_.Initialize(typingTimeLimit_);
 	typingTarget_ = nullptr;
 
-	// 単語OBJのワールド（★小さめに統一スケール）
+	// ★ 単語名 → リソース名のオーバーライド（player だけ playerMoji を使う）
+	wordResOverride_["player"] = "playerMoji";
+
+	// 単語OBJのワールド（小さめ＆等倍スケール）
 	wordTransform_.Initialize();
-	wordTransform_.scale_ = {0.4f, 0.4f, 8.0f}; // ← でか過ぎ対策。必要に応じて調整してOK
+	wordTransform_.scale_ = {0.4f, 0.4f, 0.4f};
 	wordTransform_.rotation_ = {0.0f, 0.0f, 0.0f};
 	wordTransform_.translation_ = player_->GetWorldTransform().translation_ + typingAnchorOffset_;
 	wordTransform_.TransferMatrix();
 
 	// ハイライトモデル（黄色板）を読み込み。無ければ block を使用
 	modelHighlight_ = Model::CreateFromOBJ("highlight");
+	if (!modelHighlight_) {
+		modelHighlight_ = modelCube_;
+	}
 
 	// ハイライトTransform初期化（位置は毎フレ更新で追従）
 	hlTransform_.Initialize();
 	hlBackTransform_.Initialize();
-	// 初期スケール（横幅は後で割合で更新）
+	// 初期スケール（横幅は後で割合で更新／背景は常に全長）
 	hlBackTransform_.scale_ = {hlFullWidth_, hlHeight_, 0.02f};
-	hlTransform_.scale_ = {0.0f, hlHeight_, 0.05f}; // 0から伸ばす
+	hlTransform_.scale_ = {0.0f, hlHeight_, 0.08f}; // 0から伸ばす
 
 	// ===== ゴールの設置（見た目はキューブを大きめに） =====
 	goalTransform_.Initialize();
@@ -122,6 +130,12 @@ void GameScene::Initialize() {
 	goalAabb_.max = {gx + 0.8f, gy + 1.0f, gz + 0.8f};
 
 	mapCleared_ = false;
+
+	// ★ スカイドームを巨大化＋プレイヤー位置へ & 継ぎ目を背面へ
+	worldTransform_.scale_ = {200.0f, 200.0f, 200.0f};
+	worldTransform_.rotation_ = {0.0f, std::numbers::pi_v<float>, 0.0f};
+	worldTransform_.translation_ = player_->GetWorldTransform().translation_;
+	worldTransform_.TransferMatrix();
 }
 
 void GameScene::GenerateBlooks() {
@@ -218,7 +232,7 @@ void GameScene::Update() {
 		hlTransform_.translation_ = {base.x + leftGrowOffset, base.y, base.z};
 		hlTransform_.scale_.x = (std::max)(0.0f, hlFullWidth_ * ratio);
 		hlTransform_.scale_.y = hlHeight_;
-		hlTransform_.scale_.z = 0.05f;
+		hlTransform_.scale_.z = 0.08f;
 		hlTransform_.matWorld_ = MakeAffineMatrix(hlTransform_.scale_, hlTransform_.rotation_, hlTransform_.translation_);
 		hlTransform_.TransferMatrix();
 
@@ -283,6 +297,14 @@ void GameScene::Update() {
 		camera_->matProjection = cameraController_->GetViewProjection().matProjection;
 		camera_->TransferMatrix();
 	}
+
+	// ★ スカイドームをプレイヤーに追従（毎フレ）
+	{
+		const Vector3 p = player_->GetWorldTransform().translation_;
+		worldTransform_.translation_ = p;
+		worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
+		worldTransform_.TransferMatrix();
+	}
 }
 
 void GameScene::CheckAllCollisions() {
@@ -296,13 +318,17 @@ void GameScene::CheckAllCollisions() {
 		bool isHit = (aabb1.min.x < aabb2.max.x && aabb1.max.x > aabb2.min.x) && (aabb1.min.y < aabb2.max.y && aabb1.max.y > aabb2.min.y) && (aabb1.min.z < aabb2.max.z && aabb1.max.z > aabb2.min.z);
 
 		if (isHit) {
-			// ★ タイピング開始：単語を選んでOBJを準備
-			typingTarget_ = enemy;
+			// ★ タイピング開始：単語を選んでOBJを準備（必要な1個だけロード）
 			std::string word = PickRandom(typingWords_);
-			currentTypingWord_ = word; // 直接保持（GetTargetを使わない）
+			currentTypingWord_ = word;
 			typing_.Start(word, typingTimeLimit_);
-			LoadWordModel(currentTypingWord_); // キャッシュへ
 
+			// 単語の見た目幅をおおよそ調整（文字数ベース）
+			hlFullWidth_ = std::clamp(0.45f * static_cast<float>(currentTypingWord_.size()), 3.0f, 10.0f);
+			hlBackTransform_.scale_.x = hlFullWidth_;
+
+			LoadWordModel(currentTypingWord_); // キャッシュへ
+			typingTarget_ = enemy;
 			phase_ = Phase::kTyping;
 			break;
 		}
@@ -323,6 +349,9 @@ void GameScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 	Model::PreDraw(dxCommon->GetCommandList());
 
+	// ★ 先にスカイドーム
+	modelSkyDome_->Draw(worldTransform_, *camera_);
+
 	// マップ
 	for (auto& line : worldTransformBlocks_) {
 		for (auto& block : line) {
@@ -331,9 +360,6 @@ void GameScene::Draw() {
 			modelCube_->Draw(*block, *camera_);
 		}
 	}
-
-	// スカイドーム
-	modelSkyDome_->Draw(worldTransform_, *camera_);
 
 	// タイピング中：ハイライトバー→単語OBJ
 	if (phase_ == Phase::kTyping) {
@@ -376,13 +402,33 @@ void GameScene::Draw() {
 }
 
 Model* GameScene::LoadWordModel(const std::string& word) {
-	auto it = wordCache_.find(word);
-	if (it != wordCache_.end())
+	// 既に読み込み済みなら返す
+	if (auto it = wordCache_.find(word); it != wordCache_.end()) {
 		return it->second;
+	}
 
-	std::string resName = wordPrefix_ + word + wordSuffix_; // 例: "programming"
+	// 1) 単語ごとの上書きがあればそれを使う
+	std::string resName;
+	if (auto ov = wordResOverride_.find(word); ov != wordResOverride_.end()) {
+		resName = ov->second; // 例: "playerMoji"
+	} else {
+		resName = wordPrefix_ + word + wordSuffix_; // 例: "beam"
+	}
+
+	// 2) 読み込み
 	Model* m = Model::CreateFromOBJ(resName.c_str());
-	wordCache_[word] = m; // nullptr でもキャッシュして以後の無駄ロード回避
+
+	// 3) 読めなかった場合の軽いフォールバック（任意）
+	if (!m) {
+		std::string alt = word + std::string("Moji");
+		m = Model::CreateFromOBJ(alt.c_str());
+		if (!m) {
+			alt = std::string("moji_") + word;
+			m = Model::CreateFromOBJ(alt.c_str());
+		}
+	}
+
+	wordCache_[word] = m; // nullptrでもキャッシュ（無駄ロード防止）
 	return m;
 }
 
