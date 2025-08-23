@@ -26,6 +26,10 @@ public:
 	void Draw();
 	bool IsFinished() const { return finished_; }
 
+	// ★ 追加：終了ステータスを外部へ
+	enum class EndStatus { None, GameOver, GameClear };
+	EndStatus GetEndStatus() const { return endStatus_; }
+
 private:
 	void GenerateBlooks();
 	void CheckAllCollisions();
@@ -47,6 +51,10 @@ private:
 	Model* modelPlayer_ = nullptr;
 	Model* modelEnemy_ = nullptr;
 	Model* modelDeathParticle_ = nullptr;
+
+	// ★ 追加：ゴールの見た目を任意モデルに
+	Model* modelGoal_ = nullptr;
+	std::string goalModelName_ = "block"; // ← ここをOBJ名に合わせて変更可
 
 	// スカイドーム用ワールド
 	WorldTransform worldTransform_;
@@ -96,10 +104,13 @@ private:
 	float hlFullWidth_ = 6.0f;        // 単語の想定全幅
 	float hlHeight_ = 0.25f;          // バーの高さ
 	float hlOffsetY_ = -1.2f;         // 単語の少し下に
-	float hlOffsetZ_ = 0.0f;          // Zずらし無し（厚みで勝つ）
+	float hlOffsetZ_ = 0.0f;          // Zずらし無し
 
 	// ===== ゴール =====
 	WorldTransform goalTransform_;
 	AABB goalAabb_{};
 	bool mapCleared_ = false;
+
+	// ★ 追加：終了理由
+	EndStatus endStatus_ = EndStatus::None;
 };

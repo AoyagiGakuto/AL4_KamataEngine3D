@@ -1,3 +1,5 @@
+#include "GameClearScene.h"
+#include "GameOverScene.h"
 #include "GameScene.h"
 #include "KamataEngine.h"
 #include "TitleScene.h"
@@ -8,12 +10,16 @@ using namespace KamataEngine;
 DirectXCommon* dxCommon = nullptr;
 TitleScene* titleScene = nullptr;
 GameScene* gameScene = nullptr;
+GameOverScene* gameOverScene = nullptr;
+GameClearScene* gameClearScene = nullptr;
 
 // シーン状態管理用enum
 enum class Scene {
 	kUnknown = 0,
 	kTitle,
 	kGame,
+	kGameOver,
+	kGameClear,
 };
 
 Scene scene = Scene::kUnknown;
@@ -27,6 +33,14 @@ void UpdateScene() {
 	case Scene::kGame:
 		gameScene->Update();
 		break;
+	case Scene::kGameOver:
+		gameOverScene->Update();
+		break;
+	case Scene::kGameClear:
+		gameClearScene->Update();
+		break;
+	default:
+		break;
 	}
 }
 
@@ -38,6 +52,14 @@ void DrawScene() {
 		break;
 	case Scene::kGame:
 		gameScene->Draw();
+		break;
+	case Scene::kGameOver:
+		gameOverScene->Draw();
+		break;
+	case Scene::kGameClear:
+		gameClearScene->Draw();
+		break;
+	default:
 		break;
 	}
 }
@@ -54,14 +76,52 @@ void ChangeScene() {
 			gameScene->Initialize();
 		}
 		break;
+
 	case Scene::kGame:
 		if (gameScene->IsFinished()) {
+			// ★ ここでEndStatusに応じて分岐
+			GameScene::EndStatus st = gameScene->GetEndStatus();
 			delete gameScene;
 			gameScene = nullptr;
+
+			if (st == GameScene::EndStatus::GameOver) {
+				scene = Scene::kGameOver;
+				gameOverScene = new GameOverScene();
+				gameOverScene->Initialize();
+			} else if (st == GameScene::EndStatus::GameClear) {
+				scene = Scene::kGameClear;
+				gameClearScene = new GameClearScene();
+				gameClearScene->Initialize();
+			} else {
+				// 念のため：不明ならタイトルへ
+				scene = Scene::kTitle;
+				titleScene = new TitleScene();
+				titleScene->Initialize();
+			}
+		}
+		break;
+
+	case Scene::kGameOver:
+		if (gameOverScene->IsFinished()) {
+			delete gameOverScene;
+			gameOverScene = nullptr;
 			scene = Scene::kTitle;
 			titleScene = new TitleScene();
 			titleScene->Initialize();
 		}
+		break;
+
+	case Scene::kGameClear:
+		if (gameClearScene->IsFinished()) {
+			delete gameClearScene;
+			gameClearScene = nullptr;
+			scene = Scene::kTitle;
+			titleScene = new TitleScene();
+			titleScene->Initialize();
+		}
+		break;
+
+	default:
 		break;
 	}
 }
@@ -90,6 +150,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	delete titleScene;
 	delete gameScene;
+	delete gameOverScene;
+	delete gameClearScene;
 
 	KamataEngine::Finalize();
 	return 0;

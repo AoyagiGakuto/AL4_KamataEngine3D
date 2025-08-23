@@ -1,7 +1,7 @@
 #include "GameScene.h"
 #include "CameraController.h"
 #include "MyMath.h"
-#include <algorithm> // std::max, std::clamp
+#include <algorithm>
 #include <numbers>
 #include <random>
 
@@ -26,6 +26,9 @@ void GameScene::Initialize() {
 	modelPlayer_ = Model::CreateFromOBJ("player");
 	modelEnemy_ = Model::CreateFromOBJ("Ninja");
 	modelDeathParticle_ = Model::CreateFromOBJ("deathParticle");
+
+	// ★ 追加：ゴールの見た目（ユーザー作成ブロック）
+	modelGoal_ = Model::CreateFromOBJ(goalModelName_.c_str()); // ← OBJ名に合わせて差し替え
 
 	model_ = Model::Create();
 	mapChipField_ = new MapChipField();
@@ -118,13 +121,16 @@ void GameScene::Initialize() {
 	goalTransform_.TransferMatrix();
 
 	// AABB
-	float gx = goalTransform_.translation_.x;
-	float gy = goalTransform_.translation_.y;
-	float gz = goalTransform_.translation_.z;
-	goalAabb_.min = {gx - 0.8f, gy - 1.0f, gz - 0.8f};
-	goalAabb_.max = {gx + 0.8f, gy + 1.0f, gz + 0.8f};
+	{
+		float gx = goalTransform_.translation_.x;
+		float gy = goalTransform_.translation_.y;
+		float gz = goalTransform_.translation_.z;
+		goalAabb_.min = {gx - 0.8f, gy - 1.0f, gz - 0.8f};
+		goalAabb_.max = {gx + 0.8f, gy + 1.0f, gz + 0.8f};
+	}
 
 	mapCleared_ = false;
+	endStatus_ = EndStatus::None;
 
 	// ★ スカイドーム巨大化＆初期配置（継ぎ目を背面へ）
 	worldTransform_.scale_ = {1.0f, 1.0f, 0.0f};
@@ -188,10 +194,12 @@ void GameScene::Update() {
 			enemy->Update();
 		}
 		if (player_->IsDead() && deathParticle_.IsFinished()) {
+			endStatus_ = EndStatus::GameOver; // ★ 追加
 			phase_ = Phase::kFadeOut;
 			fade_->Start(Fade::Status::FadeOut, 1.0f);
 		}
 		if (mapCleared_) {
+			endStatus_ = EndStatus::GameClear; // ★ 追加
 			phase_ = Phase::kClearFadeOut;
 			fade_->Start(Fade::Status::FadeOut, 1.0f);
 		}
@@ -265,7 +273,7 @@ void GameScene::Update() {
 	// 演出更新
 	deathParticle_.Update();
 
-	// カメラ（debugCamera_ が無い時は常に通常カメラ）
+	// カメラ
 	cameraController_->Update();
 	if (debugCamera_ && Input::GetInstance()->TriggerKey(DIK_O)) {
 		isDebugCameraActive_ = !isDebugCameraActive_;
@@ -280,7 +288,7 @@ void GameScene::Update() {
 		camera_->TransferMatrix();
 	}
 
-	// ★ スカイドーム：毎フレでプレイヤー位置に追従（巨大化＆継ぎ目は背面）
+	// ★ スカイドーム追従
 	{
 		const Vector3 p = player_->GetWorldTransform().translation_;
 		worldTransform_.translation_ = p;
@@ -300,12 +308,10 @@ void GameScene::CheckAllCollisions() {
 		bool isHit = (aabb1.min.x < aabb2.max.x && aabb1.max.x > aabb2.min.x) && (aabb1.min.y < aabb2.max.y && aabb1.max.y > aabb2.min.y) && (aabb1.min.z < aabb2.max.z && aabb1.max.z > aabb2.min.z);
 
 		if (isHit) {
-			// 必要な1個だけロード
 			std::string word = PickRandom(typingWords_);
 			currentTypingWord_ = word;
 			typing_.Start(word, typingTimeLimit_);
 
-			// 単語の幅（ざっくり文字数で）調整
 			hlFullWidth_ = std::clamp(0.45f * static_cast<float>(currentTypingWord_.size()), 3.0f, 10.0f);
 			hlBackTransform_.scale_.x = hlFullWidth_;
 
@@ -338,7 +344,7 @@ void GameScene::Draw() {
 		}
 	}
 
-	// スカイドーム（以前と同じ順。これで見え方が安定）
+	// スカイドーム
 	modelSkyDome_->Draw(worldTransform_, *camera_);
 
 	// タイピング中：ハイライト→単語OBJ
@@ -359,8 +365,11 @@ void GameScene::Draw() {
 		}
 	}
 
-	// ゴール
-	modelCube_->Draw(goalTransform_, *camera_);
+	// ★ ゴール：ユーザー作成ブロックで描画（無ければblockでフォールバック）
+	if (modelGoal_)
+		modelGoal_->Draw(goalTransform_, *camera_);
+	else
+		modelCube_->Draw(goalTransform_, *camera_);
 
 	// キャラクター
 	player_->Draw();
@@ -418,6 +427,8 @@ GameScene::~GameScene() {
 	delete mapChipField_;
 	delete player_;
 	delete fade_;
+	// 追加：ゴールモデル
+	delete modelGoal_;
 	for (Enemy* enemy : enemies_) {
 		delete enemy;
 	}

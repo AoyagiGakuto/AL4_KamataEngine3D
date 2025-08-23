@@ -25,6 +25,8 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="TitleScene.cpp" />
     <ClCompile Include="TypingChallenge.cpp" />
+    <ClCompile Include="GameOverScene.cpp" />
+    <ClCompile Include="GameClearScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CameraController.h" />
@@ -37,6 +39,8 @@
     <ClInclude Include="Skydome.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="TypingChallenge.h" />
+    <ClInclude Include="GameOverScene.h" />
+    <ClInclude Include="GameClearScene.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Obj.hlsli" />
