@@ -25,15 +25,19 @@ private:
 	// タイトルロゴ
 	Model* titleFontModel_ = nullptr;
 	WorldTransform titleTransform_;
+
+	// 背景（背景OBJ）
+	Model* backgroundModel_ = nullptr;
+	WorldTransform backgroundTransform_;
+
+	// 「PressSpace」OBJ（点滅表示）
+	Model* pressSpaceModel_ = nullptr;
+	WorldTransform pressSpaceTransform_;
 	float blinkTimer_ = 0.0f;
 	bool blinkVisible_ = true;
 
-	// 上下揺れ
+	// 上下揺れ（ロゴ）
 	float logoMoveTimer_ = 0.0f;
-
-	// プレイヤー表示（オブジェとして）
-	Model* playerModel_ = nullptr;
-	WorldTransform playerTransform_;
 
 	Camera* camera_ = nullptr;
 

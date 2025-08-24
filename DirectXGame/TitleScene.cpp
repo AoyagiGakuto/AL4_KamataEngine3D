@@ -6,7 +6,8 @@ TitleScene::TitleScene() {}
 
 TitleScene::~TitleScene() {
 	delete titleFontModel_;
-	delete playerModel_;
+	delete backgroundModel_;
+	delete pressSpaceModel_;
 	delete camera_;
 	delete fade_;
 }
@@ -15,15 +16,20 @@ void TitleScene::Initialize() {
 	// タイトルロゴ
 	titleFontModel_ = Model::CreateFromOBJ("rittaitaiketu");
 	titleTransform_.Initialize();
-	titleTransform_.translation_ = {0.0f, 1.0f, 0.0f};
+	titleTransform_.translation_ = {0.0f, 5.0f, 0.0f};
 	titleTransform_.scale_ = {2.0f, 2.0f, 2.0f};
 
-	// 画面下にプレイヤーモデルを置いて装飾
-	playerModel_ = Model::CreateFromOBJ("player");
-	playerTransform_.Initialize();
-	playerTransform_.translation_ = {0.0f, -2.0f, 0.0f};
-	playerTransform_.scale_ = {10.0f, 10.0f, 10.0f};
-	playerTransform_.rotation_ = {0.0f, 3.14f, 0.0f};
+	// ★背景
+	backgroundModel_ = Model::CreateFromOBJ("background");
+	backgroundTransform_.Initialize();
+	// 画面いっぱいに見せたい想定のサイズ（必調整）
+	backgroundTransform_.scale_ = {100.0f, 100.0f, 10.0f};
+
+	// ★PressSpace（点滅表示）
+	pressSpaceModel_ = Model::CreateFromOBJ("PressSpace");
+	pressSpaceTransform_.Initialize();
+	pressSpaceTransform_.translation_ = {0.0f, -3.0f, 0.0f};
+	pressSpaceTransform_.scale_ = {3.5f, 3.5f, 1.5f};
 
 	// カメラ
 	camera_ = new Camera();
@@ -66,7 +72,7 @@ void TitleScene::Update() {
 		break;
 	}
 
-	// 点滅
+	// 「PressSpace」点滅
 	blinkTimer_ += 1.0f / 60.0f;
 	if (blinkTimer_ > 0.5f) {
 		blinkVisible_ = !blinkVisible_;
@@ -82,20 +88,30 @@ void TitleScene::Update() {
 	// 行列更新
 	titleTransform_.matWorld_ = MakeAffineMatrix(titleTransform_.scale_, titleTransform_.rotation_, titleTransform_.translation_);
 	titleTransform_.TransferMatrix();
-	playerTransform_.matWorld_ = MakeAffineMatrix(playerTransform_.scale_, playerTransform_.rotation_, playerTransform_.translation_);
-	playerTransform_.TransferMatrix();
+
+	backgroundTransform_.matWorld_ = MakeAffineMatrix(backgroundTransform_.scale_, backgroundTransform_.rotation_, backgroundTransform_.translation_);
+	backgroundTransform_.TransferMatrix();
+
+	pressSpaceTransform_.matWorld_ = MakeAffineMatrix(pressSpaceTransform_.scale_, pressSpaceTransform_.rotation_, pressSpaceTransform_.translation_);
+	pressSpaceTransform_.TransferMatrix();
 }
 
 void TitleScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 	Model::PreDraw(dxCommon->GetCommandList());
 
-	titleFontModel_->Draw(titleTransform_, *camera_);
-	playerModel_->Draw(playerTransform_, *camera_);
+	// 背景 → ロゴ → PressSpace（点滅）
+	if (backgroundModel_)
+		backgroundModel_->Draw(backgroundTransform_, *camera_);
+	
+	if (titleFontModel_)
+		titleFontModel_->Draw(titleTransform_, *camera_);
+	if (pressSpaceModel_ && blinkVisible_)
+		pressSpaceModel_->Draw(pressSpaceTransform_, *camera_);
 
 	Model::PostDraw();
 
-	// ★最後にフェードを被せる（常に最後！）
+	// 最後にフェードを被せる
 	if (fade_)
 		fade_->Draw();
 }

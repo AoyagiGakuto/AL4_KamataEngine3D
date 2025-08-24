@@ -20,9 +20,17 @@ private:
 
 	bool finished_ = false;
 
-	// 表示
-	Model* textModel_ = nullptr; // "gameover" などのOBJ（用意できなければ nullptr）
+	Model* textModel_ = nullptr;
 	WorldTransform textTransform_;
+
+	// 背景とPressSpace（タイトルと同等）
+	Model* backgroundModel_ = nullptr;
+	WorldTransform backgroundTransform_;
+
+	Model* pressSpaceModel_ = nullptr;
+	WorldTransform pressSpaceTransform_;
+	float blinkTimer_ = 0.0f;
+	bool blinkVisible_ = true;
 
 	Camera* camera_ = nullptr;
 	Fade* fade_ = nullptr;

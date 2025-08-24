@@ -20,8 +20,18 @@ private:
 
 	bool finished_ = false;
 
-	Model* textModel_ = nullptr; // "gameclear" などのOBJ
+	// 「GAME CLEAR」文字（任意、なければnullptr）
+	Model* textModel_ = nullptr;
 	WorldTransform textTransform_;
+
+	// 背景とPressSpace（タイトルと同等）
+	Model* backgroundModel_ = nullptr;
+	WorldTransform backgroundTransform_;
+
+	Model* pressSpaceModel_ = nullptr;
+	WorldTransform pressSpaceTransform_;
+	float blinkTimer_ = 0.0f;
+	bool blinkVisible_ = true;
 
 	Camera* camera_ = nullptr;
 	Fade* fade_ = nullptr;
