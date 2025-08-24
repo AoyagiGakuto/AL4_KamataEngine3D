@@ -1,29 +1,44 @@
 #include "GameOverScene.h"
 #include "MyMath.h"
 #include <cmath>
+#include <numbers>
 
 void GameOverScene::Initialize() {
-	// 「GAME OVER」OBJ（用意がなければnullptrのままでOK）
+	// 「GAME OVER」OBJ（用意なければnullptrのままでOK）
 	textModel_ = Model::CreateFromOBJ("gameover");
-
 	textTransform_.Initialize();
-	textTransform_.translation_ = {0.0f, 5.0f, 0.0f};
+	textTransform_.translation_ = {0.0f, 5.0f, 6.0f};
 	textTransform_.scale_ = {5.5f, 5.5f, 5.5f};
 
-	// 背景
+	// 背景OBJ（任意）
 	backgroundModel_ = Model::CreateFromOBJ("background");
 	backgroundTransform_.Initialize();
-	backgroundTransform_.scale_ = {20.0f, 15.0f, 1.0f};
+	backgroundTransform_.translation_ = {0.0f, 0.0f, 10.0f};
+	backgroundTransform_.rotation_.y = std::numbers::pi_v<float>;
+	backgroundTransform_.scale_ = {10000.0f, 10000.0f, 10.0f};
+
+	// ★天球（内側表示／確実な背景）
+	skyDomeModel_ = Model::CreateFromOBJ("tenkixyuu", true); // true が使えない場合は x を反転して
+	// skyDomeModel_ = Model::CreateFromOBJ("tenkixyuu"); skyDomeWT_.scale_.x *= -1.0f;
+	skyDomeWT_.Initialize();
+	skyDomeWT_.scale_ = {50.0f, 50.0f, 50.0f};
+	skyDomeWT_.rotation_.y = std::numbers::pi_v<float>;
+	skyDomeWT_.translation_ = {0.0f, 0.0f, 0.0f};
+	skyDomeWT_.TransferMatrix();
 
 	// PressSpace（点滅）
 	pressSpaceModel_ = Model::CreateFromOBJ("PressSpace");
 	pressSpaceTransform_.Initialize();
-	pressSpaceTransform_.translation_ = {0.0f, -3.0f, 0.0f};
+	pressSpaceTransform_.translation_ = {0.0f, -3.0f, 6.0f};
 	pressSpaceTransform_.scale_ = {3.5f, 3.5f, 1.5f};
 
+	// カメラ
 	camera_ = new Camera();
 	camera_->Initialize();
+	camera_->translation_ = {0.0f, 0.0f, -15.0f};
+	camera_->TransferMatrix();
 
+	// フェード
 	fade_ = new Fade();
 	fade_->Initialize();
 	phase_ = Phase::FadeIn;
@@ -43,7 +58,6 @@ void GameOverScene::Update() {
 		}
 		break;
 	case Phase::Main:
-		// Space でタイトルへ
 		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
 			phase_ = Phase::FadeOut;
 			fade_->Start(Fade::Status::FadeOut, 0.8f);
@@ -64,6 +78,11 @@ void GameOverScene::Update() {
 		blinkTimer_ = 0.0f;
 	}
 
+	// 天球をカメラに追従
+	skyDomeWT_.translation_ = camera_->translation_;
+	skyDomeWT_.matWorld_ = MakeAffineMatrix(skyDomeWT_.scale_, skyDomeWT_.rotation_, skyDomeWT_.translation_);
+	skyDomeWT_.TransferMatrix();
+
 	// 行列更新
 	if (textModel_) {
 		textTransform_.matWorld_ = MakeAffineMatrix(textTransform_.scale_, textTransform_.rotation_, textTransform_.translation_);
@@ -80,6 +99,9 @@ void GameOverScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 	Model::PreDraw(dxCommon->GetCommandList());
 
+	// 背景（天球→任意の平面背景→テキスト）
+	if (skyDomeModel_)
+		skyDomeModel_->Draw(skyDomeWT_, *camera_);
 	if (backgroundModel_)
 		backgroundModel_->Draw(backgroundTransform_, *camera_);
 	if (textModel_)
@@ -95,6 +117,7 @@ void GameOverScene::Draw() {
 GameOverScene::~GameOverScene() {
 	delete textModel_;
 	delete backgroundModel_;
+	delete skyDomeModel_;
 	delete pressSpaceModel_;
 	delete camera_;
 	delete fade_;

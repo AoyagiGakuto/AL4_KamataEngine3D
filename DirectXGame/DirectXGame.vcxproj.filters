@@ -27,6 +27,7 @@
     <ClCompile Include="TypingChallenge.cpp" />
     <ClCompile Include="GameOverScene.cpp" />
     <ClCompile Include="GameClearScene.cpp" />
+    <ClCompile Include="TutorialScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CameraController.h" />
@@ -41,6 +42,7 @@
     <ClInclude Include="TypingChallenge.h" />
     <ClInclude Include="GameOverScene.h" />
     <ClInclude Include="GameClearScene.h" />
+    <ClInclude Include="TutorialScene.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Obj.hlsli" />

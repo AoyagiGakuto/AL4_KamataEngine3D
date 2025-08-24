@@ -1,32 +1,29 @@
-#include "GameClearScene.h"
+#include "TutorialScene.h"
 #include "MyMath.h"
-#include <cmath>
 #include <numbers>
 
-void GameClearScene::Initialize() {
-	// 「GAME CLEAR」OBJ（用意なければnullptrでもOK）
-	textModel_ = Model::CreateFromOBJ("gameclear");
-	textTransform_.Initialize();
-	textTransform_.translation_ = {0.0f, 5.0f, 6.0f};
-	textTransform_.scale_ = {5.5f, 5.5f, 2.5f};
+void TutorialScene::Initialize() {
+	// チュートリアル文字OBJ
+	tutorialModel_ = Model::CreateFromOBJ("tutorial");
+	tutorialTransform_.Initialize();
+	tutorialTransform_.translation_ = {0.0f, 5.0f, 6.0f};
+	tutorialTransform_.scale_ = {3.0f, 3.0f, 1.0f};
 
-	// 背景OBJ（任意）
+	// 背景
 	backgroundModel_ = Model::CreateFromOBJ("background");
 	backgroundTransform_.Initialize();
 	backgroundTransform_.translation_ = {0.0f, 0.0f, 10.0f};
 	backgroundTransform_.rotation_.y = std::numbers::pi_v<float>;
-	backgroundTransform_.scale_ = {10000.0f, 10000.0f, 10.0f};
+	backgroundTransform_.scale_ = {20.0f, 15.0f, 1.0f};
 
-	// ★天球（内側表示／確実な背景）
 	skyDomeModel_ = Model::CreateFromOBJ("tenkixyuu", true);
-	// skyDomeModel_ = Model::CreateFromOBJ("tenkixyuu"); skyDomeWT_.scale_.x *= -1.0f;
 	skyDomeWT_.Initialize();
 	skyDomeWT_.scale_ = {50.0f, 50.0f, 50.0f};
 	skyDomeWT_.rotation_.y = std::numbers::pi_v<float>;
 	skyDomeWT_.translation_ = {0.0f, 0.0f, 0.0f};
 	skyDomeWT_.TransferMatrix();
 
-	// PressSpace（点滅）
+	// PressSpace
 	pressSpaceModel_ = Model::CreateFromOBJ("PressSpace");
 	pressSpaceTransform_.Initialize();
 	pressSpaceTransform_.translation_ = {0.0f, -3.0f, 6.0f};
@@ -43,19 +40,14 @@ void GameClearScene::Initialize() {
 	fade_->Initialize();
 	phase_ = Phase::FadeIn;
 	fade_->Start(Fade::Status::FadeIn, 0.8f);
-
-	blinkTimer_ = 0.0f;
-	blinkVisible_ = true;
-	finished_ = false;
 }
 
-void GameClearScene::Update() {
+void TutorialScene::Update() {
 	switch (phase_) {
 	case Phase::FadeIn:
 		fade_->Update();
-		if (fade_->IsFinished()) {
+		if (fade_->IsFinished())
 			phase_ = Phase::Main;
-		}
 		break;
 	case Phase::Main:
 		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
@@ -65,9 +57,8 @@ void GameClearScene::Update() {
 		break;
 	case Phase::FadeOut:
 		fade_->Update();
-		if (fade_->IsFinished()) {
+		if (fade_->IsFinished())
 			finished_ = true;
-		}
 		break;
 	}
 
@@ -78,16 +69,15 @@ void GameClearScene::Update() {
 		blinkTimer_ = 0.0f;
 	}
 
-	// 天球をカメラに追従
+	// 天球追従
 	skyDomeWT_.translation_ = camera_->translation_;
 	skyDomeWT_.matWorld_ = MakeAffineMatrix(skyDomeWT_.scale_, skyDomeWT_.rotation_, skyDomeWT_.translation_);
 	skyDomeWT_.TransferMatrix();
 
 	// 行列更新
-	if (textModel_) {
-		textTransform_.matWorld_ = MakeAffineMatrix(textTransform_.scale_, textTransform_.rotation_, textTransform_.translation_);
-		textTransform_.TransferMatrix();
-	}
+	tutorialTransform_.matWorld_ = MakeAffineMatrix(tutorialTransform_.scale_, tutorialTransform_.rotation_, tutorialTransform_.translation_);
+	tutorialTransform_.TransferMatrix();
+
 	backgroundTransform_.matWorld_ = MakeAffineMatrix(backgroundTransform_.scale_, backgroundTransform_.rotation_, backgroundTransform_.translation_);
 	backgroundTransform_.TransferMatrix();
 
@@ -95,17 +85,16 @@ void GameClearScene::Update() {
 	pressSpaceTransform_.TransferMatrix();
 }
 
-void GameClearScene::Draw() {
+void TutorialScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 	Model::PreDraw(dxCommon->GetCommandList());
 
-	// 背景（天球→任意の平面背景→テキスト）
 	if (skyDomeModel_)
 		skyDomeModel_->Draw(skyDomeWT_, *camera_);
 	if (backgroundModel_)
 		backgroundModel_->Draw(backgroundTransform_, *camera_);
-	if (textModel_)
-		textModel_->Draw(textTransform_, *camera_);
+	if (tutorialModel_)
+		tutorialModel_->Draw(tutorialTransform_, *camera_);
 	if (pressSpaceModel_ && blinkVisible_)
 		pressSpaceModel_->Draw(pressSpaceTransform_, *camera_);
 
@@ -114,8 +103,8 @@ void GameClearScene::Draw() {
 		fade_->Draw();
 }
 
-GameClearScene::~GameClearScene() {
-	delete textModel_;
+TutorialScene::~TutorialScene() {
+	delete tutorialModel_;
 	delete backgroundModel_;
 	delete skyDomeModel_;
 	delete pressSpaceModel_;

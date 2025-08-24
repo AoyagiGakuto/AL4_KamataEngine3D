@@ -4,10 +4,10 @@
 
 using namespace KamataEngine;
 
-class GameClearScene {
+class TutorialScene {
 public:
-	GameClearScene() = default;
-	~GameClearScene();
+	TutorialScene() = default;
+	~TutorialScene();
 
 	void Initialize();
 	void Update();
@@ -17,22 +17,19 @@ public:
 private:
 	enum class Phase { FadeIn, Main, FadeOut };
 	Phase phase_ = Phase::FadeIn;
-
 	bool finished_ = false;
 
-	// 「GAME CLEAR」文字（任意）
-	Model* textModel_ = nullptr;
-	WorldTransform textTransform_;
+	// チュートリアル表示用 OBJ
+	Model* tutorialModel_ = nullptr;
+	WorldTransform tutorialTransform_;
 
-	// 背景OBJ（任意）
+	// 背景
 	Model* backgroundModel_ = nullptr;
 	WorldTransform backgroundTransform_;
-
-	// ★天球（確実に背景を映す）
 	Model* skyDomeModel_ = nullptr;
 	WorldTransform skyDomeWT_;
 
-	// 「PressSpace」OBJ（点滅）
+	// PressSpace
 	Model* pressSpaceModel_ = nullptr;
 	WorldTransform pressSpaceTransform_;
 	float blinkTimer_ = 0.0f;
