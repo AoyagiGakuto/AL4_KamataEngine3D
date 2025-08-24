@@ -26,7 +26,7 @@ public:
 	void Draw();
 	bool IsFinished() const { return finished_; }
 
-	// ★ 追加：終了ステータスを外部へ
+	// 終了ステータスを外部へ
 	enum class EndStatus { None, GameOver, GameClear };
 	EndStatus GetEndStatus() const { return endStatus_; }
 
@@ -37,7 +37,7 @@ private:
 	Vector3 AabbCenter(const AABB& aabb) { return {(aabb.min.x + aabb.max.x) * 0.5f, (aabb.min.y + aabb.max.y) * 0.5f, (aabb.min.z + aabb.max.z) * 0.5f}; }
 
 	// ==== 単語OBJ（出題用） ====
-	Model* LoadWordModel(const std::string& word); // 単語OBJを読み込み（キャッシュ）
+	Model* LoadWordModel(const std::string& word); // 単語OBJを読み込み
 	void UpdateWordTransformFollowPlayer();        // 単語OBJの追従位置更新
 
 	// フェーズ

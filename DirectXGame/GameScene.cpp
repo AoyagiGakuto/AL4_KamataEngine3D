@@ -7,11 +7,13 @@
 
 using namespace KamataEngine;
 
+// 乱数用ちょいあやしい
 static inline std::mt19937& Rng() {
 	static std::random_device rd;
 	static std::mt19937 mt(rd());
 	return mt;
 }
+// こっちも
 static inline std::string PickRandom(const std::vector<std::string>& v) {
 	if (v.empty())
 		return "test";
@@ -23,7 +25,7 @@ void GameScene::Initialize() {
 	modelCube_ = Model::CreateFromOBJ("block");
 	modelSkyDome_ = Model::CreateFromOBJ("tenkixyuu", true); // 天球
 	modelPlayer_ = Model::CreateFromOBJ("player");
-	modelEnemy_ = Model::CreateFromOBJ("Ninja");
+	modelEnemy_ = Model::CreateFromOBJ("enemyMonster");
 	modelDeathParticle_ = Model::CreateFromOBJ("deathParticle");
 
 	modelGoal_ = Model::CreateFromOBJ(goalModelName_.c_str());

@@ -7,7 +7,6 @@
 
 using namespace KamataEngine;
 
-// ======== グローバル ========
 DirectXCommon* dxCommon = nullptr;
 
 TitleScene* titleScene = nullptr;
