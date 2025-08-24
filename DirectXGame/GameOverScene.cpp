@@ -2,12 +2,12 @@
 #include "MyMath.h"
 
 void GameOverScene::Initialize() {
-	// 文字モデル（無ければ nullptr にして背景だけ）
-	textModel_ = Model::CreateFromOBJ("gameover"); // 無ければ用意不要
+	// 文字モデル
+	textModel_ = Model::CreateFromOBJ("GameOver");
 
 	textTransform_.Initialize();
 	textTransform_.translation_ = {0.0f, 3.0f, 0.0f};
-	textTransform_.scale_ = {2.5f, 2.5f, 2.5f};
+	textTransform_.scale_ = {8.5f, 8.5f, 8.5f};
 
 	camera_ = new Camera();
 	camera_->Initialize();

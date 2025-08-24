@@ -54,7 +54,7 @@ private:
 
 	// ★ 追加：ゴールの見た目を任意モデルに
 	Model* modelGoal_ = nullptr;
-	std::string goalModelName_ = "block"; // ← ここをOBJ名に合わせて変更可
+	std::string goalModelName_ = "clearBlock";
 
 	// スカイドーム用ワールド
 	WorldTransform worldTransform_;

@@ -1,13 +1,12 @@
-// GameClearScene.cpp
 #include "GameClearScene.h"
 #include "MyMath.h"
 
 void GameClearScene::Initialize() {
-	textModel_ = Model::CreateFromOBJ("gameclear"); // 無ければnullptr
+	textModel_ = Model::CreateFromOBJ("GameClear");
 
 	textTransform_.Initialize();
 	textTransform_.translation_ = {0.0f, 3.0f, 0.0f};
-	textTransform_.scale_ = {2.5f, 2.5f, 2.5f};
+	textTransform_.scale_ = {8.5f, 8.5f, 2.5f};
 
 	camera_ = new Camera();
 	camera_->Initialize();

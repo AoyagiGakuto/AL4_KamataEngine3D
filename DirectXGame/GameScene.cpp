@@ -117,7 +117,7 @@ void GameScene::Initialize() {
 	// ===== ゴール =====
 	goalTransform_.Initialize();
 	goalTransform_.translation_ = mapChipField_->GetMapPositionTypeByIndex(95, 18);
-	goalTransform_.scale_ = {1.5f, 2.0f, 1.5f};
+	goalTransform_.scale_ = {1.0f, 1.0f, 1.0f};
 	goalTransform_.TransferMatrix();
 
 	// AABB
@@ -368,8 +368,6 @@ void GameScene::Draw() {
 	// ★ ゴール：ユーザー作成ブロックで描画（無ければblockでフォールバック）
 	if (modelGoal_)
 		modelGoal_->Draw(goalTransform_, *camera_);
-	else
-		modelCube_->Draw(goalTransform_, *camera_);
 
 	// キャラクター
 	player_->Draw();
