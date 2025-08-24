@@ -1,4 +1,3 @@
-// main.cpp 〈全部置き換え〉
 #include "GameClearScene.h"
 #include "GameOverScene.h"
 #include "GameScene.h"

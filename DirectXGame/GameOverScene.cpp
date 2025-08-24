@@ -4,7 +4,7 @@
 #include <numbers>
 
 void GameOverScene::Initialize() {
-	// 「GAME OVER」OBJ（用意なければnullptrのままでOK）
+	// 「GAME OVER」OBJ
 	textModel_ = Model::CreateFromOBJ("gameover");
 	textTransform_.Initialize();
 	textTransform_.translation_ = {0.0f, 5.0f, 6.0f};
@@ -17,8 +17,8 @@ void GameOverScene::Initialize() {
 	backgroundTransform_.rotation_.y = std::numbers::pi_v<float>;
 	backgroundTransform_.scale_ = {10000.0f, 10000.0f, 10.0f};
 
-	// ★天球（内側表示／確実な背景）
-	skyDomeModel_ = Model::CreateFromOBJ("tenkixyuu", true); // true が使えない場合は x を反転して
+
+	skyDomeModel_ = Model::CreateFromOBJ("tenkixyuu", true);
 	// skyDomeModel_ = Model::CreateFromOBJ("tenkixyuu"); skyDomeWT_.scale_.x *= -1.0f;
 	skyDomeWT_.Initialize();
 	skyDomeWT_.scale_ = {50.0f, 50.0f, 50.0f};
@@ -99,7 +99,6 @@ void GameOverScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 	Model::PreDraw(dxCommon->GetCommandList());
 
-	// 背景（天球→任意の平面背景→テキスト）
 	if (skyDomeModel_)
 		skyDomeModel_->Draw(skyDomeWT_, *camera_);
 	if (backgroundModel_)

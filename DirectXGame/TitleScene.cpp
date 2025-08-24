@@ -1,7 +1,7 @@
 #include "TitleScene.h"
 #include "MyMath.h"
 #include <cmath>
-#include <numbers> // std::numbers::pi_v
+#include <numbers>
 
 TitleScene::TitleScene() {}
 
@@ -22,15 +22,14 @@ void TitleScene::Initialize() {
 	titleTransform_.translation_ = {0.0f, 5.0f, 6.0f};
 	titleTransform_.scale_ = {2.0f, 2.0f, 2.0f};
 
-	// ==== 背景OBJ（任意） ====
-	backgroundModel_ = Model::CreateFromOBJ("background"); // なくてもOK
+	// ==== 背景OBJ ====
+	backgroundModel_ = Model::CreateFromOBJ("background"); 
 	backgroundTransform_.Initialize();
 	backgroundTransform_.translation_ = {0.0f, 0.0f, 10.0f};
-	backgroundTransform_.rotation_.y = std::numbers::pi_v<float>; // 継ぎ目/表裏の保険
+	backgroundTransform_.rotation_.y = std::numbers::pi_v<float>;
 	backgroundTransform_.scale_ = {10000.0f, 10000.0f, 10.0f};
 
-	// ==== 天球（確実な背景） ====
-	// true をサポートしていない版なら、コメントアウトの片軸反転を使用
+
 	skyDomeModel_ = Model::CreateFromOBJ("tenkixyuu", true);
 	// skyDomeModel_ = Model::CreateFromOBJ("tenkixyuu"); skyDomeWT_.scale_.x *= -1.0f;
 	skyDomeWT_.Initialize();
@@ -45,8 +44,7 @@ void TitleScene::Initialize() {
 	pressSpaceTransform_.translation_ = {0.0f, -3.0f, 6.0f};
 	pressSpaceTransform_.scale_ = {3.5f, 3.5f, 1.5f};
 
-	// ==== Tutorial 誘導OBJ（例：TutorialGuide.obj） ====
-	// ※ファイル名は送ってくれた“誘導用obj”に合わせて変更してOK
+	// ==== Tutorial 誘導OBJ ====
 	tutorialGuideModel_ = Model::CreateFromOBJ("TutorialGuide");
 	tutorialGuideTransform_.Initialize();
 	tutorialGuideTransform_.translation_ = {-1.0f, -6.0f, 6.0f};
@@ -98,7 +96,7 @@ void TitleScene::Update() {
 	case Phase::kFadeOut:
 		fade_->Update();
 		if (fade_->IsFinished()) {
-			finished_ = true; // main.cpp が GetNextAction() を見て遷移
+			finished_ = true;
 		}
 		break;
 	}

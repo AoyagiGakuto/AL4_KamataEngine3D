@@ -41,7 +41,6 @@ public:
 
 		Input* in = Input::GetInstance();
 
-		// ---- ここがポイント：DirectInputのスキャンコードを配列で明示 ----
 		static const unsigned char kDIKLetters[26] = {DIK_A, DIK_B, DIK_C, DIK_D, DIK_E, DIK_F, DIK_G, DIK_H, DIK_I, DIK_J, DIK_K, DIK_L, DIK_M,
 		                                              DIK_N, DIK_O, DIK_P, DIK_Q, DIK_R, DIK_S, DIK_T, DIK_U, DIK_V, DIK_W, DIK_X, DIK_Y, DIK_Z};
 		static const unsigned char kDIKDigits[10] = {DIK_0, DIK_1, DIK_2, DIK_3, DIK_4, DIK_5, DIK_6, DIK_7, DIK_8, DIK_9};

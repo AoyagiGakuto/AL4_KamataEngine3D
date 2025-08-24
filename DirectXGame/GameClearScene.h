@@ -20,19 +20,18 @@ private:
 
 	bool finished_ = false;
 
-	// 「GAME CLEAR」文字（任意）
+	// 「GAME CLEAR」文字
 	Model* textModel_ = nullptr;
 	WorldTransform textTransform_;
 
-	// 背景OBJ（任意）
+	// 背景OBJ
 	Model* backgroundModel_ = nullptr;
 	WorldTransform backgroundTransform_;
 
-	// ★天球（確実に背景を映す）
 	Model* skyDomeModel_ = nullptr;
 	WorldTransform skyDomeWT_;
 
-	// 「PressSpace」OBJ（点滅）
+	// 「PressSpace」OBJ
 	Model* pressSpaceModel_ = nullptr;
 	WorldTransform pressSpaceTransform_;
 	float blinkTimer_ = 0.0f;

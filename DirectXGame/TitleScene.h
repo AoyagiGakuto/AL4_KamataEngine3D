@@ -16,7 +16,6 @@ public:
 
 	bool IsFinished() const { return finished_; }
 
-	// ★ 追加：次に遷移すべき先
 	enum class NextAction { StartGame, OpenTutorial };
 	NextAction GetNextAction() const { return nextAction_; }
 
@@ -32,7 +31,6 @@ private:
 	Model* titleFontModel_ = nullptr;
 	WorldTransform titleTransform_;
 
-	// 任意の背景OBJ（使わなくてもOK）
 	Model* backgroundModel_ = nullptr;
 	WorldTransform backgroundTransform_;
 
@@ -40,13 +38,13 @@ private:
 	Model* skyDomeModel_ = nullptr;
 	WorldTransform skyDomeWT_;
 
-	// 「PressSpace」OBJ（点滅）
+	// 「PressSpace」OBJ
 	Model* pressSpaceModel_ = nullptr;
 	WorldTransform pressSpaceTransform_;
 	float blinkTimer_ = 0.0f;
 	bool blinkVisible_ = true;
 
-	// ★ 追加：チュートリアル誘導OBJ（例：TutorialGuide）
+	// ：チュートリアル誘導OBJ
 	Model* tutorialGuideModel_ = nullptr;
 	WorldTransform tutorialGuideTransform_;
 
@@ -59,6 +57,5 @@ private:
 	// フェード
 	Fade* fade_ = nullptr;
 
-	// ★ 追加：次アクション
 	NextAction nextAction_ = NextAction::StartGame;
 };

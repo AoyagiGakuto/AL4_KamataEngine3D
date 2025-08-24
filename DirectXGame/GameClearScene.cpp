@@ -4,20 +4,19 @@
 #include <numbers>
 
 void GameClearScene::Initialize() {
-	// 「GAME CLEAR」OBJ（用意なければnullptrでもOK）
+	// 「GAME CLEAR」OBJ
 	textModel_ = Model::CreateFromOBJ("gameclear");
 	textTransform_.Initialize();
 	textTransform_.translation_ = {0.0f, 5.0f, 6.0f};
 	textTransform_.scale_ = {5.5f, 5.5f, 2.5f};
 
-	// 背景OBJ（任意）
+	// 背景OBJ
 	backgroundModel_ = Model::CreateFromOBJ("background");
 	backgroundTransform_.Initialize();
 	backgroundTransform_.translation_ = {0.0f, 0.0f, 10.0f};
 	backgroundTransform_.rotation_.y = std::numbers::pi_v<float>;
 	backgroundTransform_.scale_ = {10000.0f, 10000.0f, 10.0f};
 
-	// ★天球（内側表示／確実な背景）
 	skyDomeModel_ = Model::CreateFromOBJ("tenkixyuu", true);
 	// skyDomeModel_ = Model::CreateFromOBJ("tenkixyuu"); skyDomeWT_.scale_.x *= -1.0f;
 	skyDomeWT_.Initialize();
@@ -99,7 +98,6 @@ void GameClearScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 	Model::PreDraw(dxCommon->GetCommandList());
 
-	// 背景（天球→任意の平面背景→テキスト）
 	if (skyDomeModel_)
 		skyDomeModel_->Draw(skyDomeWT_, *camera_);
 	if (backgroundModel_)

@@ -20,15 +20,14 @@ private:
 
 	bool finished_ = false;
 
-	// 「GAME OVER」文字（任意、なければnullptr）
+	// 「GAME OVER」文字
 	Model* textModel_ = nullptr;
 	WorldTransform textTransform_;
 
-	// 背景OBJ（任意）
+	// 背景OBJ
 	Model* backgroundModel_ = nullptr;
 	WorldTransform backgroundTransform_;
 
-	// ★天球（確実に背景を映す）
 	Model* skyDomeModel_ = nullptr;
 	WorldTransform skyDomeWT_;
 
