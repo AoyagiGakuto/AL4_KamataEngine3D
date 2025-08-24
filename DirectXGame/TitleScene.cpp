@@ -1,47 +1,63 @@
 #include "TitleScene.h"
 #include "MyMath.h"
 #include <cmath>
+#include <numbers> // std::numbers::pi_v
 
 TitleScene::TitleScene() {}
 
 TitleScene::~TitleScene() {
 	delete titleFontModel_;
 	delete backgroundModel_;
+	delete skyDomeModel_;
 	delete pressSpaceModel_;
 	delete camera_;
 	delete fade_;
 }
 
 void TitleScene::Initialize() {
-	// タイトルロゴ
+	// ==== タイトルロゴ ====
 	titleFontModel_ = Model::CreateFromOBJ("rittaitaiketu");
 	titleTransform_.Initialize();
-	titleTransform_.translation_ = {0.0f, 5.0f, 0.0f};
+	titleTransform_.translation_ = {0.0f, 5.0f, 6.0f}; // 少し前へ
 	titleTransform_.scale_ = {2.0f, 2.0f, 2.0f};
 
-	// ★背景
-	backgroundModel_ = Model::CreateFromOBJ("background");
+	// ==== 背景OBJ（任意。無くてもOK） ====
+	backgroundModel_ = Model::CreateFromOBJ("background"); // 失敗なら nullptr
 	backgroundTransform_.Initialize();
-	// 画面いっぱいに見せたい想定のサイズ（必調整）
-	backgroundTransform_.scale_ = {100.0f, 100.0f, 10.0f};
+	backgroundTransform_.translation_ = {0.0f, 0.0f, 10.0f};
+	backgroundTransform_.rotation_.y = std::numbers::pi_v<float>; // 継ぎ目/表裏の保険
+	backgroundTransform_.scale_ = {10000.0f, 10000.0f, 10.0f};
 
-	// ★PressSpace（点滅表示）
+	// ==== 天球（確実な背景用） ====
+	// true が使えるエンジン版（内側表示フラグ付き）
+	skyDomeModel_ = Model::CreateFromOBJ("tenkixyuu", true);
+	// もし上が使えない環境なら:
+	// skyDomeModel_ = Model::CreateFromOBJ("tenkixyuu"); skyDomeWT_.scale_.x *= -1.0f;
+	skyDomeWT_.Initialize();
+	skyDomeWT_.scale_ = {50.0f, 50.0f, 50.0f};
+	skyDomeWT_.rotation_.y = std::numbers::pi_v<float>; // 継ぎ目背面
+	skyDomeWT_.translation_ = {0.0f, 0.0f, 0.0f};
+	skyDomeWT_.TransferMatrix();
+
+	// ==== PressSpace ====
 	pressSpaceModel_ = Model::CreateFromOBJ("PressSpace");
 	pressSpaceTransform_.Initialize();
-	pressSpaceTransform_.translation_ = {0.0f, -3.0f, 0.0f};
+	pressSpaceTransform_.translation_ = {0.0f, -3.0f, 6.0f};
 	pressSpaceTransform_.scale_ = {3.5f, 3.5f, 1.5f};
 
-	// カメラ
+	// ==== カメラ ====
 	camera_ = new Camera();
 	camera_->Initialize();
+	camera_->translation_ = {0.0f, 0.0f, -15.0f}; // 引く
+	camera_->TransferMatrix();
 
-	// フェード（シーン内）
+	// ==== フェード ====
 	fade_ = new Fade();
 	fade_->Initialize();
 	phase_ = Phase::kFadeIn;
-	fade_->Start(Fade::Status::FadeIn, 1.0f); // 起動時にフェードイン
+	fade_->Start(Fade::Status::FadeIn, 1.0f);
 
-	// 状態初期化
+	// 状態
 	blinkTimer_ = 0.0f;
 	blinkVisible_ = true;
 	logoMoveTimer_ = 0.0f;
@@ -72,7 +88,7 @@ void TitleScene::Update() {
 		break;
 	}
 
-	// 「PressSpace」点滅
+	// 点滅
 	blinkTimer_ += 1.0f / 60.0f;
 	if (blinkTimer_ > 0.5f) {
 		blinkVisible_ = !blinkVisible_;
@@ -84,6 +100,11 @@ void TitleScene::Update() {
 	float baseY = 10.0f;
 	float offsetY = std::sin(logoMoveTimer_ * 2.0f) * 0.2f;
 	titleTransform_.translation_.y = baseY + offsetY;
+
+	// 天球はカメラ位置に追従
+	skyDomeWT_.translation_ = camera_->translation_;
+	skyDomeWT_.matWorld_ = MakeAffineMatrix(skyDomeWT_.scale_, skyDomeWT_.rotation_, skyDomeWT_.translation_);
+	skyDomeWT_.TransferMatrix();
 
 	// 行列更新
 	titleTransform_.matWorld_ = MakeAffineMatrix(titleTransform_.scale_, titleTransform_.rotation_, titleTransform_.translation_);
@@ -100,10 +121,15 @@ void TitleScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 	Model::PreDraw(dxCommon->GetCommandList());
 
-	// 背景 → ロゴ → PressSpace（点滅）
+	// 1) 天球（最初に背景）
+	if (skyDomeModel_)
+		skyDomeModel_->Draw(skyDomeWT_, *camera_);
+
+	// 2) 任意の背景OBJ（あるなら）
 	if (backgroundModel_)
 		backgroundModel_->Draw(backgroundTransform_, *camera_);
-	
+
+	// 3) ロゴとPressSpace
 	if (titleFontModel_)
 		titleFontModel_->Draw(titleTransform_, *camera_);
 	if (pressSpaceModel_ && blinkVisible_)
@@ -111,7 +137,7 @@ void TitleScene::Draw() {
 
 	Model::PostDraw();
 
-	// 最後にフェードを被せる
+	// 4) 最後にフェード
 	if (fade_)
 		fade_->Draw();
 }
