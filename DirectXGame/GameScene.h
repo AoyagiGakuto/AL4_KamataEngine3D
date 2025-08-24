@@ -52,7 +52,6 @@ private:
 	Model* modelEnemy_ = nullptr;
 	Model* modelDeathParticle_ = nullptr;
 
-	// ★ 追加：ゴールの見た目を任意モデルに
 	Model* modelGoal_ = nullptr;
 	std::string goalModelName_ = "clearBlock";
 
@@ -81,7 +80,7 @@ private:
 	// フェード
 	Fade* fade_ = nullptr;
 
-	// ===== タイピング勝負 =====
+	// ===== タイピング =====
 	TypingChallenge typing_;
 	Enemy* typingTarget_ = nullptr;
 	float typingTimeLimit_ = 10.0f;
@@ -104,13 +103,12 @@ private:
 	float hlFullWidth_ = 6.0f;        // 単語の想定全幅
 	float hlHeight_ = 0.25f;          // バーの高さ
 	float hlOffsetY_ = -1.2f;         // 単語の少し下に
-	float hlOffsetZ_ = 0.0f;          // Zずらし無し
+	float hlOffsetZ_ = 0.0f;          // Z無し
 
 	// ===== ゴール =====
 	WorldTransform goalTransform_;
 	AABB goalAabb_{};
 	bool mapCleared_ = false;
 
-	// ★ 追加：終了理由
 	EndStatus endStatus_ = EndStatus::None;
 };

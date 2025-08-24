@@ -7,7 +7,6 @@
 
 using namespace KamataEngine;
 
-// ランダムユーティリティ
 static inline std::mt19937& Rng() {
 	static std::random_device rd;
 	static std::mt19937 mt(rd());
@@ -27,8 +26,7 @@ void GameScene::Initialize() {
 	modelEnemy_ = Model::CreateFromOBJ("Ninja");
 	modelDeathParticle_ = Model::CreateFromOBJ("deathParticle");
 
-	// ★ 追加：ゴールの見た目（ユーザー作成ブロック）
-	modelGoal_ = Model::CreateFromOBJ(goalModelName_.c_str()); // ← OBJ名に合わせて差し替え
+	modelGoal_ = Model::CreateFromOBJ(goalModelName_.c_str());
 
 	model_ = Model::Create();
 	mapChipField_ = new MapChipField();
@@ -36,7 +34,7 @@ void GameScene::Initialize() {
 
 	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
 
-	// スカイドームWT（中身はUpdateで毎フレ追従）
+	// スカイドーム
 	worldTransform_.Initialize();
 
 	camera_ = new Camera();
@@ -96,7 +94,6 @@ void GameScene::Initialize() {
 	typing_.Initialize(typingTimeLimit_);
 	typingTarget_ = nullptr;
 
-	// ★ 単語名 → リソース名のオーバーライド（player だけ playerMoji）
 	wordResOverride_["player"] = "playerMoji";
 
 	// 単語OBJのワールド（均等・小さめ）
@@ -106,13 +103,13 @@ void GameScene::Initialize() {
 	wordTransform_.translation_ = player_->GetWorldTransform().translation_ + typingAnchorOffset_;
 	wordTransform_.TransferMatrix();
 
-	// ハイライト（無ければ block にフォールバック）
+	// ハイライト
 	modelHighlight_ = Model::CreateFromOBJ("highlight");
 
 	hlTransform_.Initialize();
 	hlBackTransform_.Initialize();
 	hlBackTransform_.scale_ = {hlFullWidth_, hlHeight_, 1.0f};
-	hlTransform_.scale_ = {0.0f, hlHeight_, 0.12f}; // 厚み↑で確実に表示
+	hlTransform_.scale_ = {0.0f, hlHeight_, 0.12f};
 
 	// ===== ゴール =====
 	goalTransform_.Initialize();
@@ -132,7 +129,6 @@ void GameScene::Initialize() {
 	mapCleared_ = false;
 	endStatus_ = EndStatus::None;
 
-	// ★ スカイドーム巨大化＆初期配置（継ぎ目を背面へ）
 	worldTransform_.scale_ = {1.0f, 1.0f, 0.0f};
 	worldTransform_.rotation_ = {0.0f, std::numbers::pi_v<float>, 0.0f};
 	worldTransform_.translation_ = player_->GetWorldTransform().translation_;
@@ -194,12 +190,12 @@ void GameScene::Update() {
 			enemy->Update();
 		}
 		if (player_->IsDead() && deathParticle_.IsFinished()) {
-			endStatus_ = EndStatus::GameOver; // ★ 追加
+			endStatus_ = EndStatus::GameOver;
 			phase_ = Phase::kFadeOut;
 			fade_->Start(Fade::Status::FadeOut, 1.0f);
 		}
 		if (mapCleared_) {
-			endStatus_ = EndStatus::GameClear; // ★ 追加
+			endStatus_ = EndStatus::GameClear;
 			phase_ = Phase::kClearFadeOut;
 			fade_->Start(Fade::Status::FadeOut, 1.0f);
 		}
@@ -210,7 +206,6 @@ void GameScene::Update() {
 
 		UpdateWordTransformFollowPlayer();
 
-		// 入力割合でハイライト更新
 		const size_t total = currentTypingWord_.size();
 		const size_t typed = typing_.GetTyped().size();
 		float ratio = (total > 0) ? static_cast<float>(typed) / static_cast<float>(total) : 0.0f;
@@ -288,7 +283,6 @@ void GameScene::Update() {
 		camera_->TransferMatrix();
 	}
 
-	// ★ スカイドーム追従
 	{
 		const Vector3 p = player_->GetWorldTransform().translation_;
 		worldTransform_.translation_ = p;
@@ -347,7 +341,6 @@ void GameScene::Draw() {
 	// スカイドーム
 	modelSkyDome_->Draw(worldTransform_, *camera_);
 
-	// タイピング中：ハイライト→単語OBJ
 	if (phase_ == Phase::kTyping) {
 		if (modelHighlight_)
 			modelHighlight_->Draw(hlBackTransform_, *camera_);
@@ -365,7 +358,6 @@ void GameScene::Draw() {
 		}
 	}
 
-	// ★ ゴール：ユーザー作成ブロックで描画（無ければblockでフォールバック）
 	if (modelGoal_)
 		modelGoal_->Draw(goalTransform_, *camera_);
 
@@ -390,7 +382,7 @@ Model* GameScene::LoadWordModel(const std::string& word) {
 	}
 	std::string resName;
 	if (auto ov = wordResOverride_.find(word); ov != wordResOverride_.end()) {
-		resName = ov->second; // 例: player -> playerMoji
+		resName = ov->second;
 	} else {
 		resName = wordPrefix_ + word + wordSuffix_;
 	}
@@ -425,7 +417,6 @@ GameScene::~GameScene() {
 	delete mapChipField_;
 	delete player_;
 	delete fade_;
-	// 追加：ゴールモデル
 	delete modelGoal_;
 	for (Enemy* enemy : enemies_) {
 		delete enemy;

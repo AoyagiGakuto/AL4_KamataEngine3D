@@ -6,15 +6,15 @@ void TutorialScene::Initialize() {
 	// チュートリアル文字OBJ
 	tutorialModel_ = Model::CreateFromOBJ("tutorial");
 	tutorialTransform_.Initialize();
-	tutorialTransform_.translation_ = {0.0f, 5.0f, 6.0f};
-	tutorialTransform_.scale_ = {3.0f, 3.0f, 1.0f};
+	tutorialTransform_.translation_ = {-9.0f, 0.0f, 6.0f};
+	tutorialTransform_.scale_ = {1.0f, 1.0f, 1.0f};
 
 	// 背景
 	backgroundModel_ = Model::CreateFromOBJ("background");
 	backgroundTransform_.Initialize();
 	backgroundTransform_.translation_ = {0.0f, 0.0f, 10.0f};
 	backgroundTransform_.rotation_.y = std::numbers::pi_v<float>;
-	backgroundTransform_.scale_ = {20.0f, 15.0f, 1.0f};
+	backgroundTransform_.scale_ = {10000.0f, 10000.0f, 10.0f};
 
 	skyDomeModel_ = Model::CreateFromOBJ("tenkixyuu", true);
 	skyDomeWT_.Initialize();
@@ -26,7 +26,7 @@ void TutorialScene::Initialize() {
 	// PressSpace
 	pressSpaceModel_ = Model::CreateFromOBJ("PressSpace");
 	pressSpaceTransform_.Initialize();
-	pressSpaceTransform_.translation_ = {0.0f, -3.0f, 6.0f};
+	pressSpaceTransform_.translation_ = {0.0f, -8.0f, 6.0f};
 	pressSpaceTransform_.scale_ = {3.5f, 3.5f, 1.5f};
 
 	// カメラ
