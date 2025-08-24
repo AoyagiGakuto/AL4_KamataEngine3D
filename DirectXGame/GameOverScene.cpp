@@ -19,7 +19,6 @@ void GameOverScene::Initialize() {
 
 
 	skyDomeModel_ = Model::CreateFromOBJ("tenkixyuu", true);
-	// skyDomeModel_ = Model::CreateFromOBJ("tenkixyuu"); skyDomeWT_.scale_.x *= -1.0f;
 	skyDomeWT_.Initialize();
 	skyDomeWT_.scale_ = {50.0f, 50.0f, 50.0f};
 	skyDomeWT_.rotation_.y = std::numbers::pi_v<float>;
