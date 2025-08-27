@@ -4,7 +4,7 @@
 #include <numbers>
 
 void GameOverScene::Initialize() {
-	// 「GAME OVER」OBJ
+	// GAMEOVEROBJ
 	textModel_ = Model::CreateFromOBJ("gameover");
 	textTransform_.Initialize();
 	textTransform_.translation_ = {0.0f, 5.0f, 6.0f};
