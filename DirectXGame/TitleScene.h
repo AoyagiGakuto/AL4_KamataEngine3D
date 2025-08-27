@@ -1,17 +1,12 @@
 #pragma once
-#include "KamataEngine.h"
 #include "Fade.h"
+#include "KamataEngine.h"
+#include <string>
 
 using namespace KamataEngine;
 
 class TitleScene {
 public:
-	enum class Phase {
-		kFadeIn,
-		kMain,
-		kFadeOut,
-	};
-
 	TitleScene();
 	~TitleScene();
 
@@ -20,26 +15,47 @@ public:
 	void Draw();
 
 	bool IsFinished() const { return finished_; }
-	bool IsFadeFinished() const { return phase_ == Phase::kFadeOut && fade_->IsFinished(); }
+
+	enum class NextAction { StartGame, OpenTutorial };
+	NextAction GetNextAction() const { return nextAction_; }
 
 private:
+	// フェーズ
+	enum class Phase { kFadeIn, kMain, kFadeOut };
+	Phase phase_ = Phase::kFadeIn;
+
 	bool finished_ = false;
 
+	// ==== 表示要素 ====
 	// タイトルロゴ
 	Model* titleFontModel_ = nullptr;
 	WorldTransform titleTransform_;
+
+	Model* backgroundModel_ = nullptr;
+	WorldTransform backgroundTransform_;
+
+	// 天球（確実に背景を出す）
+	Model* skyDomeModel_ = nullptr;
+	WorldTransform skyDomeWT_;
+
+	// 「PressSpace」OBJ
+	Model* pressSpaceModel_ = nullptr;
+	WorldTransform pressSpaceTransform_;
 	float blinkTimer_ = 0.0f;
 	bool blinkVisible_ = true;
 
-	// 上下揺れ用タイマー
+	// ：チュートリアル誘導OBJ
+	Model* tutorialGuideModel_ = nullptr;
+	WorldTransform tutorialGuideTransform_;
+
+	// ロゴ上下揺れ
 	float logoMoveTimer_ = 0.0f;
 
-	// プレイヤー表示
-	Model* playerModel_ = nullptr;
-	WorldTransform playerTransform_;
-
+	// カメラ
 	Camera* camera_ = nullptr;
 
+	// フェード
 	Fade* fade_ = nullptr;
-	Phase phase_ = Phase::kFadeIn;
+
+	NextAction nextAction_ = NextAction::StartGame;
 };
