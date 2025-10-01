@@ -67,7 +67,7 @@ void ChangeScene() {
 }
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
-	KamataEngine::Initialize(L"LE2D_02_アオヤギ_ガクト_AL3");
+	KamataEngine::Initialize(L"LE2C_01_アオヤギ_ガクト_AL4");
 	dxCommon = DirectXCommon::GetInstance();
 
 	// 最初はタイトル
