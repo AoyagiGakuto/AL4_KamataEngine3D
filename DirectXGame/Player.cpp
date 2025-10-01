@@ -1,3 +1,4 @@
+#include <cassert>
 #define NOMINMAX
 #include "Player.h"
 #include "MapChipField.h"
