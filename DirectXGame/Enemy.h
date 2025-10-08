@@ -6,6 +6,7 @@
 
 using namespace KamataEngine;
 
+class MapChipField;
 class Player;
 
 class Enemy {
