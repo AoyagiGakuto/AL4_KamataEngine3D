@@ -16,6 +16,7 @@ enum class Scene {
 	kGame,
 };
 
+
 Scene scene = Scene::kUnknown;
 
 // ======== シーン更新 ========
