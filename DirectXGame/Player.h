@@ -58,6 +58,7 @@ private:
 	WorldTransform worldTransform_;
 	Model* model_ = nullptr;
 	bool OnGround_ = true;
+	int jumpCount_ = 0;
 	Camera* camera_ = nullptr;
 	uint32_t textureHandle_ = 0u;
 	Vector3 velocity_ = {};

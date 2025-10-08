@@ -32,7 +32,7 @@ void GameScene::Initialize() {
 	player_->SetMapChipField(mapChipField_);
 
 	// 敵配置
-	const int enemyCount = 5;
+	const int enemyCount = 1;
 	for (int32_t i = 0; i < enemyCount; ++i) {
 		Enemy* newEnemy = new Enemy();
 		Vector3 enemyPosition = mapChipField_->GetMapPositionTypeByIndex(30 + i * 2, 18);
