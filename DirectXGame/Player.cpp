@@ -13,7 +13,9 @@ const float kJumpVelocity = 0.25f;
 const float kGravity = 0.01f;
 static inline const float kAttenuation = 0.005f;
 static inline const float kLimitRunSpeed = 0.1f;
-static inline const float kLimitFallSpeed = 0.2f;
+static inline const float kLimitFallSpeed = 0.1f;       // 落下速度の上限ｋabutteru
+static inline const float kGlideGravityScale = 0.1f;   // 重力
+static inline const float kLimitGlideFallSpeed = 0.02f; // 滑空中の最大落下速度
 bool landing = false;
 
 void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
@@ -46,9 +48,16 @@ void Player::Update() {
 	if (colY.isOnGround) {
 		OnGround_ = true;
 		jumpCount_ = 0;
+		isGliding_ = false;
 	} else {
-		velocity_.y -= kGravityAcceleration;
-		velocity_.y = std::max(velocity_.y, -kLimitFallSpeed);
+		// gは重力
+		const float g = kGravityAcceleration * (isGliding_ ? kGlideGravityScale : 1.0f);
+		velocity_.y -= g;
+
+		// 滑空中は落下上限も弱める
+		const float fallLimit = isGliding_ ? -kLimitGlideFallSpeed : -kLimitFallSpeed;
+		velocity_.y = std::max(velocity_.y, fallLimit);
+
 		OnGround_ = false;
 	}
 	if (colY.isCeiling) {
@@ -72,9 +81,10 @@ void Player::Draw() {
 }
 
 void Player::InputMove() {
-	if (Input::GetInstance()->PushKey(DIK_LEFT) || Input::GetInstance()->PushKey(DIK_RIGHT)) {
+	if (Input::GetInstance()->PushKey(DIK_D) || Input::GetInstance()->PushKey(DIK_A)) {
 		Vector3 acceleration = {};
-		if (Input::GetInstance()->PushKey(DIK_LEFT)) {
+		// ひだり
+		if (Input::GetInstance()->PushKey(DIK_A)) {
 			if (velocity_.x < 0.0f) {
 				velocity_.x *= (1.0f - kAttenuation);
 			}
@@ -84,7 +94,8 @@ void Player::InputMove() {
 				turnFirstRotationY_ = worldTransform_.rotation_.y;
 				turnTimer_ = kTimeTurn;
 			}
-		} else if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
+			// みぎ
+		} else if (Input::GetInstance()->PushKey(DIK_D)) {
 			if (velocity_.x > 0.0f) {
 				velocity_.x *= (1.0f - kAttenuation);
 			}
@@ -100,7 +111,7 @@ void Player::InputMove() {
 	}
 
 	 // 二段ジャンプ
-	if (Input::GetInstance()->TriggerKey(DIK_UP)) {
+	if (Input::GetInstance()->TriggerKey(DIK_W)) {
 		// 2回までOK
 		if (jumpCount_ < 2) {
 			velocity_.y = kJumpVelocity;
@@ -108,6 +119,13 @@ void Player::InputMove() {
 			landing = false;
 			jumpCount_++; // カウント増加
 		}
+	}
+
+	// 滑空
+	if (!OnGround_ && velocity_.y <= 0.0f && Input::GetInstance()->PushKey(DIK_SPACE)) {
+		isGliding_ = true;
+	} else {
+		isGliding_ = false;
 	}
 }
 

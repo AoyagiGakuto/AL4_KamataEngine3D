@@ -53,12 +53,13 @@ public:
 	static inline const float kGravityAcceleration = 0.01f;
 	static inline const float kLimitFallSpeed = 0.5f;
 	static inline const float kJumpAcceleration = 0.3f;
-
+	
 private:
 	WorldTransform worldTransform_;
 	Model* model_ = nullptr;
 	bool OnGround_ = true;
 	int jumpCount_ = 0;
+	bool isGliding_ = false;
 	Camera* camera_ = nullptr;
 	uint32_t textureHandle_ = 0u;
 	Vector3 velocity_ = {};
