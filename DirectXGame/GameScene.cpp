@@ -1,34 +1,17 @@
+
 #include "GameScene.h"
 #include "CameraController.h"
 #include "MyMath.h"
-#include <algorithm>
 #include <numbers>
-#include <random>
 
 using namespace KamataEngine;
 
-// 乱数用ちょいあやしい
-static inline std::mt19937& Rng() {
-	static std::random_device rd;
-	static std::mt19937 mt(rd());
-	return mt;
-}
-// こっちも
-static inline std::string PickRandom(const std::vector<std::string>& v) {
-	if (v.empty())
-		return "test";
-	std::uniform_int_distribution<size_t> d(0, v.size() - 1);
-	return v[d(Rng())];
-}
-
 void GameScene::Initialize() {
 	modelCube_ = Model::CreateFromOBJ("block");
-	modelSkyDome_ = Model::CreateFromOBJ("tenkixyuu", true); // 天球
+	modelSkyDome_ = Model::CreateFromOBJ("SkyDome", true);
 	modelPlayer_ = Model::CreateFromOBJ("player");
-	modelEnemy_ = Model::CreateFromOBJ("enemyMonster");
+	modelEnemy_ = Model::CreateFromOBJ("Ninja");
 	modelDeathParticle_ = Model::CreateFromOBJ("deathParticle");
-
-	modelGoal_ = Model::CreateFromOBJ(goalModelName_.c_str());
 
 	model_ = Model::Create();
 	mapChipField_ = new MapChipField();
@@ -36,7 +19,6 @@ void GameScene::Initialize() {
 
 	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
 
-	// スカイドーム
 	worldTransform_.Initialize();
 
 	camera_ = new Camera();
@@ -49,29 +31,17 @@ void GameScene::Initialize() {
 	player_->Initialize(modelPlayer_, camera_, playerPosition);
 	player_->SetMapChipField(mapChipField_);
 
-	// ===== 敵スポーン地点 =====
-	std::vector<Vector3> spawnPoints;
-	{
-		auto pos = [&](uint32_t x, uint32_t y) {
-			Vector3 p = mapChipField_->GetMapPositionTypeByIndex(x, y);
-			p.y -= MapChipField::kBlockHeight / 2.0f;
-			return p;
-		};
-		spawnPoints.push_back(pos(30, 18));
-		spawnPoints.push_back(pos(34, 18));
-		spawnPoints.push_back(pos(40, 18));
-		spawnPoints.push_back(pos(46, 18));
-		spawnPoints.push_back(pos(54, 18));
-	}
-
-	// 敵生成
-	for (auto& p : spawnPoints) {
-		Enemy* e = new Enemy();
-		e->Initialize(modelEnemy_, camera_, p);
-		e->SetMapChipField(mapChipField_);
-		e->SetScale({0.4f, 0.4f, 0.4f});
-		e->SetRotationY(std::numbers::pi_v<float> * 3.0f / 2.0f);
-		enemies_.push_back(e);
+	// 敵配置
+	const int enemyCount = 5;
+	for (int32_t i = 0; i < enemyCount; ++i) {
+		Enemy* newEnemy = new Enemy();
+		Vector3 enemyPosition = mapChipField_->GetMapPositionTypeByIndex(30 + i * 2, 18);
+		enemyPosition.y -= MapChipField::kBlockHeight / 2.0f;
+		newEnemy->Initialize(modelEnemy_, camera_, enemyPosition);
+		newEnemy->SetMapChipField(mapChipField_);
+		newEnemy->SetScale({0.4f, 0.4f, 0.4f});
+		newEnemy->SetRotationY(std::numbers::pi_v<float> * 3.0f / 2.0f);
+		enemies_.push_back(newEnemy);
 	}
 
 	// カメラコントローラー
@@ -84,57 +54,13 @@ void GameScene::Initialize() {
 
 	// DeathParticle 初期化
 	deathParticle_.Initialize(modelDeathParticle_, camera_);
+
 	particleCooldown_ = 0.0f;
 
-	// フェード
 	fade_ = new Fade();
 	fade_->Initialize();
 	phase_ = Phase::kFadeIn;
 	fade_->Start(Fade::Status::FadeIn, 1.0f);
-
-	// タイピング初期化
-	typing_.Initialize(typingTimeLimit_);
-	typingTarget_ = nullptr;
-
-	wordResOverride_["player"] = "playerMoji";
-
-	// 単語OBJのワールド（均等・小さめ）
-	wordTransform_.Initialize();
-	wordTransform_.scale_ = {0.4f, 0.4f, 8.0f};
-	wordTransform_.rotation_ = {0.0f, 0.0f, 0.0f};
-	wordTransform_.translation_ = player_->GetWorldTransform().translation_ + typingAnchorOffset_;
-	wordTransform_.TransferMatrix();
-
-	// ハイライト
-	modelHighlight_ = Model::CreateFromOBJ("highlight");
-
-	hlTransform_.Initialize();
-	hlBackTransform_.Initialize();
-	hlBackTransform_.scale_ = {hlFullWidth_, hlHeight_, 1.0f};
-	hlTransform_.scale_ = {0.0f, hlHeight_, 0.12f};
-
-	// ===== ゴール =====
-	goalTransform_.Initialize();
-	goalTransform_.translation_ = mapChipField_->GetMapPositionTypeByIndex(95, 18);
-	goalTransform_.scale_ = {1.0f, 1.0f, 1.0f};
-	goalTransform_.TransferMatrix();
-
-	// AABB
-	{
-		float gx = goalTransform_.translation_.x;
-		float gy = goalTransform_.translation_.y;
-		float gz = goalTransform_.translation_.z;
-		goalAabb_.min = {gx - 0.8f, gy - 1.0f, gz - 0.8f};
-		goalAabb_.max = {gx + 0.8f, gy + 1.0f, gz + 0.8f};
-	}
-
-	mapCleared_ = false;
-	endStatus_ = EndStatus::None;
-
-	worldTransform_.scale_ = {1.0f, 1.0f, 0.0f};
-	worldTransform_.rotation_ = {0.0f, std::numbers::pi_v<float>, 0.0f};
-	worldTransform_.translation_ = player_->GetWorldTransform().translation_;
-	worldTransform_.TransferMatrix();
 }
 
 void GameScene::GenerateBlooks() {
@@ -173,7 +99,21 @@ void GameScene::Update() {
 		}
 	}
 
-	// ===== フェーズ進行 =====
+	// プレイヤーは死亡後止まるけど、敵は常に動く
+	if (!player_->IsDead()) {
+		player_->Update();
+		CheckAllCollisions(); // 衝突判定は生存中だけ
+	}
+
+	// 敵は死亡後も動く
+	for (Enemy* enemy : enemies_) {
+		enemy->Update();
+	}
+
+	// 死亡パーティクル演出
+	deathParticle_.Update();
+
+
 	switch (phase_) {
 	case Phase::kFadeIn:
 		fade_->Update();
@@ -183,99 +123,28 @@ void GameScene::Update() {
 		break;
 
 	case Phase::kPlay:
-		if (!player_->IsDead()) {
-			player_->Update();
-			CheckAllCollisions();
-			CheckGoalCollision();
-		}
-		for (Enemy* enemy : enemies_) {
-			enemy->Update();
-		}
+		// プレイヤー死亡 & パーティクル終了 → フェードアウト開始（出るとき）
 		if (player_->IsDead() && deathParticle_.IsFinished()) {
-			endStatus_ = EndStatus::GameOver;
 			phase_ = Phase::kFadeOut;
 			fade_->Start(Fade::Status::FadeOut, 1.0f);
 		}
-		if (mapCleared_) {
-			endStatus_ = EndStatus::GameClear;
-			phase_ = Phase::kClearFadeOut;
-			fade_->Start(Fade::Status::FadeOut, 1.0f);
-		}
 		break;
-
-	case Phase::kTyping: {
-		typing_.Update();
-
-		UpdateWordTransformFollowPlayer();
-
-		const size_t total = currentTypingWord_.size();
-		const size_t typed = typing_.GetTyped().size();
-		float ratio = (total > 0) ? static_cast<float>(typed) / static_cast<float>(total) : 0.0f;
-
-		Vector3 base = wordTransform_.translation_;
-		base.y += hlOffsetY_;
-		base.z += hlOffsetZ_;
-
-		hlBackTransform_.translation_ = base;
-		hlBackTransform_.matWorld_ = MakeAffineMatrix(hlBackTransform_.scale_, hlBackTransform_.rotation_, hlBackTransform_.translation_);
-		hlBackTransform_.TransferMatrix();
-
-		float leftGrowOffset = (ratio - 1.0f) * (hlFullWidth_ * 0.5f);
-		hlTransform_.translation_ = {base.x + leftGrowOffset, base.y, base.z};
-		hlTransform_.scale_.x = (std::max)(0.0f, hlFullWidth_ * ratio);
-		hlTransform_.scale_.y = hlHeight_;
-		hlTransform_.scale_.z = 0.12f;
-		hlTransform_.matWorld_ = MakeAffineMatrix(hlTransform_.scale_, hlTransform_.rotation_, hlTransform_.translation_);
-		hlTransform_.TransferMatrix();
-
-		if (typing_.IsSuccess()) {
-			if (typingTarget_) {
-				AABB eaabb = typingTarget_->GetAABB();
-				deathParticle_.Spawn(AabbCenter(eaabb));
-				for (auto it = enemies_.begin(); it != enemies_.end(); ++it) {
-					if (*it == typingTarget_) {
-						delete *it;
-						enemies_.erase(it);
-						break;
-					}
-				}
-			}
-			typingTarget_ = nullptr;
-			phase_ = Phase::kPlay;
-		} else if (typing_.IsTimeout()) {
-			if (!player_->IsDead()) {
-				player_->Die();
-				deathParticle_.Spawn(player_->GetWorldTransform().translation_);
-			}
-			typingTarget_ = nullptr;
-			phase_ = Phase::kPlay;
-		}
-	} break;
 
 	case Phase::kFadeOut:
 		fade_->Update();
 		if (fade_->IsFinished()) {
-			finished_ = true;
-		}
-		break;
-
-	case Phase::kClearFadeOut:
-		fade_->Update();
-		if (fade_->IsFinished()) {
-			finished_ = true;
+			finished_ = true; // main がこれを見て TitleScene に切り替える
 		}
 		break;
 	}
 
-	// 演出更新
-	deathParticle_.Update();
-
-	// カメラ
 	cameraController_->Update();
-	if (debugCamera_ && Input::GetInstance()->TriggerKey(DIK_O)) {
+
+	if (Input::GetInstance()->PushKey(DIK_O)) {
 		isDebugCameraActive_ = !isDebugCameraActive_;
 	}
-	if (debugCamera_ && isDebugCameraActive_) {
+
+	if (isDebugCameraActive_) {
 		debugCamera_->Update();
 		camera_->matView = debugCamera_->GetCamera().matView;
 		camera_->matProjection = debugCamera_->GetCamera().matProjection;
@@ -284,46 +153,28 @@ void GameScene::Update() {
 		camera_->matProjection = cameraController_->GetViewProjection().matProjection;
 		camera_->TransferMatrix();
 	}
-
-	{
-		const Vector3 p = player_->GetWorldTransform().translation_;
-		worldTransform_.translation_ = p;
-		worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
-		worldTransform_.TransferMatrix();
-	}
 }
 
 void GameScene::CheckAllCollisions() {
 	if (player_->IsDead())
-		return;
+		return; // すでに死亡なら判定しない
 
 	AABB aabb1 = player_->GetAABB();
 
 	for (Enemy* enemy : enemies_) {
 		AABB aabb2 = enemy->GetAABB();
+
 		bool isHit = (aabb1.min.x < aabb2.max.x && aabb1.max.x > aabb2.min.x) && (aabb1.min.y < aabb2.max.y && aabb1.max.y > aabb2.min.y) && (aabb1.min.z < aabb2.max.z && aabb1.max.z > aabb2.min.z);
 
 		if (isHit) {
-			std::string word = PickRandom(typingWords_);
-			currentTypingWord_ = word;
-			typing_.Start(word, typingTimeLimit_);
+			// プレイヤー死亡！
+			player_->Die();
 
-			hlFullWidth_ = std::clamp(0.45f * static_cast<float>(currentTypingWord_.size()), 3.0f, 10.0f);
-			hlBackTransform_.scale_.x = hlFullWidth_;
+			// 死亡演出（パーティクル発生）
+			deathParticle_.Spawn(player_->GetWorldTransform().translation_);
 
-			LoadWordModel(currentTypingWord_);
-			typingTarget_ = enemy;
-			phase_ = Phase::kTyping;
-			break;
+			break; // 死亡したらループ終了
 		}
-	}
-}
-
-void GameScene::CheckGoalCollision() {
-	AABB pa = player_->GetAABB();
-	bool hit = (pa.min.x < goalAabb_.max.x && pa.max.x > goalAabb_.min.x) && (pa.min.y < goalAabb_.max.y && pa.max.y > goalAabb_.min.y) && (pa.min.z < goalAabb_.max.z && pa.max.z > goalAabb_.min.z);
-	if (hit) {
-		mapCleared_ = true;
 	}
 }
 
@@ -331,7 +182,6 @@ void GameScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 	Model::PreDraw(dxCommon->GetCommandList());
 
-	// マップ
 	for (auto& line : worldTransformBlocks_) {
 		for (auto& block : line) {
 			if (!block)
@@ -340,74 +190,19 @@ void GameScene::Draw() {
 		}
 	}
 
-	// スカイドーム
 	modelSkyDome_->Draw(worldTransform_, *camera_);
-
-	if (phase_ == Phase::kTyping) {
-		if (modelHighlight_)
-			modelHighlight_->Draw(hlBackTransform_, *camera_);
-		else
-			modelCube_->Draw(hlBackTransform_, *camera_);
-
-		if (modelHighlight_)
-			modelHighlight_->Draw(hlTransform_, *camera_);
-		else
-			modelCube_->Draw(hlTransform_, *camera_);
-
-		auto it = wordCache_.find(currentTypingWord_);
-		if (it != wordCache_.end() && it->second) {
-			it->second->Draw(wordTransform_, *camera_);
-		}
-	}
-
-	if (modelGoal_)
-		modelGoal_->Draw(goalTransform_, *camera_);
-
-	// キャラクター
 	player_->Draw();
 	for (Enemy* enemy : enemies_) {
 		enemy->Draw();
 	}
 
-	// デスパーティクル
+	// DeathParticle描画
 	deathParticle_.Draw();
 
 	Model::PostDraw();
 
 	if (fade_)
 		fade_->Draw();
-}
-
-Model* GameScene::LoadWordModel(const std::string& word) {
-	if (auto it = wordCache_.find(word); it != wordCache_.end()) {
-		return it->second;
-	}
-	std::string resName;
-	if (auto ov = wordResOverride_.find(word); ov != wordResOverride_.end()) {
-		resName = ov->second;
-	} else {
-		resName = wordPrefix_ + word + wordSuffix_;
-	}
-	Model* m = Model::CreateFromOBJ(resName.c_str());
-	if (!m) {
-		std::string alt = word + std::string("Moji");
-		m = Model::CreateFromOBJ(alt.c_str());
-		if (!m) {
-			alt = std::string("moji_") + word;
-			m = Model::CreateFromOBJ(alt.c_str());
-		}
-	}
-	wordCache_[word] = m;
-	return m;
-}
-
-void GameScene::UpdateWordTransformFollowPlayer() {
-	Vector3 base = player_->GetWorldTransform().translation_;
-	wordTransform_.translation_.x = base.x + typingAnchorOffset_.x;
-	wordTransform_.translation_.y = base.y + typingAnchorOffset_.y;
-	wordTransform_.translation_.z = base.z + typingAnchorOffset_.z;
-	wordTransform_.matWorld_ = MakeAffineMatrix(wordTransform_.scale_, wordTransform_.rotation_, wordTransform_.translation_);
-	wordTransform_.TransferMatrix();
 }
 
 GameScene::~GameScene() {
@@ -419,7 +214,6 @@ GameScene::~GameScene() {
 	delete mapChipField_;
 	delete player_;
 	delete fade_;
-	delete modelGoal_;
 	for (Enemy* enemy : enemies_) {
 		delete enemy;
 	}
