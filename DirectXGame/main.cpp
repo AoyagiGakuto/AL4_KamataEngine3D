@@ -1,6 +1,8 @@
 #include "GameScene.h"
 #include "KamataEngine.h"
 #include "TitleScene.h"
+#include "GameClearScene.h"
+#include "GameOverScene.h"
 
 using namespace KamataEngine;
 
@@ -8,12 +10,17 @@ using namespace KamataEngine;
 DirectXCommon* dxCommon = nullptr;
 TitleScene* titleScene = nullptr;
 GameScene* gameScene = nullptr;
+GameClearScene* gameClearScene = nullptr;
+GameOverScene* gameOverScene = nullptr;
 
 // シーン状態管理用enum
 enum class Scene {
 	kUnknown = 0,
 	kTitle,
 	kGame,
+	kClear,
+	kOver,
+	kBoss,
 };
 
 
@@ -91,6 +98,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	delete titleScene;
 	delete gameScene;
+	delete gameClearScene;
+	delete gameOverScene;
 
 	KamataEngine::Finalize();
 	return 0;

@@ -81,43 +81,67 @@ void Player::Draw() {
 }
 
 void Player::InputMove() {
-	if (Input::GetInstance()->PushKey(DIK_D) || Input::GetInstance()->PushKey(DIK_A)) {
+
+	input = false;
+	if (Input::GetInstance()->PushKey(DIK_A) || Input::GetInstance()->PushKey(DIK_D)) {
+		input = true;
+	}
+
+	// 減速
+	const float decelGround = 0.004f; // 地上は強く止める
+	const float decelAir = 0.001f;    // 空中は弱め
+	const float decel = OnGround_ ? decelGround : decelAir;
+
+	if (!input) {
+		if (velocity_.x > 0.0f) {
+			velocity_.x = std::max(0.0f, velocity_.x - decel);
+		} else if (velocity_.x < 0.0f) {
+			velocity_.x = std::min(0.0f, velocity_.x + decel);
+		}
+		if (std::abs(velocity_.x) < 0.0005f)
+			velocity_.x = 0.0f;
+	}
+
+	// 入力があるときだけ加速
+	if (input) {
 		Vector3 acceleration = {};
-		// ひだり
+
 		if (Input::GetInstance()->PushKey(DIK_A)) {
 			if (velocity_.x < 0.0f) {
 				velocity_.x *= (1.0f - kAttenuation);
 			}
 			acceleration.x = -kAttenuation;
+
 			if (lrDirection_ != LRDirection::kLeft) {
 				lrDirection_ = LRDirection::kLeft;
 				turnFirstRotationY_ = worldTransform_.rotation_.y;
 				turnTimer_ = kTimeTurn;
 			}
-			// みぎ
+
 		} else if (Input::GetInstance()->PushKey(DIK_D)) {
 			if (velocity_.x > 0.0f) {
 				velocity_.x *= (1.0f - kAttenuation);
 			}
 			acceleration.x = kAttenuation;
+
 			if (lrDirection_ != LRDirection::kRight) {
 				lrDirection_ = LRDirection::kRight;
 				turnFirstRotationY_ = worldTransform_.rotation_.y;
 				turnTimer_ = kTimeTurn;
 			}
 		}
+
 		velocity_ += acceleration;
 		velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
 	}
 
-	 // 二段ジャンプ
+	// 二段ジャンプ
 	if (Input::GetInstance()->TriggerKey(DIK_W)) {
-		// 2回までOK
 		if (jumpCount_ < 2) {
 			velocity_.y = kJumpVelocity;
 			OnGround_ = false;
 			landing = false;
-			jumpCount_++; // カウント増加
+			jumpCount_++;
 		}
 	}
 

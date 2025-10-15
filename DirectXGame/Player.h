@@ -70,6 +70,7 @@ private:
 	MapChipField* mapChipField_ = nullptr;
 	Vector3 GetWorldPosition();
 	bool isDead_ = false;
+	bool input = false;
 };
 
 Vector3 CornerPosition(const Vector3& center, Corner corner);
