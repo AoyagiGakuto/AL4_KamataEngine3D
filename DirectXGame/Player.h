@@ -41,6 +41,7 @@ public:
 
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
 	const Vector3& GetVelocity() const { return velocity_; }
+	float GetTurnTimer() const { return turnTimer_; }
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
 	Vector3 GetPosition() const { return worldTransform_.translation_; }
 	AABB GetAABB();

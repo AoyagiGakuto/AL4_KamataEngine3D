@@ -5,6 +5,7 @@
 #include "Fade.h"
 #include "KamataEngine.h"
 #include "MapChipField.h"
+#include "Bullet.h"
 #include "Player.h"
 #include "Skydome.h"
 #include <memory>
@@ -36,6 +37,7 @@ private:
 	Model* modelPlayer_ = nullptr;
 	Model* modelEnemy_ = nullptr;
 	Model* modelDeathParticle_ = nullptr;
+	Model* modelBullet_ = nullptr;
 
 	// ワールドトランスフォーム
 	WorldTransform worldTransform_;
@@ -51,6 +53,8 @@ private:
 	Player* player_ = nullptr;
 	std::list<Enemy*> enemies_;
 	CameraController* cameraController_ = nullptr;
+
+	std::vector<std::unique_ptr<Bullet>> bullets_;
 
 	// デスパーティクル
 	DeathParticle deathParticle_;
