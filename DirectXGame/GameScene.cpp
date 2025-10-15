@@ -33,17 +33,29 @@ void GameScene::Initialize() {
 	player_->SetMapChipField(mapChipField_);
 
 	// 敵配置
-	const int enemyCount = 1;
+	const int enemyCount = 2;
 	for (int32_t i = 0; i < enemyCount; ++i) {
 		Enemy* newEnemy = new Enemy();
-		Vector3 enemyPosition = mapChipField_->GetMapPositionTypeByIndex(30 + i * 2, 18);
-		//enemyPosition.y -= MapChipField::kBlockHeight / 2.0f;
+		Vector3 enemyPosition = mapChipField_->GetMapPositionTypeByIndex(30 + i * 3, 18);
 		newEnemy->Initialize(modelEnemy_, camera_, enemyPosition);
 		newEnemy->SetMapChipField(mapChipField_);
 		newEnemy->SetScale({0.4f, 0.4f, 0.4f});
 		newEnemy->SetRotationY(std::numbers::pi_v<float> * 3.0f / 2.0f);
+
+		if (i == 1) {
+			// 2体目だけプレイヤーを追尾
+			newEnemy->SetTarget(player_);
+			newEnemy->SetHoming(true);
+			// 速度パラメータ調整も可（速め）
+			newEnemy->SetHomingParams(0.08f, 0.006f, 0.05f);
+		} else {
+			// 通常敵は追尾しない（false）
+			newEnemy->SetHoming(false);
+		}
+
 		enemies_.push_back(newEnemy);
 	}
+
 
 	// カメラコントローラー
 	cameraController_ = new CameraController();

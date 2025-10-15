@@ -2,6 +2,7 @@
 #include "KamataEngine.h"
 #include "MapChipField.h"
 #include "MyMath.h"
+#include "Player.h"
 #include <numbers>
 
 using namespace KamataEngine;
@@ -36,6 +37,14 @@ public:
 	static inline const float kFallLimit = 0.2f;   // 最大落下速度
 	static inline const float kGravityAcc = 0.01f; // 重力
 
+	void SetTarget(Player* p) { target_ = p; }
+	void SetHoming(bool enable) { homing_ = enable; }
+	void SetHomingParams(float maxSpeed, float accel, float stopDist) {
+		homingMaxSpeed_ = maxSpeed;
+		homingAccel_ = accel;
+		homingStopDist_ = stopDist;
+	}
+
 private:
 
 	struct CollisionInfo {
@@ -57,4 +66,11 @@ private:
 	Camera* camera_ = nullptr;
 	Vector3 velocity_ = {};
 	MapChipField* mapChipField_ = nullptr;
+
+	Player* target_ = nullptr;
+	bool homing_ = false;
+	float homingMaxSpeed_ = 0.06f; // 最大速度（横移動）
+	float homingAccel_ = 0.004f;   // 1フレーム加速量
+	float homingStopDist_ = 0.05f; // これ以下の距離で減速・停止
+
 };

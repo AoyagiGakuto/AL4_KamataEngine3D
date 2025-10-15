@@ -26,6 +26,35 @@ void Enemy::Update() {
 	// x軸周りの角度をラジアンに変換
 	worldTransform_.rotation_.x = (degree);
 
+	if (homing_ && target_) {
+		// プレイヤーを追尾
+		float dx = target_->GetWorldTransform().translation_.x - worldTransform_.translation_.x;
+		float desiredVx = 0.0f;
+
+		// 一定距離より離れている場合のみ動く
+		if (std::fabs(dx) > homingStopDist_) {
+			desiredVx = (dx > 0 ? homingMaxSpeed_ : -homingMaxSpeed_);
+		}
+
+		// 加速度で補間
+		float dv = desiredVx - velocity_.x;
+		if (dv > +homingAccel_)
+			dv = +homingAccel_;
+		if (dv < -homingAccel_)
+			dv = -homingAccel_;
+		velocity_.x += dv;
+
+		// 向き反転
+		if (velocity_.x > 0.001f) {
+			worldTransform_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
+		} else if (velocity_.x < -0.001f) {
+			worldTransform_.rotation_.y = std::numbers::pi_v<float> * 3.0f / 2.0f;
+		}
+	} else {
+		// 通常移動
+		velocity_.x = -kWalkSpeed;
+	}
+
 	// X方向にゆっくり移動
 	worldTransform_.translation_.x += velocity_.x;
 
