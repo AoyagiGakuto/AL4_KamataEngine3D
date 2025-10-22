@@ -30,7 +30,6 @@ public:
 	void InputMove();
 	void AnimateTurn();
 	void CollisionMapCheck(CollisionMapInfo& Info);
-	//void OnCollision(const Enemy* enemy);
 	void CheckMapCollision(CollisionMapInfo& Info);
 	void CheckMapCollisionUp(CollisionMapInfo& Info);
 	void CheckMapCollisionDown(CollisionMapInfo& Info);
@@ -42,22 +41,25 @@ public:
 
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
 	const Vector3& GetVelocity() const { return velocity_; }
+	float GetTurnTimer() const { return turnTimer_; }
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
 	Vector3 GetPosition() const { return worldTransform_.translation_; }
 	AABB GetAABB();
 
 	static inline const float kWidth = 0.8f;
 	static inline const float kHeight = 0.8f;
-	static inline const float kBlank = 0.1f;
+	static inline const float kBlank = 0.01f;
 	static inline const float kTimeTurn = 0.3f;
 	static inline const float kGravityAcceleration = 0.01f;
 	static inline const float kLimitFallSpeed = 0.5f;
 	static inline const float kJumpAcceleration = 0.3f;
-
+	
 private:
 	WorldTransform worldTransform_;
 	Model* model_ = nullptr;
 	bool OnGround_ = true;
+	int jumpCount_ = 0;
+	bool isGliding_ = false;
 	Camera* camera_ = nullptr;
 	uint32_t textureHandle_ = 0u;
 	Vector3 velocity_ = {};
@@ -68,6 +70,7 @@ private:
 	MapChipField* mapChipField_ = nullptr;
 	Vector3 GetWorldPosition();
 	bool isDead_ = false;
+	bool input = false;
 };
 
 Vector3 CornerPosition(const Vector3& center, Corner corner);

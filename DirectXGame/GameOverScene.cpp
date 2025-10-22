@@ -10,13 +10,12 @@ void GameOverScene::Initialize() {
 	textTransform_.translation_ = {0.0f, 5.0f, 6.0f};
 	textTransform_.scale_ = {5.5f, 5.5f, 5.5f};
 
-	// 背景OBJ（任意）
+	// 背景OBJ
 	backgroundModel_ = Model::CreateFromOBJ("background");
 	backgroundTransform_.Initialize();
 	backgroundTransform_.translation_ = {0.0f, 0.0f, 10.0f};
 	backgroundTransform_.rotation_.y = std::numbers::pi_v<float>;
 	backgroundTransform_.scale_ = {10000.0f, 10000.0f, 10.0f};
-
 
 	skyDomeModel_ = Model::CreateFromOBJ("tenkixyuu", true);
 	skyDomeWT_.Initialize();

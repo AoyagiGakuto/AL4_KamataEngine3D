@@ -12,6 +12,7 @@ void GameScene::Initialize() {
 	modelPlayer_ = Model::CreateFromOBJ("player");
 	modelEnemy_ = Model::CreateFromOBJ("Ninja");
 	modelDeathParticle_ = Model::CreateFromOBJ("deathParticle");
+	modelBullet_ = Model::CreateFromOBJ("bullet");
 
 	model_ = Model::Create();
 	mapChipField_ = new MapChipField();
@@ -32,17 +33,29 @@ void GameScene::Initialize() {
 	player_->SetMapChipField(mapChipField_);
 
 	// 敵配置
-	const int enemyCount = 5;
+	const int enemyCount = 2;
 	for (int32_t i = 0; i < enemyCount; ++i) {
 		Enemy* newEnemy = new Enemy();
-		Vector3 enemyPosition = mapChipField_->GetMapPositionTypeByIndex(30 + i * 2, 18);
-		enemyPosition.y -= MapChipField::kBlockHeight / 2.0f;
+		Vector3 enemyPosition = mapChipField_->GetMapPositionTypeByIndex(30 + i * 3, 18);
 		newEnemy->Initialize(modelEnemy_, camera_, enemyPosition);
 		newEnemy->SetMapChipField(mapChipField_);
 		newEnemy->SetScale({0.4f, 0.4f, 0.4f});
 		newEnemy->SetRotationY(std::numbers::pi_v<float> * 3.0f / 2.0f);
+
+		if (i == 1) {
+			// 2体目だけプレイヤーを追尾
+			newEnemy->SetTarget(player_);
+			newEnemy->SetHoming(true);
+			// 速度パラメータ調整も可（速め）
+			newEnemy->SetHomingParams(0.08f, 0.006f, 0.05f);
+		} else {
+			// 通常敵は追尾しない（false）
+			newEnemy->SetHoming(false);
+		}
+
 		enemies_.push_back(newEnemy);
 	}
+
 
 	// カメラコントローラー
 	cameraController_ = new CameraController();
@@ -99,6 +112,75 @@ void GameScene::Update() {
 		}
 	}
 
+	// 発射入力
+	if (Input::GetInstance()->TriggerKey(DIK_H)) {
+
+		// 回頭中は発射しない
+		if (player_->GetTurnTimer() > 0.0f) {
+			return;
+		}
+
+		// プレイヤーの位置を弾発射位置に調整
+		Vector3 spawnPos = player_->GetWorldTransform().translation_;
+		spawnPos.y += 0.3f; // プレイヤーの中心に合わせる
+		float y = player_->GetWorldTransform().rotation_.y;
+		Vector3 dir = {std::sin(y), 0.0f, -std::cos(y)};
+
+		auto b = std::make_unique<Bullet>();
+		b->Initialize(modelBullet_ ? modelBullet_ : modelCube_, camera_, spawnPos, dir);
+		bullets_.push_back(std::move(b));
+	}
+
+	// 弾の更新と削除
+	for (auto& b : bullets_) {
+		b->Update();
+	}
+
+	// 削除
+	bullets_.erase(std::remove_if(bullets_.begin(), bullets_.end(), [](const std::unique_ptr<Bullet>& b) { return !b->IsAlive(); }), bullets_.end());
+
+	// --- 弾と敵の当たり判定 ---
+	for (auto it = bullets_.begin(); it != bullets_.end();) {
+		bool bulletRemoved = false;
+		AABB aabbB = (*it)->GetAABB();
+		for (auto enemyIt = enemies_.begin(); enemyIt != enemies_.end(); ++enemyIt) {
+			AABB aabbE = (*enemyIt)->GetAABB();
+			bool isHit =
+			    (aabbB.min.x < aabbE.max.x && aabbB.max.x > aabbE.min.x) && (aabbB.min.y < aabbE.max.y && aabbB.max.y > aabbE.min.y) && (aabbB.min.z < aabbE.max.z && aabbB.max.z > aabbE.min.z);
+			if (isHit) {
+				// 敵削除と弾削除、演出（パーティクル）発生
+				deathParticle_.Spawn((*enemyIt)->GetWorldTransform().translation_);
+				delete *enemyIt;
+				enemies_.erase(enemyIt);
+				(*it)->Kill();
+				bulletRemoved = true;
+				break;
+			}
+		}
+		if (bulletRemoved) {
+			it = bullets_.erase(it);
+		} else {
+			++it;
+		}
+	}
+
+	// ブロックとの当たり判定
+	for (auto it = bullets_.begin(); it != bullets_.end();) {
+
+		// 弾の位置からタイルを取得
+		MapChipField::IndexSet idx = mapChipField_->GetMapChipIndexSetByPosition((*it)->GetAABB().min);
+
+		MapChipType type = mapChipField_->GetMapChipTypeByIndex(idx.xIndex, idx.yIndex);
+
+		bool hitBlock = (type == MapChipType::kBlock);
+		if (hitBlock) {
+			(*it)->Kill();
+			it = bullets_.erase(it); // 消し
+		} else {
+			++it; // 残す
+		}
+	}
+
 	// プレイヤーは死亡後止まるけど、敵は常に動く
 	if (!player_->IsDead()) {
 		player_->Update();
@@ -133,7 +215,7 @@ void GameScene::Update() {
 	case Phase::kFadeOut:
 		fade_->Update();
 		if (fade_->IsFinished()) {
-			finished_ = true; // main がこれを見て TitleScene に切り替える
+			finished_ = true;
 		}
 		break;
 	}
@@ -194,6 +276,11 @@ void GameScene::Draw() {
 	player_->Draw();
 	for (Enemy* enemy : enemies_) {
 		enemy->Draw();
+	}
+
+	// 弾の描画
+	for (const auto& b : bullets_) {
+		b->Draw();
 	}
 
 	// DeathParticle描画

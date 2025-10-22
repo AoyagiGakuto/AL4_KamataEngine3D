@@ -1,68 +1,67 @@
 #pragma once
+#include "Boss.h"
+#include "Bullet.h"
 #include "CameraController.h"
 #include "DeathParticle.h"
-#include "Enemy.h"
 #include "Fade.h"
 #include "KamataEngine.h"
 #include "MapChipField.h"
-#include "Bullet.h"
 #include "Player.h"
-#include "Skydome.h"
+#include <list>
 #include <memory>
 #include <vector>
 
 using namespace KamataEngine;
-
-class GameScene {
+/*
+class BossScene {
 public:
-	~GameScene();
+	~BossScene();
 
 	void Initialize();
 	void Update();
 	void Draw();
+
 	bool IsFinished() const { return finished_; }
 
 private:
-	void GenerateBlooks();
+	void GenerateBlocks();
 	void CheckAllCollisions();
 
-	// フェーズを追加：入る/遊ぶ/出る
 	enum class Phase { kFadeIn, kPlay, kFadeOut };
 	Phase phase_ = Phase::kFadeIn;
 
 	// モデル
 	Model* modelCube_ = nullptr;
 	Model* modelSkyDome_ = nullptr;
-	Model* model_ = nullptr;
 	Model* modelPlayer_ = nullptr;
-	Model* modelEnemy_ = nullptr;
-	Model* modelDeathParticle_ = nullptr;
+	Model* modelBoss_ = nullptr;
 	Model* modelBullet_ = nullptr;
 
-	// ワールドトランスフォーム
-	WorldTransform worldTransform_;
+	// ワールド
+	WorldTransform worldTransform_; // スカイドーム用
 
 	// カメラ
-	Camera* camera_;
+	Camera* camera_ = nullptr;
 	bool isDebugCameraActive_ = false;
 	DebugCamera* debugCamera_ = nullptr;
-
-	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
-	MapChipField* mapChipField_ = nullptr;
-
-	Player* player_ = nullptr;
-	std::list<Enemy*> enemies_;
 	CameraController* cameraController_ = nullptr;
 
+	// マップ
+	MapChipField* mapChipField_ = nullptr;
+	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
+
+	// キャラ
+	Player* player_ = nullptr;
+	Boss* boss_ = nullptr;
+
+	// 弾
 	std::vector<std::unique_ptr<Bullet>> bullets_;
 
-	// デスパーティクル
+	// エフェクト/フェード
 	DeathParticle deathParticle_;
-	float particleCooldown_ = 0.0f;
-
-	// シーン終了フラグ
-	bool finished_ = false;
-
-	// シーン内フェード
 	Fade* fade_ = nullptr;
+
+	// 状態
+	bool finished_ = false;
 };
+*/

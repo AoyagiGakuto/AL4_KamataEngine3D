@@ -14,7 +14,9 @@ const float kJumpVelocity = 0.25f;
 const float kGravity = 0.01f;
 static inline const float kAttenuation = 0.005f;
 static inline const float kLimitRunSpeed = 0.1f;
-static inline const float kLimitFallSpeed = 0.2f;
+static inline const float kLimitFallSpeed = 0.1f;       // 落下速度の上限ｋabutteru
+static inline const float kGlideGravityScale = 0.1f;   // 重力
+static inline const float kLimitGlideFallSpeed = 0.02f; // 滑空中の最大落下速度
 bool landing = false;
 
 void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
@@ -46,9 +48,17 @@ void Player::Update() {
 
 	if (colY.isOnGround) {
 		OnGround_ = true;
+		jumpCount_ = 0;
+		isGliding_ = false;
 	} else {
-		velocity_.y -= kGravityAcceleration;
-		velocity_.y = std::max(velocity_.y, -kLimitFallSpeed);
+		// gは重力
+		const float g = kGravityAcceleration * (isGliding_ ? kGlideGravityScale : 1.0f);
+		velocity_.y -= g;
+
+		// 滑空中は落下上限も弱める
+		const float fallLimit = isGliding_ ? -kLimitGlideFallSpeed : -kLimitFallSpeed;
+		velocity_.y = std::max(velocity_.y, fallLimit);
+
 		OnGround_ = false;
 	}
 	if (colY.isCeiling) {
@@ -72,41 +82,75 @@ void Player::Draw() {
 }
 
 void Player::InputMove() {
-	if (OnGround_) {
-		if (Input::GetInstance()->PushKey(DIK_LEFT) || Input::GetInstance()->PushKey(DIK_RIGHT)) {
-			Vector3 acceleration = {};
-			if (Input::GetInstance()->PushKey(DIK_LEFT)) {
-				if (velocity_.x < 0.0f) {
-					velocity_.x *= (1.0f - kAttenuation);
-				}
-				acceleration.x = -kAttenuation;
-				if (lrDirection_ != LRDirection::kLeft) {
-					lrDirection_ = LRDirection::kLeft;
-					turnFirstRotationY_ = worldTransform_.rotation_.y;
-					turnTimer_ = kTimeTurn;
-				}
-			} else if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
-				if (velocity_.x > 0.0f) {
-					velocity_.x *= (1.0f - kAttenuation);
-				}
-				acceleration.x = kAttenuation;
-				if (lrDirection_ != LRDirection::kRight) {
-					lrDirection_ = LRDirection::kRight;
-					turnFirstRotationY_ = worldTransform_.rotation_.y;
-					turnTimer_ = kTimeTurn;
-				}
+
+	input = false;
+	if (Input::GetInstance()->PushKey(DIK_A) || Input::GetInstance()->PushKey(DIK_D)) {
+		input = true;
+	}
+
+	// 減速
+	const float decelGround = 0.004f; // 地上は強く止める
+	const float decelAir = 0.001f;    // 空中は弱め
+	const float decel = OnGround_ ? decelGround : decelAir;
+
+	if (!input) {
+		if (velocity_.x > 0.0f) {
+			velocity_.x = std::max(0.0f, velocity_.x - decel);
+		} else if (velocity_.x < 0.0f) {
+			velocity_.x = std::min(0.0f, velocity_.x + decel);
+		}
+		if (std::abs(velocity_.x) < 0.0005f)
+			velocity_.x = 0.0f;
+	}
+
+	// 入力があるときだけ加速
+	if (input) {
+		Vector3 acceleration = {};
+
+		if (Input::GetInstance()->PushKey(DIK_A)) {
+			if (velocity_.x < 0.0f) {
+				velocity_.x *= (1.0f - kAttenuation);
 			}
-			velocity_ += acceleration;
-			velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
+			acceleration.x = -kAttenuation;
+
+			if (lrDirection_ != LRDirection::kLeft) {
+				lrDirection_ = LRDirection::kLeft;
+				turnFirstRotationY_ = worldTransform_.rotation_.y;
+				turnTimer_ = kTimeTurn;
+			}
+
+		} else if (Input::GetInstance()->PushKey(DIK_D)) {
+			if (velocity_.x > 0.0f) {
+				velocity_.x *= (1.0f - kAttenuation);
+			}
+			acceleration.x = kAttenuation;
+
+			if (lrDirection_ != LRDirection::kRight) {
+				lrDirection_ = LRDirection::kRight;
+				turnFirstRotationY_ = worldTransform_.rotation_.y;
+				turnTimer_ = kTimeTurn;
+			}
 		}
 
-		if (OnGround_) {
-			if (Input::GetInstance()->PushKey(DIK_UP)) {
-				velocity_.y = kJumpVelocity;
-				OnGround_ = false;
-				landing = false;
-			}
+		velocity_ += acceleration;
+		velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
+	}
+
+	// 二段ジャンプ
+	if (Input::GetInstance()->TriggerKey(DIK_W)) {
+		if (jumpCount_ < 2) {
+			velocity_.y = kJumpVelocity;
+			OnGround_ = false;
+			landing = false;
+			jumpCount_++;
 		}
+	}
+
+	// 滑空
+	if (!OnGround_ && velocity_.y <= 0.0f && Input::GetInstance()->PushKey(DIK_SPACE)) {
+		isGliding_ = true;
+	} else {
+		isGliding_ = false;
 	}
 }
 
@@ -132,18 +176,12 @@ void Player::Die() {
 
 bool Player::IsDead() const { return isDead_; }
 
-
 void Player::CollisionMapCheck(CollisionMapInfo& Info) {
 	CheckMapCollisionDown(Info);
 	CheckMapCollisionUp(Info);
 	CheckMapCollisionLeft(Info);
 	CheckMapCollisionRight(Info);
 }
-
-//void Player::OnCollision(const Enemy* enemy) {
-	//(void)enemy;
-	//velocity_ += Vector3(0.0f, kJumpAcceleration, 0.0f);
-//}
 
 void Player::CheckMapCollision(CollisionMapInfo& Info) {
 	CheckMapCollisionUp(Info);
@@ -228,18 +266,14 @@ AABB Player::GetAABB() {
 	AABB aabb;
 
 	aabb.min = {
-		worldTransform_.translation_.x - Player::kWidth / 2.0f + Player::kBlank,
-		worldTransform_.translation_.y - Player::kHeight / 2.0f + Player::kBlank,
-		worldTransform_.translation_.z - Player::kWidth / 2.0f + Player::kBlank
-	};
+	    worldTransform_.translation_.x - Player::kWidth / 2.0f + Player::kBlank, worldTransform_.translation_.y - Player::kHeight / 2.0f + Player::kBlank,
+	    worldTransform_.translation_.z - Player::kWidth / 2.0f + Player::kBlank};
 
 	aabb.max = {
-		worldTransform_.translation_.x + Player::kWidth / 2.0f - Player::kBlank,
-		worldTransform_.translation_.y + Player::kHeight / 2.0f - Player::kBlank,
-		worldTransform_.translation_.z + Player::kWidth / 2.0f - Player::kBlank
-	};
+	    worldTransform_.translation_.x + Player::kWidth / 2.0f - Player::kBlank, worldTransform_.translation_.y + Player::kHeight / 2.0f - Player::kBlank,
+	    worldTransform_.translation_.z + Player::kWidth / 2.0f - Player::kBlank};
 
-	return aabb; 
+	return aabb;
 }
 
 Vector3 Player::GetWorldPosition() {
@@ -247,9 +281,8 @@ Vector3 Player::GetWorldPosition() {
 	worldPos.x = worldTransform_.translation_.x;
 	worldPos.y = worldTransform_.translation_.y + Player::kHeight / 2.0f; // プレイヤーの中心位置を考慮
 	worldPos.z = worldTransform_.translation_.z;
-	return worldPos; 
+	return worldPos;
 }
-
 
 Vector3 CornerPosition(const Vector3& center, Corner corner) {
 	switch (corner) {
