@@ -118,6 +118,8 @@ void Enemy::CheckMapCollisionDown(CollisionInfo& info) {
 	MapChipType type_R = mapChipField_->GetMapChipTypeByIndex(indexSet_R.xIndex, indexSet_R.yIndex);
 
 	if (type_L == MapChipType::kBlock || type_R == MapChipType::kBlock) {
+		// -FLT_MAXはfloatの最小値0で初期化するとバグが起きちゃうかもしれない
+		// まちがって0で初期化しないように注意
 		float blockTop = -FLT_MAX;
 		if (type_L == MapChipType::kBlock) {
 			float topL = mapChipField_->GetRectByIndex(indexSet_L.xIndex, indexSet_L.yIndex).top;
