@@ -115,7 +115,7 @@ void GameScene::Update() {
 	// 発射入力
 	if (Input::GetInstance()->TriggerKey(DIK_H)) {
 
-		// 回頭中は発射しない, 死亡中も発射しない
+		// 回頭中は発射しない
 		if (player_->GetTurnTimer() > 0.0f||player_->isDead_) {
 			return;
 		}
