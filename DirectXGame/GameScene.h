@@ -8,8 +8,10 @@
 #include "Bullet.h"
 #include "Player.h"
 #include "Skydome.h"
+#include "HitEffect.h"
 #include <memory>
 #include <vector>
+#include <array>
 
 using namespace KamataEngine;
 
@@ -55,6 +57,10 @@ private:
 	CameraController* cameraController_ = nullptr;
 
 	std::vector<std::unique_ptr<Bullet>> bullets_;
+
+	std::array<Model*, 10> modelNumbers_{};
+	std::vector<std::unique_ptr<HitEffect>> hitEffects_;
+	int score_ = 0;
 
 	// デスパーティクル
 	DeathParticle deathParticle_;

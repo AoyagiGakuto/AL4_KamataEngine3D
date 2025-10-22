@@ -14,6 +14,10 @@ void GameScene::Initialize() {
 	modelDeathParticle_ = Model::CreateFromOBJ("deathParticle");
 	modelBullet_ = Model::CreateFromOBJ("bullet");
 
+	for (int i = 0; i < 10; ++i) {
+		modelNumbers_[i] = Model::CreateFromOBJ(std::to_string(i));
+	}
+
 	model_ = Model::Create();
 	mapChipField_ = new MapChipField();
 	player_ = new Player();
@@ -56,7 +60,6 @@ void GameScene::Initialize() {
 		enemies_.push_back(newEnemy);
 	}
 
-
 	// カメラコントローラー
 	cameraController_ = new CameraController();
 	cameraController_->SetTarget(player_);
@@ -69,7 +72,7 @@ void GameScene::Initialize() {
 	deathParticle_.Initialize(modelDeathParticle_, camera_);
 
 	particleCooldown_ = 0.0f;
-
+	score_ = 0;
 	fade_ = new Fade();
 	fade_->Initialize();
 	phase_ = Phase::kFadeIn;
@@ -102,6 +105,18 @@ void GameScene::Update() {
 		particleCooldown_ -= 1.0f / 60.0f;
 	}
 
+	cameraController_->Update();
+
+	if (isDebugCameraActive_) {
+		debugCamera_->Update();
+		camera_->matView = debugCamera_->GetCamera().matView;
+		camera_->matProjection = debugCamera_->GetCamera().matProjection;
+	} else {
+		camera_->matView = cameraController_->GetViewProjection().matView;
+		camera_->matProjection = cameraController_->GetViewProjection().matProjection;
+		camera_->TransferMatrix();
+	}
+
 	// マップブロック更新
 	for (auto& line : worldTransformBlocks_) {
 		for (auto& block : line) {
@@ -116,7 +131,7 @@ void GameScene::Update() {
 	if (Input::GetInstance()->TriggerKey(DIK_H)) {
 
 		// 回頭中は発射しない
-		if (player_->GetTurnTimer() > 0.0f||player_->isDead_) {
+		if (player_->GetTurnTimer() > 0.0f || player_->isDead_) {
 			return;
 		}
 
@@ -139,7 +154,7 @@ void GameScene::Update() {
 	// 削除
 	bullets_.erase(std::remove_if(bullets_.begin(), bullets_.end(), [](const std::unique_ptr<Bullet>& b) { return !b->IsAlive(); }), bullets_.end());
 
-	// --- 弾と敵の当たり判定 ---
+	// 弾と敵の当たり判定
 	for (auto it = bullets_.begin(); it != bullets_.end();) {
 		bool bulletRemoved = false;
 		AABB aabbB = (*it)->GetAABB();
@@ -147,7 +162,19 @@ void GameScene::Update() {
 			AABB aabbE = (*enemyIt)->GetAABB();
 			bool isHit =
 			    (aabbB.min.x < aabbE.max.x && aabbB.max.x > aabbE.min.x) && (aabbB.min.y < aabbE.max.y && aabbB.max.y > aabbE.min.y) && (aabbB.min.z < aabbE.max.z && aabbB.max.z > aabbE.min.z);
+
 			if (isHit) {
+
+				score_++;
+
+				hitEffects_.clear();
+
+				// 新しいHitEffectを生成
+				auto hit = std::make_unique<HitEffect>();
+
+				hit->Initialize(modelNumbers_, camera_, {0.0f, 0.0f, 0.0f}, score_);
+				hitEffects_.push_back(std::move(hit));
+
 				// 敵削除と弾削除、演出（パーティクル）発生
 				deathParticle_.Spawn((*enemyIt)->GetWorldTransform().translation_);
 				delete *enemyIt;
@@ -181,6 +208,17 @@ void GameScene::Update() {
 		}
 	}
 
+	// コンボ表示のベース座標
+	Vector3 comboBasePos = {0, 0, 0};
+
+	for (auto& hit : hitEffects_) {
+		hit->Update();
+		hit->UpdatePosition(comboBasePos);
+	}
+
+	// 生存時間が切れたものを削除
+	hitEffects_.erase(std::remove_if(hitEffects_.begin(), hitEffects_.end(), [](const std::unique_ptr<HitEffect>& h) { return !h->IsAlive(); }), hitEffects_.end());
+
 	// プレイヤーは死亡後止まるけど、敵は常に動く
 	if (!player_->IsDead()) {
 		player_->Update();
@@ -194,7 +232,6 @@ void GameScene::Update() {
 
 	// 死亡パーティクル演出
 	deathParticle_.Update();
-
 
 	switch (phase_) {
 	case Phase::kFadeIn:
@@ -218,22 +255,6 @@ void GameScene::Update() {
 			finished_ = true;
 		}
 		break;
-	}
-
-	cameraController_->Update();
-
-	if (Input::GetInstance()->PushKey(DIK_O)) {
-		isDebugCameraActive_ = !isDebugCameraActive_;
-	}
-
-	if (isDebugCameraActive_) {
-		debugCamera_->Update();
-		camera_->matView = debugCamera_->GetCamera().matView;
-		camera_->matProjection = debugCamera_->GetCamera().matProjection;
-	} else {
-		camera_->matView = cameraController_->GetViewProjection().matView;
-		camera_->matProjection = cameraController_->GetViewProjection().matProjection;
-		camera_->TransferMatrix();
 	}
 }
 
@@ -283,6 +304,10 @@ void GameScene::Draw() {
 		b->Draw();
 	}
 
+	for (const auto& hit : hitEffects_) {
+		hit->Draw();
+	}
+
 	// DeathParticle描画
 	deathParticle_.Draw();
 
@@ -309,5 +334,10 @@ GameScene::~GameScene() {
 			delete block;
 		}
 	}
+
+	for (Model* model : modelNumbers_) {
+		delete model;
+	}
+
 	worldTransformBlocks_.clear();
 }
