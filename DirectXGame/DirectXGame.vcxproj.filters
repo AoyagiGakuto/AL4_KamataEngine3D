@@ -1,93 +1,299 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <FxCompile Include="Resources\shaders\TerrainPS.hlsl" />
-    <FxCompile Include="Resources\shaders\TerrainVS.hlsl" />
-    <FxCompile Include="Resources\shaders\ObjPS.hlsl" />
-    <FxCompile Include="Resources\shaders\ObjVS.hlsl" />
-    <FxCompile Include="Resources\shaders\PrimitivePS.hlsl" />
-    <FxCompile Include="Resources\shaders\PrimitiveVS.hlsl" />
-    <FxCompile Include="Resources\shaders\ShapePS.hlsl" />
-    <FxCompile Include="Resources\shaders\ShapeVS.hlsl" />
-    <FxCompile Include="Resources\shaders\SpritePS.hlsl" />
-    <FxCompile Include="Resources\shaders\SpriteVS.hlsl" />
+    <FxCompile Include="Resources\shaders\ObjPS.hlsl">
+      <Filter>hlsl\obj</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\shaders\ObjVS.hlsl">
+      <Filter>hlsl\obj</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\shaders\ShapeVS.hlsl">
+      <Filter>hlsl\Shape</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\shaders\ShapePS.hlsl">
+      <Filter>hlsl\Shape</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\shaders\SpritePS.hlsl">
+      <Filter>hlsl\Sprite</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\shaders\SpriteVS.hlsl">
+      <Filter>hlsl\Sprite</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\shaders\TerrainPS.hlsl">
+      <Filter>hlsl\Terrain</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\shaders\TerrainVS.hlsl">
+      <Filter>hlsl\Terrain</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\shaders\PrimitivePS.hlsl">
+      <Filter>hlsl\Primitive</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\shaders\PrimitiveVS.hlsl">
+      <Filter>hlsl\Primitive</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Fade.cpp" />
-    <ClCompile Include="GameClearScene.cpp" />
-    <ClCompile Include="GameOverScene.cpp" />
-    <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="MapChipField.cpp" />
-    <ClCompile Include="MyMath.cpp" />
-    <ClCompile Include="Skydome.cpp" />
-    <ClCompile Include="Player.cpp" />
-    <ClCompile Include="TitleScene.cpp" />
     <ClCompile Include="Boss.cpp">
-      <Filter>Boss\Boss_cpp</Filter>
+      <Filter>Boss\cpp</Filter>
     </ClCompile>
-    <ClCompile Include="BossScene.cpp">
-      <Filter>Boss\Boss_cpp</Filter>
-    </ClCompile>
-    <ClCompile Include="CameraController.cpp">
-      <Filter>Boss\Boss_cpp</Filter>
+    <ClCompile Include="Bullet.cpp">
+      <Filter>Bullet\cpp</Filter>
     </ClCompile>
     <ClCompile Include="DeathParticle.cpp">
-      <Filter>Boss\Boss_cpp</Filter>
+      <Filter>Effects\Particle\cpp</Filter>
     </ClCompile>
-    <ClCompile Include="Enemy.cpp" />
-    <ClCompile Include="Bullet.cpp">
-      <Filter>Bullet\Bullet_cpp</Filter>
+    <ClCompile Include="CameraController.cpp">
+      <Filter>Camera\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy.cpp">
+      <Filter>Enemy\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="Fade.cpp">
+      <Filter>Effects\Fade\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="GameScene.cpp">
+      <Filter>Scene\Game\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="GameClearScene.cpp">
+      <Filter>Scene\GameClear\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="GameOverScene.cpp">
+      <Filter>Scene\GameOver\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="BossScene.cpp">
+      <Filter>Scene\Boss\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="MapChipField.cpp">
+      <Filter>Map\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Player\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="TitleScene.cpp">
+      <Filter>Scene\Title</Filter>
+    </ClCompile>
+    <ClCompile Include="MyMath.cpp">
+      <Filter>Math\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="Skydome.cpp">
+      <Filter>Skydome\cpp</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Fade.h" />
-    <ClInclude Include="GameClearScene.h" />
-    <ClInclude Include="GameOverScene.h" />
-    <ClInclude Include="GameScene.h" />
-    <ClInclude Include="MapChipField.h" />
-    <ClInclude Include="MyMath.h" />
-    <ClInclude Include="Skydome.h" />
-    <ClInclude Include="Player.h" />
     <ClInclude Include="Boss.h">
-      <Filter>Boss\Boss_h</Filter>
-    </ClInclude>
-    <ClInclude Include="BossScene.h">
-      <Filter>Boss\Boss_h</Filter>
+      <Filter>Boss\h</Filter>
     </ClInclude>
     <ClInclude Include="Bullet.h">
-      <Filter>Boss\Boss_h</Filter>
-    </ClInclude>
-    <ClInclude Include="CameraController.h">
-      <Filter>Boss\Boss_h</Filter>
+      <Filter>Bullet\h</Filter>
     </ClInclude>
     <ClInclude Include="DeathParticle.h">
-      <Filter>Boss\Boss_h</Filter>
+      <Filter>Effects\Particle\h</Filter>
     </ClInclude>
-    <ClInclude Include="Enemy.h" />
+    <ClInclude Include="CameraController.h">
+      <Filter>Camera\h</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy.h">
+      <Filter>Enemy\h</Filter>
+    </ClInclude>
+    <ClInclude Include="Fade.h">
+      <Filter>Effects\Fade\h</Filter>
+    </ClInclude>
+    <ClInclude Include="GameScene.h">
+      <Filter>Scene\Game\h</Filter>
+    </ClInclude>
+    <ClInclude Include="GameClearScene.h">
+      <Filter>Scene\GameClear\h</Filter>
+    </ClInclude>
+    <ClInclude Include="GameOverScene.h">
+      <Filter>Scene\GameOver\h</Filter>
+    </ClInclude>
+    <ClInclude Include="BossScene.h">
+      <Filter>Scene\Boss\h</Filter>
+    </ClInclude>
+    <ClInclude Include="MapChipField.h">
+      <Filter>Map\h</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Player\h</Filter>
+    </ClInclude>
+    <ClInclude Include="MyMath.h">
+      <Filter>Math\h</Filter>
+    </ClInclude>
+    <ClInclude Include="Skydome.h">
+      <Filter>Skydome\h</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\shaders\Obj.hlsli" />
-    <None Include="Resources\shaders\Primitive.hlsli" />
-    <None Include="Resources\shaders\Shape.hlsli" />
-    <None Include="Resources\shaders\Terrain.hlsli" />
-    <None Include="Resources\shaders\Sprite.hlsli" />
+    <None Include="Resources\shaders\Obj.hlsli">
+      <Filter>hlsl\obj</Filter>
+    </None>
+    <None Include="Resources\shaders\Shape.hlsli">
+      <Filter>hlsl\Shape</Filter>
+    </None>
+    <None Include="Resources\shaders\Sprite.hlsli">
+      <Filter>hlsl\Sprite</Filter>
+    </None>
+    <None Include="Resources\shaders\Terrain.hlsli">
+      <Filter>hlsl\Terrain</Filter>
+    </None>
+    <None Include="Resources\shaders\Primitive.hlsli">
+      <Filter>hlsl\Primitive</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Boss">
       <UniqueIdentifier>{33284195-83c9-4ab6-820b-d0cd845ddeb3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Boss\Boss_cpp">
-      <UniqueIdentifier>{3f811f21-8cec-49a0-adcf-dbb45ce61c5b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Boss\Boss_h">
-      <UniqueIdentifier>{22b88f72-0fab-4964-8a36-0505f74a7f05}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Bullet">
       <UniqueIdentifier>{dccdf656-4939-48e8-8cd4-ea5f11e85386}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Bullet\Bullet_cpp">
+    <Filter Include="Boss\cpp">
+      <UniqueIdentifier>{3f811f21-8cec-49a0-adcf-dbb45ce61c5b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Boss\h">
+      <UniqueIdentifier>{22b88f72-0fab-4964-8a36-0505f74a7f05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Bullet\cpp">
       <UniqueIdentifier>{ad1cbd93-37d1-4dda-b6d0-48b6c7133fe7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Bullet\h">
+      <UniqueIdentifier>{65796269-558a-4064-8fcf-3c126f796bdd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Camera">
+      <UniqueIdentifier>{9484fd8c-a0a2-4028-b9bb-78dfc4b125a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Camera\cpp">
+      <UniqueIdentifier>{bb8dfb2a-c878-4ff8-a75a-eb19f01b7c44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Camera\h">
+      <UniqueIdentifier>{4a86cb30-b725-4bf9-9de1-5f3a1b7817e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Enemy">
+      <UniqueIdentifier>{f4ee12ce-b1e4-408b-8bfc-1095acca864f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Enemy\h">
+      <UniqueIdentifier>{ae1312fa-b1f4-4e50-a70e-0e43b5c43171}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Enemy\cpp">
+      <UniqueIdentifier>{3fca8dbe-a001-4914-8c31-4aece4c722a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene">
+      <UniqueIdentifier>{1829ec8c-37e4-441a-89cf-75a0399c5d37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene\Game">
+      <UniqueIdentifier>{6d6920b8-57c5-469b-ad0e-577e6a96ffd3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene\Game\h">
+      <UniqueIdentifier>{62a61396-2e59-4a6e-aed1-ed4e81d4cadb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene\Game\cpp">
+      <UniqueIdentifier>{3ec6de02-97eb-43cb-8812-adf3b9b261fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene\GameClear">
+      <UniqueIdentifier>{ac12edb4-6ccf-41b7-9fec-bc9799d5eb55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene\GameClear\h">
+      <UniqueIdentifier>{5551bb0e-06cb-4b8f-831e-4999e29f2890}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene\GameClear\cpp">
+      <UniqueIdentifier>{c48057fa-36f7-4f34-b0e8-550dfd6e7e64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene\GameOver">
+      <UniqueIdentifier>{356c07a0-efdb-4d1f-bbad-7f857ed6d7b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene\GameOver\h">
+      <UniqueIdentifier>{07f5b4cc-3e25-4bec-98b5-ca9cb3abf066}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene\GameOver\cpp">
+      <UniqueIdentifier>{c768424b-fc9e-4aa9-98f8-ad4883aeb5f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene\Boss">
+      <UniqueIdentifier>{fe74e03f-3469-480e-8943-b5810ce49b35}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene\Boss\h">
+      <UniqueIdentifier>{3c7576a9-3b9f-4a01-b838-32fc2e361d0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene\Boss\cpp">
+      <UniqueIdentifier>{b2ceefe2-019e-40e0-8771-7e1a710b7a20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Effects">
+      <UniqueIdentifier>{f7587923-0842-4a94-a593-ac2b77acfc4e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Effects\Fade">
+      <UniqueIdentifier>{27238db5-94b0-4273-ae40-20ed67d3bdbf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Effects\Fade\cpp">
+      <UniqueIdentifier>{7775076f-4082-463d-a92e-d1107a3139dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Effects\Fade\h">
+      <UniqueIdentifier>{96e4f91a-7ebc-42c6-b742-f4e8e7f6c7df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Effects\Particle">
+      <UniqueIdentifier>{657a302a-467c-4fb7-b079-41387a077248}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Effects\Particle\h">
+      <UniqueIdentifier>{86d48d65-cfcc-4330-adac-3bb316bf4ff3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Effects\Particle\cpp">
+      <UniqueIdentifier>{9fce819a-8d3b-4082-a110-4886a4b82524}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Map">
+      <UniqueIdentifier>{3a6bf39e-f96b-4c60-b4fb-5b6917f446ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Map\h">
+      <UniqueIdentifier>{facb7342-0fb3-4d7a-bff6-e133f946f542}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Map\cpp">
+      <UniqueIdentifier>{f28a9512-0bb9-48a8-bf8c-552c4c17d319}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Player">
+      <UniqueIdentifier>{75186a11-90b0-4661-ad2a-37318467b04c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Player\h">
+      <UniqueIdentifier>{b650ffde-6c45-4ca0-a9a1-b7716c927558}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Player\cpp">
+      <UniqueIdentifier>{4a6304fa-c5ab-4d9a-bbda-d50adffb5c2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hlsl">
+      <UniqueIdentifier>{293c79f9-3377-450b-ae9c-4572ad11e573}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hlsl\obj">
+      <UniqueIdentifier>{1a983252-f204-4991-a6f1-f140ae038fce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hlsl\Shape">
+      <UniqueIdentifier>{7dfbafcd-1be6-4ac0-aa8f-634ea031f75f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hlsl\Sprite">
+      <UniqueIdentifier>{33af9838-0d7e-4f14-b699-7785d4847c9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hlsl\Terrain">
+      <UniqueIdentifier>{68dd8b11-0885-4b48-8a19-8524b45504a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene\Title">
+      <UniqueIdentifier>{e38923e4-746e-4dd1-9526-effa9cdf1ae9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hlsl\Primitive">
+      <UniqueIdentifier>{1c029ee5-c83e-4b7c-85c1-6e87c0847c5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math">
+      <UniqueIdentifier>{48930198-db8d-44ff-a53d-dcd8aa03a489}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math\cpp">
+      <UniqueIdentifier>{3baf22e5-23e9-4a9c-b5e0-6556a6fa986a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math\h">
+      <UniqueIdentifier>{ed59dea8-5ee0-4bd7-a08e-1cd8d6537b32}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Skydome">
+      <UniqueIdentifier>{06dd5677-d107-4a89-b7fe-ac5104877328}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Skydome\cpp">
+      <UniqueIdentifier>{d02a31e2-d166-497a-84f3-19ab8188bb65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Skydome\h">
+      <UniqueIdentifier>{5584e89f-4f19-46f9-86e8-a5e56074e35b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
