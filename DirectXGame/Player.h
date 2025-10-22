@@ -53,7 +53,8 @@ public:
 	static inline const float kGravityAcceleration = 0.01f;
 	static inline const float kLimitFallSpeed = 0.5f;
 	static inline const float kJumpAcceleration = 0.3f;
-	
+	bool isDead_ = false;
+
 private:
 	WorldTransform worldTransform_;
 	Model* model_ = nullptr;
@@ -69,7 +70,6 @@ private:
 	float turnTimer_ = 0.0f;
 	MapChipField* mapChipField_ = nullptr;
 	Vector3 GetWorldPosition();
-	bool isDead_ = false;
 	bool input = false;
 };
 
