@@ -11,6 +11,7 @@ TitleScene::~TitleScene() {
 	delete fade_;
 }
 
+
 void TitleScene::Initialize() {
 	// タイトルロゴ
 	titleFontModel_ = Model::CreateFromOBJ("titleFont");
