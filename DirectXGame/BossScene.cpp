@@ -85,7 +85,7 @@ void BossScene::Update() {
 
 	// 発射
 	if (Input::GetInstance()->TriggerKey(DIK_H)) {
-		// 回頭中は撃たない（GameSceneと同様）
+		// 回頭中は撃たない
 		if (player_->GetTurnTimer() <= 0.0f) {
 			Vector3 spawn = player_->GetWorldTransform().translation_;
 			spawn.y += Player::kHeight * 0.5f;
@@ -102,37 +102,6 @@ void BossScene::Update() {
 	for (auto& b : bullets_)
 		b->Update();
 	bullets_.erase(std::remove_if(bullets_.begin(), bullets_.end(), [](const std::unique_ptr<Bullet>& b) { return !b->IsAlive(); }), bullets_.end());
-
-	// 弾 vs ボス
-	if (boss_ && !boss_->IsDead()) {
-		for (auto it = bullets_.begin(); it != bullets_.end();) {
-			AABB a = (*it)->GetAABB();
-			AABB bb = boss_->GetAABB();
-			bool hit = (a.min.x < bb.max.x && a.max.x > bb.min.x) && (a.min.y < bb.max.y && a.max.y > bb.min.y) && (a.min.z < bb.max.z && a.max.z > bb.min.z);
-			if (hit) {
-				boss_->TakeDamage(10);
-				(*it)->Kill();
-				it = bullets_.erase(it);
-				if (boss_->IsDead()) {
-					deathParticle_.Spawn(boss_->GetWorldTransform().translation_);
-				}
-			} else {
-				++it;
-			}
-		}
-	}
-
-	// 弾 vs ブロック
-	for (auto it = bullets_.begin(); it != bullets_.end();) {
-		MapChipField::IndexSet idx = mapChipField_->GetMapChipIndexSetByPosition((*it)->GetWorldTransform().translation_);
-		auto type = mapChipField_->GetMapChipTypeByIndex(idx.xIndex, idx.yIndex);
-		if (type == MapChipType::kBlock) {
-			(*it)->Kill();
-			it = bullets_.erase(it);
-		} else {
-			++it;
-		}
-	}
 
 	// プレイヤー更新（死亡してたら止める）
 	if (!player_->IsDead()) {
@@ -178,23 +147,6 @@ void BossScene::Update() {
 		camera_->matView = cameraController_->GetViewProjection().matView;
 		camera_->matProjection = cameraController_->GetViewProjection().matProjection;
 		camera_->TransferMatrix();
-	}
-}
-
-void BossScene::CheckAllCollisions() {
-	if (player_->IsDead())
-		return;
-
-	// 体当たり
-	if (boss_ && !boss_->IsDead()) {
-		AABB p = player_->GetAABB();
-		AABB b = boss_->GetAABB();
-		bool body = (p.min.x < b.max.x && p.max.x > b.min.x) && (p.min.y < b.max.y && p.max.y > b.min.y) && (p.min.z < b.max.z && p.max.z > b.min.z);
-		// ここでは常時ダメージにしておく
-		if (body) {
-			player_->Die();
-			deathParticle_.Spawn(player_->GetWorldTransform().translation_);
-		}
 	}
 }
 

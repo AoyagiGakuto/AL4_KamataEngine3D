@@ -61,7 +61,7 @@ void TitleScene::Update() {
 	case Phase::kFadeOut:
 		fade_->Update();
 		if (fade_->IsFinished()) {
-			finished_ = true; // main がこれを見て GameScene に切替
+			finished_ = true; 
 		}
 		break;
 	}
@@ -95,7 +95,6 @@ void TitleScene::Draw() {
 
 	Model::PostDraw();
 
-	// ★最後にフェードを被せる（常に最後！）
 	if (fade_)
 		fade_->Draw();
 }

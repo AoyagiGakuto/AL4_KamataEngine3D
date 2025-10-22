@@ -136,7 +136,7 @@ void GameScene::Update() {
 		b->Update();
 	}
 
-	// 削除（寿命切れなど）
+	// 削除
 	bullets_.erase(std::remove_if(bullets_.begin(), bullets_.end(), [](const std::unique_ptr<Bullet>& b) { return !b->IsAlive(); }), bullets_.end());
 
 	// --- 弾と敵の当たり判定 ---
@@ -215,7 +215,7 @@ void GameScene::Update() {
 	case Phase::kFadeOut:
 		fade_->Update();
 		if (fade_->IsFinished()) {
-			finished_ = true; // main がこれを見て TitleScene に切り替える
+			finished_ = true;
 		}
 		break;
 	}

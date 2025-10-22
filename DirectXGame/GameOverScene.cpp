@@ -10,7 +10,7 @@ void GameOverScene::Initialize() {
 	textTransform_.translation_ = {0.0f, 5.0f, 6.0f};
 	textTransform_.scale_ = {5.5f, 5.5f, 5.5f};
 
-	// 背景OBJ（任意）
+	// 背景OBJ
 	backgroundModel_ = Model::CreateFromOBJ("background");
 	backgroundTransform_.Initialize();
 	backgroundTransform_.translation_ = {0.0f, 0.0f, 10.0f};

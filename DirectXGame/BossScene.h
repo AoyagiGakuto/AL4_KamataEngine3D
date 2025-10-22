@@ -50,7 +50,7 @@ private:
 	MapChipField* mapChipField_ = nullptr;
 	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
 
-	// 主要キャラ
+	// キャラ
 	Player* player_ = nullptr;
 	Boss* boss_ = nullptr;
 
