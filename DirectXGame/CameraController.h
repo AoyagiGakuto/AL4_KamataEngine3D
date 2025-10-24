@@ -37,3 +37,4 @@ private:
 	static inline const float kVelocityBias = 30.0f;
 	static inline const Rect targetMargin = {6.0f, 100 - 12.0f, 5.0f, 5.0f};
 };
+
