@@ -12,7 +12,6 @@ public:
 		Vector3 velocity;
 		float lifetime;    // 残り寿命
 		float maxLifetime; // 最大寿命
-
 		// フェードアウト用カラー
 		Vector4 color;
 		ObjectColor objectColor;
