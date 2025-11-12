@@ -171,7 +171,8 @@ void GameScene::Update() {
 	}
 
 	// シフトで敵をロックオン
-
+	// if (Input::GetInstance()->PushKey(DIK_LSHIFT)) {
+	//}
 
 	// 弾の更新と削除
 	for (auto& b : bullets_) {
