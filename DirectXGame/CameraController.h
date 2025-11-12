@@ -5,6 +5,7 @@
 using namespace KamataEngine;
 using namespace MathUtility;
 
+
 class CameraController {
 public:
 	struct Rect {
