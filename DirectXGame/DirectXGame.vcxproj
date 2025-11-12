@@ -124,6 +124,7 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="TitleScene.cpp" />
     <ClCompile Include="ZangekiEffect.cpp" />
+
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\shaders\TerrainPS.hlsl">

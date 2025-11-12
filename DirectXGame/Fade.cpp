@@ -37,7 +37,7 @@ void Fade::Update() {
 		}
 		break;
 	}
-	ResizeToBackbuffer(sprite_); // ←毎フレーム合わせる
+	ResizeToBackbuffer(sprite_);
 }
 
 void Fade::Draw() {
@@ -53,7 +53,7 @@ void Fade::Start(Status status, float duration) {
 	status_ = status;
 	duration_ = duration;
 	counter_ = 0.0f;
-	ResizeToBackbuffer(sprite_); // ←開始直後に全面
+	ResizeToBackbuffer(sprite_);
 	sprite_->SetColor(
 	    status_ == Status::FadeOut ? Vector4(0, 0, 0, 0.0f)   // 透明→黒へ
 	                               : Vector4(0, 0, 0, 1.0f)); // 黒→透明へ
