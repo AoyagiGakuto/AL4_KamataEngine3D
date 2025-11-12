@@ -173,8 +173,8 @@ void GameScene::Update() {
 		if (!player_->IsDead()) {
 
 			const int kNumRainBalls = 50;       // 降らせる弾の数
-			const float kRainAreaWidth = 20.0f; // 左右10 (計20) の範囲
-			const float kRainHeight = 20.0f;    // 上空20の高さから
+			const float kRainAreaWidth = 5.0f; // ひだりとみぎ5の範囲
+			const float kRainHeight = 10.0f;    // 上空20の高さから
 
 			// カメラの中心X座標を取得 (弾を降らせる中心)
 			float centerX = cameraController_->GetViewProjection().translation_.x;
