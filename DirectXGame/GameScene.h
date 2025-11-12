@@ -40,6 +40,7 @@ private:
 	Model* modelEnemy_ = nullptr;
 	Model* modelDeathParticle_ = nullptr;
 	Model* modelBullet_ = nullptr;
+	Model* modelSlowBall_ = nullptr;
 
 	// ワールドトランスフォーム
 	WorldTransform worldTransform_;
@@ -57,6 +58,7 @@ private:
 	CameraController* cameraController_ = nullptr;
 
 	std::vector<std::unique_ptr<Bullet>> bullets_;
+	std::vector<std::unique_ptr<Bullet>> slowBalls_;
 
 	std::array<Model*, 10> modelNumbers_{};
 	std::vector<std::unique_ptr<HitEffect>> hitEffects_;

@@ -12,10 +12,19 @@ void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
 	velocity_ = {-kWalkSpeed, 0.0f, 0.0f};
-	walkTimer_ = 0.0f; // 初期化
+	walkTimer_ = 0.0f;
+	hp_ = 5;
+	slowTimer_ = 0.0f;
 }
 
 void Enemy::Update() {
+
+	float speedMultiplier = 1.0f; // 通常速度
+	if (slowTimer_ > 0.0f) {
+		slowTimer_ -= 1.0f / 60.0f; // 60fps前提でタイマーを減らす
+		speedMultiplier = 0.3f;     // 30%の速度にする
+	}
+
 	// 敵の歩行モーションのタイマーを更新
 	walkTimer_ += 1.0f / 60.0f; // フレームレートに応じて調整
 	// 歩行モーションの角度を計算
@@ -41,9 +50,11 @@ void Enemy::Update() {
 		float dv = desiredVx - velocity_.x;
 		if (dv > +homingAccel_)
 			dv = +homingAccel_;
+		
 		if (dv < -homingAccel_)
 			dv = -homingAccel_;
-		velocity_.x += dv;
+
+		velocity_.x += dv * speedMultiplier;
 	}
 
 	// 向き反転
@@ -55,7 +66,9 @@ void Enemy::Update() {
 
 	// マップとの当たり判定
 	CollisionInfo info;
-	info.move = velocity_;
+	info.move.x = velocity_.x * speedMultiplier;
+	info.move.y = velocity_.y * speedMultiplier;
+	info.move.z = velocity_.z * speedMultiplier;
 	CollisionMapCheck(info);
 
 	// 衝突結果
@@ -247,5 +260,22 @@ void Enemy::CheckMapCollisionRight(CollisionInfo& info) {
 
 		info.move.x = 0.0f;
 		info.isHitWall = true;
+	}
+}
+
+// ダメージを受ける
+void Enemy::TakeDamage(int damage) {
+	if (hp_ > 0) {
+		hp_ -= damage;
+	}
+}
+
+// 死亡しているか
+bool Enemy::IsDead() const { return hp_ <= 0; }
+
+// 動きをスローにする
+void Enemy::SlowDown(float duration) {
+	if (slowTimer_ < duration) {
+		slowTimer_ = duration;
 	}
 }

@@ -45,6 +45,15 @@ public:
 		homingStopDist_ = stopDist;
 	}
 
+	// ダメージを受ける
+	void TakeDamage(int damage);
+
+	// 死亡しているか
+	bool IsDead() const;
+
+	// 動きをスローにする
+	void SlowDown(float duration);
+
 private:
 
 	struct CollisionInfo {
@@ -66,11 +75,12 @@ private:
 	Camera* camera_ = nullptr;
 	Vector3 velocity_ = {};
 	MapChipField* mapChipField_ = nullptr;
-
 	Player* target_ = nullptr;
+
+	int hp_ = 5; // HP (今は5発で死ぬように)
 	bool homing_ = false;
 	float homingMaxSpeed_ = 0.06f; // 最大速度（横移動）
 	float homingAccel_ = 0.004f;   // 1フレーム加速量
 	float homingStopDist_ = 0.05f; // これ以下の距離で減速・停止
-
+	float slowTimer_ = 0.0f;       // スロー効果の残り時間
 };

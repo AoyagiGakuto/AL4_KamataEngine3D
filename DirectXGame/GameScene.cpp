@@ -13,6 +13,7 @@ void GameScene::Initialize() {
 	modelEnemy_ = Model::CreateFromOBJ("Ninja");
 	modelDeathParticle_ = Model::CreateFromOBJ("deathParticle");
 	modelBullet_ = Model::CreateFromOBJ("bullet");
+	modelSlowBall_ = Model::CreateFromOBJ("bullet");
 
 	for (int i = 0; i < 10; ++i) {
 		modelNumbers_[i] = Model::CreateFromOBJ(std::to_string(i));
@@ -146,6 +147,29 @@ void GameScene::Update() {
 		bullets_.push_back(std::move(b));
 	}
 
+	// Yキーでスロー弾発射
+	if (Input::GetInstance()->TriggerKey(DIK_Y)) {
+		// プレイヤーが死んでたら撃てない
+		if (player_->IsDead()) {
+			return;
+		}
+
+		for (Enemy* enemy : enemies_) {
+			if (!enemy)
+				continue;
+
+			// 敵の真上から球を生成
+			Vector3 spawnPos = enemy->GetWorldTransform().translation_;
+			spawnPos.y += 20.0f;               // 上空20
+			Vector3 dir = {0.0f, -0.5f, 0.0f}; // ゆっくり真下に落ちる
+
+			auto sb = std::make_unique<Bullet>();
+			// modelSlowBall_ が null なら modelCube_ を使う
+			sb->Initialize(modelSlowBall_ ? modelSlowBall_ : modelCube_, camera_, spawnPos, dir);
+			slowBalls_.push_back(std::move(sb));
+		}
+	}
+
 	// 弾の更新と削除
 	for (auto& b : bullets_) {
 		b->Update();
@@ -154,9 +178,62 @@ void GameScene::Update() {
 	// 削除
 	bullets_.erase(std::remove_if(bullets_.begin(), bullets_.end(), [](const std::unique_ptr<Bullet>& b) { return !b->IsAlive(); }), bullets_.end());
 
-	// 弾と敵の当たり判定
+	for (auto& sb : slowBalls_) {
+		sb->Update();
+	}
+
+	slowBalls_.erase(std::remove_if(slowBalls_.begin(), slowBalls_.end(), [](const std::unique_ptr<Bullet>& sb) { return !sb->IsAlive(); }), slowBalls_.end());
+
 	for (auto it = bullets_.begin(); it != bullets_.end();) {
 		bool bulletRemoved = false;
+		AABB aabbB = (*it)->GetAABB();
+		// ↓ イテレータのインクリメントをループ内で行うように変更
+		for (auto enemyIt = enemies_.begin(); enemyIt != enemies_.end();) {
+			AABB aabbE = (*enemyIt)->GetAABB();
+			bool isHit =
+			    (aabbB.min.x < aabbE.max.x && aabbB.max.x > aabbE.min.x) && (aabbB.min.y < aabbE.max.y && aabbB.max.y > aabbE.min.y) && (aabbB.min.z < aabbE.max.z && aabbB.max.z > aabbE.min.z);
+
+			if (isHit) {
+
+				// ▼▼▼ HP制に変更 ▼▼▼
+				(*enemyIt)->TakeDamage(1); // 1ダメージ
+
+				if ((*enemyIt)->IsDead()) { // 敵がHP0かチェック
+					// --- 敵が死んだ時の処理 (元のコードと同じ) ---
+					score_++;
+					hitEffects_.clear();
+					auto hit = std::make_unique<HitEffect>();
+					hit->Initialize(modelNumbers_, camera_, {0.0f, 0.0f, 0.0f}, score_);
+					hitEffects_.push_back(std::move(hit));
+					deathParticle_.Spawn((*enemyIt)->GetWorldTransform().translation_);
+
+					delete *enemyIt;
+					enemyIt = enemies_.erase(enemyIt); // 削除してイテレータを更新
+					                                   // --- 処理終わり ---
+				} else {
+					// 敵がまだ生きている
+					++enemyIt; // 次の敵へ
+				}
+
+				(*it)->Kill(); // 弾は消える
+				bulletRemoved = true;
+				break; // この弾は処理したので次の弾へ
+				       // ▲▲▲ HP制ここまで ▲▲▲
+
+			} else {
+				++enemyIt; // ヒットしなかったので次の敵へ
+			}
+		}
+		if (bulletRemoved) {
+			it = bullets_.erase(it);
+		} else {
+			++it;
+		}
+	}
+
+	// スロー弾と敵の当たり判定
+	for (auto it = slowBalls_.begin(); it != slowBalls_.end();) {
+		bool ballRemoved = false;
 		AABB aabbB = (*it)->GetAABB();
 		for (auto enemyIt = enemies_.begin(); enemyIt != enemies_.end(); ++enemyIt) {
 			AABB aabbE = (*enemyIt)->GetAABB();
@@ -164,28 +241,16 @@ void GameScene::Update() {
 			    (aabbB.min.x < aabbE.max.x && aabbB.max.x > aabbE.min.x) && (aabbB.min.y < aabbE.max.y && aabbB.max.y > aabbE.min.y) && (aabbB.min.z < aabbE.max.z && aabbB.max.z > aabbE.min.z);
 
 			if (isHit) {
+				// ダメージはなし
+				(*enemyIt)->SlowDown(2.0f); // 2秒間スローにする
 
-				score_++;
-
-				hitEffects_.clear();
-
-				// 新しいHitEffectを生成
-				auto hit = std::make_unique<HitEffect>();
-
-				hit->Initialize(modelNumbers_, camera_, {0.0f, 0.0f, 0.0f}, score_);
-				hitEffects_.push_back(std::move(hit));
-
-				// 敵削除と弾削除、演出（パーティクル）発生
-				deathParticle_.Spawn((*enemyIt)->GetWorldTransform().translation_);
-				delete *enemyIt;
-				enemies_.erase(enemyIt);
-				(*it)->Kill();
-				bulletRemoved = true;
-				break;
+				(*it)->Kill(); // 球は消える
+				ballRemoved = true;
+				break; // この球は処理したので次の球へ
 			}
 		}
-		if (bulletRemoved) {
-			it = bullets_.erase(it);
+		if (ballRemoved) {
+			it = slowBalls_.erase(it);
 		} else {
 			++it;
 		}
@@ -205,6 +270,22 @@ void GameScene::Update() {
 			it = bullets_.erase(it); // 消し
 		} else {
 			++it; // 残す
+		}
+	}
+
+	// スロー弾とブロック・地面の当たり判定
+	for (auto it = slowBalls_.begin(); it != slowBalls_.end();) {
+		AABB aabbB = (*it)->GetAABB();
+		MapChipField::IndexSet idx = mapChipField_->GetMapChipIndexSetByPosition((*it)->GetAABB().min);
+		MapChipType type = mapChipField_->GetMapChipTypeByIndex(idx.xIndex, idx.yIndex);
+		bool hitBlock = (type == MapChipType::kBlock);
+
+		// 地面 (Y=0より下) またはブロックに当たったら消える
+		if (hitBlock || aabbB.min.y < 0.0f) {
+			(*it)->Kill();
+			it = slowBalls_.erase(it);
+		} else {
+			++it;
 		}
 	}
 
@@ -276,12 +357,12 @@ void GameScene::CheckAllCollisions() {
 
 		if (isHit) {
 			// プレイヤー死亡！
-			player_->Die();
+			//player_->Die();
 
 			// 死亡演出（パーティクル発生）
-			deathParticle_.Spawn(player_->GetWorldTransform().translation_);
+			//deathParticle_.Spawn(player_->GetWorldTransform().translation_);
 
-			break; // 死亡したらループ終了
+			//break; // 死亡したらループ終了
 		}
 	}
 }
@@ -309,6 +390,11 @@ void GameScene::Draw() {
 		b->Draw();
 	}
 
+	// スロー弾の描画
+	for (const auto& sb : slowBalls_) {
+		sb->Draw();
+	}
+
 	for (const auto& hit : hitEffects_) {
 		hit->Draw();
 	}
@@ -328,6 +414,7 @@ GameScene::~GameScene() {
 	delete modelSkyDome_;
 	delete debugCamera_;
 	delete cameraController_;
+	delete modelSlowBall_;
 	delete mapChipField_;
 	delete player_;
 	delete fade_;
