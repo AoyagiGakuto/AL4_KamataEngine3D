@@ -64,7 +64,27 @@ void Player::Update() {
 		velocity_.y = 0;
 	}
 
-	AnimateTurn();
+	if (isLockedOn_ && targetEnemy_) {
+		// ロックオン中は敵の方向を向く
+		Vector3 playerPos = worldTransform_.translation_;
+		Vector3 targetPos = targetEnemy_->GetWorldTransform().translation_;
+		float dx = targetPos.x - playerPos.x;
+
+		// 向きを即座に変更
+		if (dx > 0.0f) { // 敵が右にいる
+			worldTransform_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
+			lrDirection_ = LRDirection::kRight;
+		} else { // 敵が左にいる
+			worldTransform_.rotation_.y = std::numbers::pi_v<float> * 3.0f / 2.0f;
+			lrDirection_ = LRDirection::kLeft;
+		}
+		turnTimer_ = 0.0f; // 振り向きアニメーションはキャンセル
+
+	} else {
+		// ロックオンしていない時は、通常のアニメーション
+		AnimateTurn();
+	}
+
 	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
 	worldTransform_.TransferMatrix();
 }
@@ -112,7 +132,7 @@ void Player::InputMove() {
 			}
 			acceleration.x = -kAttenuation;
 
-			if (lrDirection_ != LRDirection::kLeft) {
+			if (lrDirection_ != LRDirection::kLeft && !isLockedOn_) {
 				lrDirection_ = LRDirection::kLeft;
 				turnFirstRotationY_ = worldTransform_.rotation_.y;
 				turnTimer_ = kTimeTurn;
@@ -124,7 +144,7 @@ void Player::InputMove() {
 			}
 			acceleration.x = kAttenuation;
 
-			if (lrDirection_ != LRDirection::kRight) {
+			if (lrDirection_ != LRDirection::kRight && !isLockedOn_) {
 				lrDirection_ = LRDirection::kRight;
 				turnFirstRotationY_ = worldTransform_.rotation_.y;
 				turnTimer_ = kTimeTurn;
@@ -296,4 +316,14 @@ Vector3 CornerPosition(const Vector3& center, Corner corner) {
 	default:
 		return center;
 	}
+}
+
+void Player::LockOn(Enemy* target) {
+	targetEnemy_ = target;
+	isLockedOn_ = (target != nullptr);
+}
+
+void Player::LockOff() {
+	targetEnemy_ = nullptr;
+	isLockedOn_ = false;
 }

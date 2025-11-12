@@ -39,6 +39,12 @@ public:
     void Die();               // 死亡処理
     bool IsDead() const;      // 死亡状態確認
 
+	// ロックオン処理
+	void LockOn(Enemy* target);
+	void LockOff();
+	bool IsLockedOn() const { return isLockedOn_; }
+	Enemy* GetTargetEnemy() const { return targetEnemy_; }
+
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
 	const Vector3& GetVelocity() const { return velocity_; }
 	float GetTurnTimer() const { return turnTimer_; }
@@ -71,6 +77,8 @@ private:
 	MapChipField* mapChipField_ = nullptr;
 	Vector3 GetWorldPosition();
 	bool input = false;
+	Enemy* targetEnemy_ = nullptr;
+	bool isLockedOn_ = false;
 };
 
 Vector3 CornerPosition(const Vector3& center, Corner corner);
