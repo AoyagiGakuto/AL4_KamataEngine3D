@@ -79,6 +79,10 @@
     <ClCompile Include="Skydome.cpp">
       <Filter>Skydome\cpp</Filter>
     </ClCompile>
+    <ClCompile Include="HitEffect.cpp" />
+    <ClCompile Include="ZangekiEffect.cpp">
+      <Filter>Effects\Particle\cpp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Boss.h">
@@ -122,6 +126,10 @@
     </ClInclude>
     <ClInclude Include="Skydome.h">
       <Filter>Skydome\h</Filter>
+    </ClInclude>
+    <ClInclude Include="HitEffect.h" />
+    <ClInclude Include="ZangekiEffect.h">
+      <Filter>Effects\Particle\h</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

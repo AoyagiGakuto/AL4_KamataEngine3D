@@ -86,6 +86,21 @@ void Player::Update() {
 		AnimateTurn();
 	}
 
+	// K長押しチャージ処理
+	if (isLockedOn_ && Input::GetInstance()->PushKey(DIK_K)) {
+		// 既に準備完了でなければチャージ
+		if (!isChargeAttackReady_) {
+			chargeTimer_ += 1.0f / 60.0f;
+			if (chargeTimer_ >= kChargeAttackTime) {
+				isChargeAttackReady_ = true;
+				chargeTimer_ = 0.0f;         // タイマーリセット
+			}
+		}
+	} else {
+		// Kを離したか、ロックオンが外れたらチャージリセット
+		chargeTimer_ = 0.0f;
+	}
+
 	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
 	worldTransform_.TransferMatrix();
 }

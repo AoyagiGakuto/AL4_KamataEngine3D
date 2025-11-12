@@ -16,6 +16,7 @@ void GameScene::Initialize() {
 	modelDeathParticle_ = Model::CreateFromOBJ("deathParticle");
 	modelBullet_ = Model::CreateFromOBJ("bullet");
 	modelSlowBall_ = Model::CreateFromOBJ("bullet");
+	modelZangeki_ = Model::CreateFromOBJ("zangeki");
 
 	for (int i = 0; i < 10; ++i) {
 		modelNumbers_[i] = Model::CreateFromOBJ(std::to_string(i));
@@ -250,9 +251,59 @@ void GameScene::Update() {
 		player_->LockOff();
 	}
 
-	// ロックオン対象が死んだらロックを解除
-	if (player_->IsLockedOn()) {
-		if (player_->GetTargetEnemy() == nullptr || player_->GetTargetEnemy()->IsDead()) {
+	// K長押し攻撃の処理
+	if (player_->IsChargeAttackReady()) {
+		player_->ConsumeChargeAttack();
+		Enemy* target = player_->GetTargetEnemy();
+		if (target && !target->IsDead()) {
+
+			// 複数ヒットダメージ 5回ヒットで雑魚敵はたおせる
+			const int kNumHits = 5;
+			for (int i = 0; i < kNumHits; ++i) {
+				target->TakeDamage(1);
+			}
+
+			// 斬撃エフェクトを20個くらい
+			const int kNumSlashes = 20;
+			const float kEffectSpread = 1.5f; // エフェクトが広がる範囲
+			Vector3 enemyPos = target->GetWorldTransform().translation_;
+			enemyPos.y += 0.5f; // 敵の少し上あたり
+
+			for (int i = 0; i < kNumSlashes; ++i) {
+				auto vfx = std::make_unique<ZangekiEffect>();
+
+				// ランダム
+				float randX = ((float)(rand() % 1000) / 999.0f - 0.5f) * kEffectSpread;
+				float randY = ((float)(rand() % 1000) / 999.0f - 0.5f) * kEffectSpread;
+
+				Vector3 spawnPos = enemyPos + Vector3{randX, randY, 0.0f};
+
+				vfx->Initialize(modelZangeki_, camera_, spawnPos);
+				vfx->SetRandomRotation(); // 斬撃の向きをランダムに
+
+				zangekiEffects_.push_back(std::move(vfx));
+			}
+		}
+
+		// 敵が死んだ時の処理
+		if (target->IsDead()) {
+			score_++;
+			hitEffects_.clear();
+			auto hit = std::make_unique<HitEffect>();
+			hit->Initialize(modelNumbers_, camera_, {0.0f, 0.0f, 0.0f}, score_);
+			hitEffects_.push_back(std::move(hit));
+			deathParticle_.Spawn(target->GetWorldTransform().translation_);
+
+			for (auto it = enemies_.begin(); it != enemies_.end(); ++it) {
+				if (*it == target) {
+					delete *it;
+					enemies_.erase(it);
+
+					break; // 削除したらループ終了
+				}
+			}
+
+			// ターゲットがいなくなったのでロックオンも解除
 			player_->LockOff();
 		}
 	}
@@ -405,6 +456,11 @@ void GameScene::Update() {
 	// 死亡パーティクル演出
 	deathParticle_.Update();
 
+	for (auto& vfx : zangekiEffects_) {
+		vfx->Update();
+	}
+	zangekiEffects_.erase(std::remove_if(zangekiEffects_.begin(), zangekiEffects_.end(), [](const std::unique_ptr<ZangekiEffect>& v) { return !v->IsAlive(); }), zangekiEffects_.end());
+
 	switch (phase_) {
 	case Phase::kFadeIn:
 		fade_->Update();
@@ -488,6 +544,10 @@ void GameScene::Draw() {
 	// DeathParticle描画
 	deathParticle_.Draw();
 
+	for (const auto& vfx : zangekiEffects_) {
+		vfx->Draw();
+	}
+
 	Model::PostDraw();
 
 	if (fade_)
@@ -502,6 +562,7 @@ GameScene::~GameScene() {
 	delete cameraController_;
 	delete modelSlowBall_;
 	delete mapChipField_;
+	delete modelZangeki_;
 	delete player_;
 	delete fade_;
 	for (Enemy* enemy : enemies_) {

@@ -1,5 +1,6 @@
 #pragma once
 #include "CameraController.h"
+#include "ZangekiEffect.h"
 #include "DeathParticle.h"
 #include "Enemy.h"
 #include "Fade.h"
@@ -41,6 +42,7 @@ private:
 	Model* modelDeathParticle_ = nullptr;
 	Model* modelBullet_ = nullptr;
 	Model* modelSlowBall_ = nullptr;
+	Model* modelZangeki_ = nullptr;
 
 	// ワールドトランスフォーム
 	WorldTransform worldTransform_;
@@ -62,6 +64,7 @@ private:
 
 	std::array<Model*, 10> modelNumbers_{};
 	std::vector<std::unique_ptr<HitEffect>> hitEffects_;
+	std::vector<std::unique_ptr<ZangekiEffect>> zangekiEffects_;
 	int score_ = 0;
 
 	// デスパーティクル

@@ -38,7 +38,10 @@ public:
 	// 死亡管理
     void Die();               // 死亡処理
     bool IsDead() const;      // 死亡状態確認
-
+	// チャージ攻撃の準備ができているか
+	bool IsChargeAttackReady() const { return isChargeAttackReady_; }
+	// チャージ攻撃を消費（GameSceneが呼び出す）
+	void ConsumeChargeAttack() { isChargeAttackReady_ = false; }
 	// ロックオン処理
 	void LockOn(Enemy* target);
 	void LockOff();
@@ -79,6 +82,10 @@ private:
 	bool input = false;
 	Enemy* targetEnemy_ = nullptr;
 	bool isLockedOn_ = false;
+	// K長押しチャージ用
+	float chargeTimer_ = 0.0f;
+	bool isChargeAttackReady_ = false;
+	static inline const float kChargeAttackTime = 3.0f; // 3秒
 };
 
 Vector3 CornerPosition(const Vector3& center, Corner corner);
