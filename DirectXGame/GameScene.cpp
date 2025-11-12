@@ -132,7 +132,7 @@ void GameScene::Update() {
 		}
 	}
 
-	// 発射入力
+	// Hキーの発射入力
 	if (Input::GetInstance()->TriggerKey(DIK_H)) {
 
 		// 回頭中でなく、死んでいない時だけ発射
