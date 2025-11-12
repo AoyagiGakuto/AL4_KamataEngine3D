@@ -260,45 +260,56 @@ void GameScene::Update() {
 
 			if (target && !target->IsDead()) {
 
-				// 1ダメージ
-				target->TakeDamage(1);
+				const float kMeleeRange = 2.5f; // 近接攻撃の有効範囲 (例: 2.5f)
 
-				// 斬撃エフェクトを1つ出す
-				const float kEffectSpread = 1.0f; // 敵の中心から少しだけ散らす
-				Vector3 enemyPos = target->GetWorldTransform().translation_;
-				enemyPos.y += 0.1f; // 敵の少し上あたり
+				Vector3 playerPos = player_->GetWorldTransform().translation_;
+				Vector3 targetPos = target->GetWorldTransform().translation_;
 
-				auto vfx = std::make_unique<ZangekiEffect>();
+				// 距離を計算
+				float distance = Length(targetPos - playerPos);
 
-				float randX = ((float)(rand() % 1000) / 999.0f - 0.5f) * kEffectSpread;
-				float randY = ((float)(rand() % 1000) / 999.0f - 0.5f) * kEffectSpread;
-				Vector3 spawnPos = enemyPos + Vector3{randX, randY, 0.0f};
+				// 距離がちかければ攻撃
+				if (distance <= kMeleeRange) {
+					// 1ダメージ
+					target->TakeDamage(1);
 
-				vfx->Initialize(modelZangeki_, camera_, spawnPos);
+					// 斬撃エフェクトを1つ出す
+					const float kEffectSpread = 1.0f; // 敵の中心から少しだけ散らす
+					Vector3 enemyPos = target->GetWorldTransform().translation_;
+					enemyPos.y += 0.1f; // 敵の少し上あたり
 
-				vfx->SetRotation(player_->GetWorldTransform().rotation_.y);
+					auto vfx = std::make_unique<ZangekiEffect>();
 
-				zangekiEffects_.push_back(std::move(vfx));
+					float randX = ((float)(rand() % 1000) / 999.0f - 0.5f) * kEffectSpread;
+					float randY = ((float)(rand() % 1000) / 999.0f - 0.5f) * kEffectSpread;
+					Vector3 spawnPos = enemyPos + Vector3{randX, randY, 0.0f};
 
-				// 死んだかチェック
-				if (target->IsDead()) {
-					score_++;
-					hitEffects_.clear();
-					auto hit = std::make_unique<HitEffect>();
-					hit->Initialize(modelNumbers_, camera_, {0.0f, 0.0f, 0.0f}, score_);
-					hitEffects_.push_back(std::move(hit));
-					deathParticle_.Spawn(target->GetWorldTransform().translation_);
+					vfx->Initialize(modelZangeki_, camera_, spawnPos);
 
-					for (auto it = enemies_.begin(); it != enemies_.end(); ++it) {
-						if (*it == target) {
-							delete *it;
-							enemies_.erase(it);
-							break;
+					vfx->SetRotation(player_->GetWorldTransform().rotation_.y);
+
+					zangekiEffects_.push_back(std::move(vfx));
+
+					// 死んだかチェック
+					if (target->IsDead()) {
+						score_++;
+						hitEffects_.clear();
+						auto hit = std::make_unique<HitEffect>();
+						hit->Initialize(modelNumbers_, camera_, {0.0f, 0.0f, 0.0f}, score_);
+						hitEffects_.push_back(std::move(hit));
+						deathParticle_.Spawn(target->GetWorldTransform().translation_);
+
+						for (auto it = enemies_.begin(); it != enemies_.end(); ++it) {
+							if (*it == target) {
+								delete *it;
+								enemies_.erase(it);
+								break;
+							}
 						}
-					}
 
-					// ロックオン解除
-					player_->LockOff();
+						// ロックオン解除
+						player_->LockOff();
+					}
 				}
 			}
 		}
