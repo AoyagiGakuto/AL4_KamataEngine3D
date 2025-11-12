@@ -207,26 +207,33 @@ void GameScene::Update() {
 		}
 	}
 
-	if (Input::GetInstance()->PushKey(DIK_LSHIFT) || Input::GetInstance()->TriggerKey(DIK_RSHIFT)) {
+	// ロックオン処理
+	if (Input::GetInstance()->PushKey(DIK_LSHIFT) || Input::GetInstance()->PushKey(DIK_RSHIFT)) {
+
+		bool needsNewTarget = true;
+
+		// 既にロックオン中か？
 		if (player_->IsLockedOn()) {
-			// 既にロックオン中なら解除
-			player_->LockOff();
-		} else {
-			// ロックオン開始
+			Enemy* currentTarget = player_->GetTargetEnemy();
+			//  ターゲットが有効か
+			if (currentTarget && !currentTarget->IsDead()) {
+				// 有効なら、ターゲットを探し直す必要はない
+				needsNewTarget = false;
+			}
+		}
+
+		if (needsNewTarget) {
 			Enemy* closestEnemy = nullptr;
-			float minDistance = FLT_MAX; // 最小距離
+			float minDistance = FLT_MAX;
 			Vector3 playerPos = player_->GetWorldTransform().translation_;
 
-			// 全ての敵をチェック
 			for (Enemy* enemy : enemies_) {
 				if (!enemy || enemy->IsDead()) {
 					continue; // 死んでる敵は無視
 				}
 
 				Vector3 enemyPos = enemy->GetWorldTransform().translation_;
-
-				// 距離の2乗で比較（平方根(sqrt)の計算を省略するため）
-				float distanceSq = Length(enemyPos - playerPos); // Length関数を呼び出す
+				float distanceSq = Length(enemyPos - playerPos);
 
 				if (distanceSq < minDistance) {
 					minDistance = distanceSq;
@@ -234,11 +241,13 @@ void GameScene::Update() {
 				}
 			}
 
-			// 一番近い敵が見つかったらロックオンとりあえず	
-			if (closestEnemy) {
-				player_->LockOn(closestEnemy);
-			}
+			// 一番近い敵をロックオン
+			player_->LockOn(closestEnemy);
 		}
+
+	} else {
+		// シフトが押されていない時の処理
+		player_->LockOff();
 	}
 
 	// ロックオン対象が死んだらロックを解除
