@@ -169,23 +169,22 @@ void GameScene::Update() {
 
 	// Yキーでスロー弾発射
 	if (Input::GetInstance()->TriggerKey(DIK_Y)) {
-		// プレイヤーが死んでたら撃てない
-		if (!player_->IsDead()) {
+		if (!player_->IsDead() && player_->IsLockedOn()) {
 
-			// 全ての敵に対して処理を行う
-			for (Enemy* enemy : enemies_) {
-				if (!enemy || enemy->IsDead()) {
-					continue; // 死んでいる敵は無視
-				}
+			// ロックオン中の敵を取得
+			Enemy* targetEnemy = player_->GetTargetEnemy();
 
-				const int kNumRainBalls = 50;       // 降らせる弾の数
-				const float kRainAreaWidth = 5.0f;  // 左右5の範囲
-				const float kRainHeight = 10.0f;    // 敵の上空10の高さから
+			// 念のため、ターゲットが有効かチェック
+			if (targetEnemy && !targetEnemy->IsDead()) {
 
-				// 敵に
-				float centerX = enemy->GetWorldTransform().translation_.x;
+				const int kNumRainBalls = 10;      // 降らせる弾の数
+				const float kRainAreaWidth = 5.0f; // 左右5の範囲
+				const float kRainHeight = 10.0f;   // 敵の上空10の高さから
 
-				// 各敵の真上に、kNumRainBalls の数だけ弾を生成
+				// ロックオン中の敵のX座標に
+				float centerX = targetEnemy->GetWorldTransform().translation_.x;
+
+				// 敵の真上に、kNumRainBalls の数だけ弾を生成
 				for (int i = 0; i < kNumRainBalls; ++i) {
 
 					// 0.0f ～ 1.0fランダムな値
@@ -198,7 +197,7 @@ void GameScene::Update() {
 					spawnPos.y = kRainHeight;       // 固定の高さ
 					spawnPos.z = 0.0f;              // Zは0
 
-					Vector3 dir = {0.0f, -0.5f, 0.0f}; // ゆっくり真下に落ちる
+					Vector3 dir = {0.0f, -0.2f, 0.0f}; // ゆっくり真下に落ちる
 
 					auto sb = std::make_unique<Bullet>();
 					sb->Initialize(modelSlowBall_ ? modelSlowBall_ : modelCube_, camera_, spawnPos, dir);
@@ -208,7 +207,7 @@ void GameScene::Update() {
 		}
 	}
 
-	if (Input::GetInstance()->TriggerKey(DIK_LSHIFT) || Input::GetInstance()->TriggerKey(DIK_RSHIFT)) {
+	if (Input::GetInstance()->PushKey(DIK_LSHIFT) || Input::GetInstance()->TriggerKey(DIK_RSHIFT)) {
 		if (player_->IsLockedOn()) {
 			// 既にロックオン中なら解除
 			player_->LockOff();
