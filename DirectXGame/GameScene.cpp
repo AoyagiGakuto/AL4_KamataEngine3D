@@ -2,9 +2,9 @@
 #include "GameScene.h"
 #include "CameraController.h"
 #include "MyMath.h"
-#include <numbers>
 #include <cstdlib>
 #include <ctime>
+#include <numbers>
 
 using namespace KamataEngine;
 
@@ -251,6 +251,58 @@ void GameScene::Update() {
 		player_->LockOff();
 	}
 
+	// K攻撃
+	if (Input::GetInstance()->TriggerKey(DIK_K)) {
+
+		if (player_->IsLockedOn()) {
+
+			Enemy* target = player_->GetTargetEnemy();
+
+			if (target && !target->IsDead()) {
+
+				// 1ダメージ
+				target->TakeDamage(1);
+
+				// 斬撃エフェクトを1つ出す
+				const float kEffectSpread = 1.0f; // 敵の中心から少しだけ散らす
+				Vector3 enemyPos = target->GetWorldTransform().translation_;
+				enemyPos.y += 0.5f; // 敵の少し上あたり
+
+				auto vfx = std::make_unique<ZangekiEffect>();
+
+				// ランダム
+				float randX = ((float)(rand() % 1000) / 999.0f - 0.5f) * kEffectSpread;
+				float randY = ((float)(rand() % 1000) / 999.0f - 0.5f) * kEffectSpread;
+				Vector3 spawnPos = enemyPos + Vector3{randX, randY, 0.0f};
+
+				vfx->Initialize(modelZangeki_, camera_, spawnPos);
+				vfx->SetRandomRotation(); // 斬撃の向きをランダムに
+				zangekiEffects_.push_back(std::move(vfx));
+
+				// 死んだかチェック
+				if (target->IsDead()) {
+					score_++;
+					hitEffects_.clear();
+					auto hit = std::make_unique<HitEffect>();
+					hit->Initialize(modelNumbers_, camera_, {0.0f, 0.0f, 0.0f}, score_);
+					hitEffects_.push_back(std::move(hit));
+					deathParticle_.Spawn(target->GetWorldTransform().translation_);
+
+					for (auto it = enemies_.begin(); it != enemies_.end(); ++it) {
+						if (*it == target) {
+							delete *it;
+							enemies_.erase(it);
+							break;
+						}
+					}
+
+					// ロックオン解除
+					player_->LockOff();
+				}
+			}
+		}
+	}
+
 	// K長押し攻撃の処理
 	if (player_->IsChargeAttackReady()) {
 		player_->ConsumeChargeAttack();
@@ -303,11 +355,10 @@ void GameScene::Update() {
 				}
 			}
 
-			// ターゲットがいなくなったのでロックオンも解除
+			// 解除
 			player_->LockOff();
 		}
 	}
-
 
 	// 弾の更新と削除
 	for (auto& b : bullets_) {
@@ -346,7 +397,7 @@ void GameScene::Update() {
 					deathParticle_.Spawn((*enemyIt)->GetWorldTransform().translation_);
 
 					delete *enemyIt;
-					enemyIt = enemies_.erase(enemyIt); 
+					enemyIt = enemies_.erase(enemyIt);
 
 				} else {
 					// 敵がまだ生きている
@@ -499,12 +550,12 @@ void GameScene::CheckAllCollisions() {
 
 		if (isHit) {
 			// プレイヤー死亡！
-			//player_->Die();
+			// player_->Die();
 
 			// 死亡演出（パーティクル発生）
-			//deathParticle_.Spawn(player_->GetWorldTransform().translation_);
+			// deathParticle_.Spawn(player_->GetWorldTransform().translation_);
 
-			//break; // 死亡したらループ終了
+			// break; // 死亡したらループ終了
 		}
 	}
 }
