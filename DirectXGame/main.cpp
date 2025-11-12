@@ -79,9 +79,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	dxCommon = DirectXCommon::GetInstance();
 
 	// 最初はタイトル
-	scene = Scene::kTitle;
-	titleScene = new TitleScene();
-	titleScene->Initialize();
+	//scene = Scene::kTitle;
+	//titleScene = new TitleScene();
+	//titleScene->Initialize();
+
+	scene = Scene::kGame;
+	gameScene = new GameScene();
+	gameScene->Initialize();
 
 	while (true) {
 		if (KamataEngine::Update())

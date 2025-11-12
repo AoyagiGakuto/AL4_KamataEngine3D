@@ -210,23 +210,9 @@ void GameScene::Update() {
 
 	// カメラの座標を取得
 	Vector3 cameraPos = cameraController_->GetViewProjection().translation_;
-	// プレイヤーのY軸回転を取得（カメラではなくプレイヤーの向きを基準にする）
-	float playerRotY = player_->GetWorldTransform().rotation_.y;
-
-	// プレイヤーの前方ベクトル
-	Vector3 forwardVec = {std::sin(playerRotY), 0.0f, -std::cos(playerRotY)};
-	// プレイヤーの右方ベクトル
-	Vector3 rightVec = {std::cos(playerRotY), 0.0f, -std::sin(playerRotY)};
-	// 上方ベクトル
-	Vector3 upVec = {0.0f, 1.0f, 0.0f};
-
-	// 基準位置を「プレイヤー（カメラ）から前方5m、右2m、上1m」あたりに設定
-	float distance = 5.0f; // カメラからの距離
-	float offsetX = 2.0f;  // 右方向へのオフセット
-	float offsetY = 1.0f;  // 上方向へのオフセット
 
 	// スコア表示の基準座標を計算
-	Vector3 basePos = cameraPos + (forwardVec * distance) + (rightVec * offsetX) + (upVec * offsetY);
+	Vector3 basePos = cameraPos;
 
 	for (auto& hit : hitEffects_) {
 		hit->Update(); // yOffset_ や Alpha の更新
