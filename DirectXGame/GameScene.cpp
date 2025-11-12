@@ -131,48 +131,101 @@ void GameScene::Update() {
 	// 発射入力
 	if (Input::GetInstance()->TriggerKey(DIK_H)) {
 
-		// 回頭中は発射しない
-		if (player_->GetTurnTimer() > 0.0f || player_->isDead_) {
-			return;
+		// 回頭中でなく、死んでいない時だけ発射
+		if (player_->GetTurnTimer() <= 0.0f && !player_->isDead_) {
+
+			// プレイヤーの位置を弾発射位置に調整
+			Vector3 spawnPos = player_->GetWorldTransform().translation_;
+			spawnPos.y += 0.3f; // プレイヤーの中心に合わせる
+
+			Vector3 dir; // 発射方向
+
+			// ロックオン中か？
+			if (player_->IsLockedOn() && player_->GetTargetEnemy()) {
+				// ロックオン中: 敵の座標を取得
+				Vector3 targetPos = player_->GetTargetEnemy()->GetWorldTransform().translation_;
+
+				// 敵の中心を狙う (Y座標を少し上げるなど、調整可能)
+				targetPos.y += 0.4f; // 敵の高さの半分 (仮)
+
+				// 敵への方向ベクトルを計算し、正規化 (長さを1にする)
+				// (MyMath.h に Normalize と Length が必要)
+				dir = targetPos - spawnPos;
+				dir = Normalize(dir); // Normalize関数を呼び出す
+
+			} else {
+				// 通常発射: プレイヤーの向いている方向にまっすぐ
+				float y = player_->GetWorldTransform().rotation_.y;
+				dir = {std::sin(y), 0.0f, -std::cos(y)};
+			}
+
+			auto b = std::make_unique<Bullet>();
+			b->Initialize(modelBullet_ ? modelBullet_ : modelCube_, camera_, spawnPos, dir);
+			bullets_.push_back(std::move(b));
 		}
-
-		// プレイヤーの位置を弾発射位置に調整
-		Vector3 spawnPos = player_->GetWorldTransform().translation_;
-		spawnPos.y += 0.3f; // プレイヤーの中心に合わせる
-		float y = player_->GetWorldTransform().rotation_.y;
-		Vector3 dir = {std::sin(y), 0.0f, -std::cos(y)};
-
-		auto b = std::make_unique<Bullet>();
-		b->Initialize(modelBullet_ ? modelBullet_ : modelCube_, camera_, spawnPos, dir);
-		bullets_.push_back(std::move(b));
 	}
 
 	// Yキーでスロー弾発射
 	if (Input::GetInstance()->TriggerKey(DIK_Y)) {
-		// プレイヤーが死んでたら撃てない
-		if (player_->IsDead()) {
-			return;
-		}
+		// プレイヤーが死んでいない時だけ発射
+		if (!player_->isDead_) {
+			for (Enemy* enemy : enemies_) {
+				if (!enemy)
+					continue;
 
-		for (Enemy* enemy : enemies_) {
-			if (!enemy)
-				continue;
+				// 敵の真上から球を生成
+				Vector3 spawnPos = enemy->GetWorldTransform().translation_;
+				spawnPos.y += 10.0f;
+				Vector3 dir = {0.0f, -0.5f, 0.0f}; // ゆっくり真下に落ちる
 
-			// 敵の真上から球を生成
-			Vector3 spawnPos = enemy->GetWorldTransform().translation_;
-			spawnPos.y += 10.0f;               // 上空10くらい
-			Vector3 dir = {0.0f, -0.5f, 0.0f}; // ゆっくり真下に落ちる
-
-			auto sb = std::make_unique<Bullet>();
-			// modelSlowBall_ が null なら modelCube_ を使う
-			sb->Initialize(modelSlowBall_ ? modelSlowBall_ : modelCube_, camera_, spawnPos, dir);
-			slowBalls_.push_back(std::move(sb));
+				auto sb = std::make_unique<Bullet>();
+				sb->Initialize(modelSlowBall_ ? modelSlowBall_ : modelCube_, camera_, spawnPos, dir);
+				slowBalls_.push_back(std::move(sb));
+			}
 		}
 	}
 
-	// シフトで敵をロックオン
-	// if (Input::GetInstance()->PushKey(DIK_LSHIFT)) {
-	//}
+	if (Input::GetInstance()->TriggerKey(DIK_LSHIFT) || Input::GetInstance()->TriggerKey(DIK_RSHIFT)) {
+		if (player_->IsLockedOn()) {
+			// 既にロックオン中なら解除
+			player_->LockOff();
+		} else {
+			// ロックオン開始
+			Enemy* closestEnemy = nullptr;
+			float minDistance = FLT_MAX; // 最小距離（無限遠で初期化）
+			Vector3 playerPos = player_->GetWorldTransform().translation_;
+
+			// 全ての敵をチェック
+			for (Enemy* enemy : enemies_) {
+				if (!enemy || enemy->IsDead()) {
+					continue; // 死んでる敵は無視
+				}
+
+				Vector3 enemyPos = enemy->GetWorldTransform().translation_;
+
+				// 距離の2乗で比較（平方根(sqrt)の計算を省略するため）
+				float distanceSq = Length(enemyPos - playerPos); // Length関数を呼び出す
+
+				if (distanceSq < minDistance) {
+					minDistance = distanceSq;
+					closestEnemy = enemy;
+				}
+			}
+
+			// 一番近い敵が見つかったらロックオン
+			if (closestEnemy) {
+				player_->LockOn(closestEnemy);
+			}
+		}
+	}
+
+	// ロックオン対象が死んだらロックを解除
+	if (player_->IsLockedOn()) {
+		if (player_->GetTargetEnemy() == nullptr || player_->GetTargetEnemy()->IsDead()) {
+			player_->LockOff();
+		}
+	}
+
 
 	// 弾の更新と削除
 	for (auto& b : bullets_) {
