@@ -3,6 +3,8 @@
 #include "CameraController.h"
 #include "MyMath.h"
 #include <numbers>
+#include <cstdlib>
+#include <ctime>
 
 using namespace KamataEngine;
 
@@ -78,6 +80,8 @@ void GameScene::Initialize() {
 	fade_->Initialize();
 	phase_ = Phase::kFadeIn;
 	fade_->Start(Fade::Status::FadeIn, 1.0f);
+	// 毎回違うパターンで弾が降るように
+	srand((unsigned int)time(NULL));
 }
 
 void GameScene::GenerateBlooks() {
@@ -142,19 +146,17 @@ void GameScene::Update() {
 
 			// ロックオン中か？
 			if (player_->IsLockedOn() && player_->GetTargetEnemy()) {
-				// ロックオン中: 敵の座標を取得
+				// ロックオン中敵の座標を取得
 				Vector3 targetPos = player_->GetTargetEnemy()->GetWorldTransform().translation_;
 
-				// 敵の中心を狙う (Y座標を少し上げるなど、調整可能)
+				// 敵の中心を狙う
 				targetPos.y += 0.4f; // 敵の高さの半分 (仮)
 
-				// 敵への方向ベクトルを計算し、正規化 (長さを1にする)
-				// (MyMath.h に Normalize と Length が必要)
 				dir = targetPos - spawnPos;
-				dir = Normalize(dir); // Normalize関数を呼び出す
+				dir = Normalize(dir);
 
 			} else {
-				// 通常発射: プレイヤーの向いている方向にまっすぐ
+				// プレイヤーの向いている方向にまっすぐ
 				float y = player_->GetWorldTransform().rotation_.y;
 				dir = {std::sin(y), 0.0f, -std::cos(y)};
 			}
@@ -167,15 +169,28 @@ void GameScene::Update() {
 
 	// Yキーでスロー弾発射
 	if (Input::GetInstance()->TriggerKey(DIK_Y)) {
-		// プレイヤーが死んでいない時だけ発射
-		if (!player_->isDead_) {
-			for (Enemy* enemy : enemies_) {
-				if (!enemy)
-					continue;
+		// プレイヤーが死んでたら撃てない
+		if (!player_->IsDead()) {
 
-				// 敵の真上から球を生成
-				Vector3 spawnPos = enemy->GetWorldTransform().translation_;
-				spawnPos.y += 10.0f;
+			const int kNumRainBalls = 50;       // 降らせる弾の数
+			const float kRainAreaWidth = 20.0f; // 左右10 (計20) の範囲
+			const float kRainHeight = 20.0f;    // 上空20の高さから
+
+			// カメラの中心X座標を取得 (弾を降らせる中心)
+			float centerX = cameraController_->GetViewProjection().translation_.x;
+
+			for (int i = 0; i < kNumRainBalls; ++i) {
+
+				// 0.0f ～ 1.0fランダムな値
+				float randomRatio = (float)(rand() % 1000) / 999.0f;
+				// ランダム
+				float randomX = (randomRatio - 0.5f) * kRainAreaWidth;
+
+				Vector3 spawnPos;
+				spawnPos.x = centerX + randomX; // カメラ中心 + ランダムなX
+				spawnPos.y = kRainHeight;       // 固定の高さ
+				spawnPos.z = 0.0f;              // Zは0ほかはなんかすんごいことになる
+
 				Vector3 dir = {0.0f, -0.5f, 0.0f}; // ゆっくり真下に落ちる
 
 				auto sb = std::make_unique<Bullet>();
@@ -192,7 +207,7 @@ void GameScene::Update() {
 		} else {
 			// ロックオン開始
 			Enemy* closestEnemy = nullptr;
-			float minDistance = FLT_MAX; // 最小距離（無限遠で初期化）
+			float minDistance = FLT_MAX; // 最小距離
 			Vector3 playerPos = player_->GetWorldTransform().translation_;
 
 			// 全ての敵をチェック
@@ -212,7 +227,7 @@ void GameScene::Update() {
 				}
 			}
 
-			// 一番近い敵が見つかったらロックオン
+			// 一番近い敵が見つかったらロックオンとりあえず	
 			if (closestEnemy) {
 				player_->LockOn(closestEnemy);
 			}
