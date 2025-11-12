@@ -160,7 +160,7 @@ void GameScene::Update() {
 
 			// 敵の真上から球を生成
 			Vector3 spawnPos = enemy->GetWorldTransform().translation_;
-			spawnPos.y += 20.0f;               // 上空20
+			spawnPos.y += 10.0f;               // 上空10くらい
 			Vector3 dir = {0.0f, -0.5f, 0.0f}; // ゆっくり真下に落ちる
 
 			auto sb = std::make_unique<Bullet>();
@@ -169,6 +169,9 @@ void GameScene::Update() {
 			slowBalls_.push_back(std::move(sb));
 		}
 	}
+
+	// シフトで敵をロックオン
+
 
 	// 弾の更新と削除
 	for (auto& b : bullets_) {
@@ -187,7 +190,6 @@ void GameScene::Update() {
 	for (auto it = bullets_.begin(); it != bullets_.end();) {
 		bool bulletRemoved = false;
 		AABB aabbB = (*it)->GetAABB();
-		// ↓ イテレータのインクリメントをループ内で行うように変更
 		for (auto enemyIt = enemies_.begin(); enemyIt != enemies_.end();) {
 			AABB aabbE = (*enemyIt)->GetAABB();
 			bool isHit =
@@ -195,11 +197,11 @@ void GameScene::Update() {
 
 			if (isHit) {
 
-				// ▼▼▼ HP制に変更 ▼▼▼
+				// HP制に
 				(*enemyIt)->TakeDamage(1); // 1ダメージ
 
 				if ((*enemyIt)->IsDead()) { // 敵がHP0かチェック
-					// --- 敵が死んだ時の処理 (元のコードと同じ) ---
+					// 敵が死んだ時の処理
 					score_++;
 					hitEffects_.clear();
 					auto hit = std::make_unique<HitEffect>();
@@ -208,8 +210,8 @@ void GameScene::Update() {
 					deathParticle_.Spawn((*enemyIt)->GetWorldTransform().translation_);
 
 					delete *enemyIt;
-					enemyIt = enemies_.erase(enemyIt); // 削除してイテレータを更新
-					                                   // --- 処理終わり ---
+					enemyIt = enemies_.erase(enemyIt); 
+
 				} else {
 					// 敵がまだ生きている
 					++enemyIt; // 次の敵へ
@@ -218,7 +220,6 @@ void GameScene::Update() {
 				(*it)->Kill(); // 弾は消える
 				bulletRemoved = true;
 				break; // この弾は処理したので次の弾へ
-				       // ▲▲▲ HP制ここまで ▲▲▲
 
 			} else {
 				++enemyIt; // ヒットしなかったので次の敵へ
