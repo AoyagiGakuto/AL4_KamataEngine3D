@@ -20,6 +20,8 @@ public:
 	// 生存確認
 	bool IsAlive() const { return alive_; }
 
+	void SetRotation(float playerRotationY);
+
 	// ランダムな回転をセット
 	void SetRandomRotation();
 

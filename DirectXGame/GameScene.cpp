@@ -266,17 +266,18 @@ void GameScene::Update() {
 				// 斬撃エフェクトを1つ出す
 				const float kEffectSpread = 1.0f; // 敵の中心から少しだけ散らす
 				Vector3 enemyPos = target->GetWorldTransform().translation_;
-				enemyPos.y += 0.5f; // 敵の少し上あたり
+				enemyPos.y += 0.1f; // 敵の少し上あたり
 
 				auto vfx = std::make_unique<ZangekiEffect>();
 
-				// ランダム
 				float randX = ((float)(rand() % 1000) / 999.0f - 0.5f) * kEffectSpread;
 				float randY = ((float)(rand() % 1000) / 999.0f - 0.5f) * kEffectSpread;
 				Vector3 spawnPos = enemyPos + Vector3{randX, randY, 0.0f};
 
 				vfx->Initialize(modelZangeki_, camera_, spawnPos);
-				vfx->SetRandomRotation(); // 斬撃の向きをランダムに
+
+				vfx->SetRotation(player_->GetWorldTransform().rotation_.y);
+
 				zangekiEffects_.push_back(std::move(vfx));
 
 				// 死んだかチェック

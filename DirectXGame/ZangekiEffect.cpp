@@ -24,6 +24,23 @@ void ZangekiEffect::SetRandomRotation() {
 	transform_.rotation_.z = ((float)(rand() % 1000) / 999.0f) * 2.0f * kPi;
 }
 
+void ZangekiEffect::SetRotation(float playerRotationY) {
+	float kPi = std::numbers::pi_v<float>;
+
+	bool isFacingRight = (playerRotationY < kPi);
+
+	transform_.rotation_.x = 0.0f;
+	transform_.rotation_.y = 0.0f;
+
+	if (isFacingRight) {
+		// 右向きの時の斬撃
+		transform_.rotation_.z = -kPi / 4.0f;
+	} else {
+		// 左向きの時の斬撃
+		transform_.rotation_.z = kPi / 4.0f;
+	}
+}
+
 void ZangekiEffect::Update() {
 	if (!alive_)
 		return;
@@ -34,7 +51,6 @@ void ZangekiEffect::Update() {
 		return;
 	}
 
-	// 0から1 (開始時) -> 0 (終了時)
 	float t = lifetime_ / maxLifetime_;
 
 	// フェードアウト
@@ -42,7 +58,7 @@ void ZangekiEffect::Update() {
 	objectColor_.SetColor(color_);
 
 	// 少しずつ拡大しながら消える
-	float scale = (1.0f - t) * 1.5f + 0.5f; // 0.5 から 2.0 へ拡大
+	float scale = (1.0f - t) * 1.5f + 0.5f;
 	transform_.scale_ = {scale, scale, scale};
 
 	// 行列更新
