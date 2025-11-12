@@ -172,30 +172,38 @@ void GameScene::Update() {
 		// プレイヤーが死んでたら撃てない
 		if (!player_->IsDead()) {
 
-			const int kNumRainBalls = 50;       // 降らせる弾の数
-			const float kRainAreaWidth = 5.0f; // ひだりとみぎ5の範囲
-			const float kRainHeight = 10.0f;    // 上空20の高さから
+			// 全ての敵に対して処理を行う
+			for (Enemy* enemy : enemies_) {
+				if (!enemy || enemy->IsDead()) {
+					continue; // 死んでいる敵は無視
+				}
 
-			// カメラの中心X座標を取得 (弾を降らせる中心)
-			float centerX = cameraController_->GetViewProjection().translation_.x;
+				const int kNumRainBalls = 50;       // 降らせる弾の数
+				const float kRainAreaWidth = 5.0f;  // 左右5の範囲
+				const float kRainHeight = 10.0f;    // 敵の上空10の高さから
 
-			for (int i = 0; i < kNumRainBalls; ++i) {
+				// 敵に
+				float centerX = enemy->GetWorldTransform().translation_.x;
 
-				// 0.0f ～ 1.0fランダムな値
-				float randomRatio = (float)(rand() % 1000) / 999.0f;
-				// ランダム
-				float randomX = (randomRatio - 0.5f) * kRainAreaWidth;
+				// 各敵の真上に、kNumRainBalls の数だけ弾を生成
+				for (int i = 0; i < kNumRainBalls; ++i) {
 
-				Vector3 spawnPos;
-				spawnPos.x = centerX + randomX; // カメラ中心 + ランダムなX
-				spawnPos.y = kRainHeight;       // 固定の高さ
-				spawnPos.z = 0.0f;              // Zは0ほかはなんかすんごいことになる
+					// 0.0f ～ 1.0fランダムな値
+					float randomRatio = (float)(rand() % 1000) / 999.0f;
+					// ランダム
+					float randomX = (randomRatio - 0.5f) * kRainAreaWidth;
 
-				Vector3 dir = {0.0f, -0.5f, 0.0f}; // ゆっくり真下に落ちる
+					Vector3 spawnPos;
+					spawnPos.x = centerX + randomX; // 敵の中心 + ランダムなX
+					spawnPos.y = kRainHeight;       // 固定の高さ
+					spawnPos.z = 0.0f;              // Zは0
 
-				auto sb = std::make_unique<Bullet>();
-				sb->Initialize(modelSlowBall_ ? modelSlowBall_ : modelCube_, camera_, spawnPos, dir);
-				slowBalls_.push_back(std::move(sb));
+					Vector3 dir = {0.0f, -0.5f, 0.0f}; // ゆっくり真下に落ちる
+
+					auto sb = std::make_unique<Bullet>();
+					sb->Initialize(modelSlowBall_ ? modelSlowBall_ : modelCube_, camera_, spawnPos, dir);
+					slowBalls_.push_back(std::move(sb));
+				}
 			}
 		}
 	}
