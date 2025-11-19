@@ -42,25 +42,39 @@ void GameScene::Initialize() {
 	player_->SetMapChipField(mapChipField_);
 
 	// 敵配置
-	const int enemyCount = 2;
+	const int enemyCount = 3; // 3体に増やす（通常、追尾、飛行）
+
 	for (int32_t i = 0; i < enemyCount; ++i) {
 		Enemy* newEnemy = new Enemy();
-		Vector3 enemyPosition = mapChipField_->GetMapPositionTypeByIndex(30 + i * 3, 18);
-		newEnemy->Initialize(modelEnemy_, modelHpBar_, modelHp_, camera_, enemyPosition);
-		newEnemy->SetMapChipField(mapChipField_);
-		newEnemy->SetScale({0.4f, 0.4f, 0.4f});
-		newEnemy->SetRotationY(std::numbers::pi_v<float> * 3.0f / 2.0f);
 
-		if (i == 1) {
-			// 2体目だけプレイヤーを追尾
-			newEnemy->SetTarget(player_);
-			newEnemy->SetHoming(true);
-			// 速度パラメータ調整も可（速め）
-			newEnemy->SetHomingParams(0.08f, 0.006f, 0.05f);
+		// 敵の基本位置（少しずつずらす）
+		Vector3 enemyPosition = mapChipField_->GetMapPositionTypeByIndex(30 + i * 3, 18);
+
+		// 全員プレイヤーをターゲットとしてセットしておく
+		newEnemy->SetTarget(player_);
+
+		// インデックス(i)によってタイプを変える
+		if (i == 0) {
+			// 1体目: 通常タイプ
+			newEnemy->Initialize(modelEnemy_, modelHpBar_, modelHp_, camera_, enemyPosition, Enemy::Type::kNormal);
+			newEnemy->SetScale({0.4f, 0.4f, 0.4f});
+
+		} else if (i == 1) {
+			// 2体目: 追尾タイプ
+			newEnemy->Initialize(modelEnemy_, modelHpBar_, modelHp_, camera_, enemyPosition, Enemy::Type::kHoming);
+			newEnemy->SetScale({0.4f, 0.4f, 0.4f});
+
 		} else {
-			// 通常敵は追尾しない（false）
-			newEnemy->SetHoming(false);
+			// 3体目: 飛行支援タイプ
+			// 空中に配置したいのでY座標を上げる
+			enemyPosition.y += 5.0f;
+			newEnemy->Initialize(modelEnemy_, modelHpBar_, modelHp_, camera_, enemyPosition, Enemy::Type::kFlyingSupport);
+			newEnemy->SetScale({0.3f, 0.3f, 0.3f}); // 少し小さく
 		}
+
+		newEnemy->SetMapChipField(mapChipField_);
+		// 回転の初期値
+		newEnemy->SetRotationY(std::numbers::pi_v<float> * 3.0f / 2.0f);
 
 		enemies_.push_back(newEnemy);
 	}
@@ -515,6 +529,12 @@ void GameScene::Update() {
 	// 敵は死亡後も動く
 	for (Enemy* enemy : enemies_) {
 		enemy->Update();
+	}
+
+	for (Enemy* enemy : enemies_) {
+		if (enemy->GetType() == Enemy::Type::kFlyingSupport) {
+			enemy->HealNearbyEnemies(enemies_);
+		}
 	}
 
 	// 死亡パーティクル演出
