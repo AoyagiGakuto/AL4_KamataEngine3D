@@ -1,4 +1,3 @@
-
 #include "GameScene.h"
 #include "CameraController.h"
 #include "MyMath.h"

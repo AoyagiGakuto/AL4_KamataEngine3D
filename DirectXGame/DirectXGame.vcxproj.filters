@@ -79,17 +79,16 @@
     <ClCompile Include="Skydome.cpp">
       <Filter>Skydome\cpp</Filter>
     </ClCompile>
-    <ClCompile Include="HitEffect.cpp" />
     <ClCompile Include="ZangekiEffect.cpp">
       <Filter>Effects\Particle\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="HitEffect.cpp">
+      <Filter>no</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Boss.h">
       <Filter>Boss\h</Filter>
-    </ClInclude>
-    <ClInclude Include="Bullet.h">
-      <Filter>Bullet\h</Filter>
     </ClInclude>
     <ClInclude Include="DeathParticle.h">
       <Filter>Effects\Particle\h</Filter>
@@ -127,9 +126,14 @@
     <ClInclude Include="Skydome.h">
       <Filter>Skydome\h</Filter>
     </ClInclude>
-    <ClInclude Include="HitEffect.h" />
     <ClInclude Include="ZangekiEffect.h">
       <Filter>Effects\Particle\h</Filter>
+    </ClInclude>
+    <ClInclude Include="HitEffect.h">
+      <Filter>no</Filter>
+    </ClInclude>
+    <ClInclude Include="Bullet.h">
+      <Filter>Bullet\h</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -302,6 +306,9 @@
     </Filter>
     <Filter Include="Skydome\h">
       <UniqueIdentifier>{5584e89f-4f19-46f9-86e8-a5e56074e35b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="no">
+      <UniqueIdentifier>{526e71a5-02fd-48cf-ba83-45afa1a39167}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
