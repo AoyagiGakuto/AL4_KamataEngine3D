@@ -143,34 +143,56 @@ void Enemy::Update() {
 		// ふわふわ上下移動
 		float hoverOffset = std::sin(walkTimer_ * 2.0f) * 0.5f;
 
-		// プレイヤーにゆっくり近づく(Xのみ)
-		if (target_) {
-			float dx = target_->GetWorldTransform().translation_.x - worldTransform_.translation_.x;
+		// 移動目標の決定
+		Vector3 targetPos = worldTransform_.translation_; // デフォルトは自分の位置
+		bool hasTarget = false;
+
+		// 優先順位1: 傷ついた仲間 (HealNearbyEnemiesで見つけた相手)
+		if (healTarget_ && !healTarget_->IsDead() && healTarget_->hp_ < healTarget_->maxHp_) {
+			targetPos = healTarget_->GetWorldTransform().translation_;
+			hasTarget = true;
+		}
+		// 優先順位2: プレイヤー (誰も傷ついてない時はプレイヤーを追いかける)
+		else if (target_) {
+			targetPos = target_->GetWorldTransform().translation_;
+			hasTarget = true;
+		}
+
+		// X方向へ移動
+		velocity_.x = 0.0f;
+		if (hasTarget) {
+			float dx = targetPos.x - worldTransform_.translation_.x;
 			float flySpeed = 0.02f;
-			if (std::fabs(dx) > 0.1f) {
+
+			// 仲間を追いかける時は、重ならないように少し距離を開ける (1.5f)
+			float stopDist = (healTarget_) ? 1.5f : 0.1f;
+
+			if (std::fabs(dx) > stopDist) {
 				velocity_.x = (dx > 0 ? flySpeed : -flySpeed);
-			} else {
-				velocity_.x = 0.0f;
 			}
 		}
 
-		// 飛行なので重力は適用せず、マップの上下判定もしない（壁だけ見る）
+		// 飛行なので重力なし、壁判定のみ
 		CollisionInfo info;
 		info.move.x = velocity_.x * speedMultiplier;
 		info.move.y = 0.0f;
-
 		CheckMapCollisionLeft(info);
 		CheckMapCollisionRight(info);
 
-		// 座標反映
 		worldTransform_.translation_.x += info.move.x;
-		worldTransform_.translation_.y = baseHeight_ + hoverOffset; // 高さは固定＋揺れ
+		worldTransform_.translation_.y = baseHeight_ + hoverOffset;
 
-		// 向き
-		if (velocity_.x > 0.001f)
-			worldTransform_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
-		else if (velocity_.x < -0.001f)
-			worldTransform_.rotation_.y = std::numbers::pi_v<float> * 3.0f / 2.0f;
+		// --- 回転の制御 ---
+		if (healTimer_ > 0.0f) {
+			// 【追加】回復中（クールダウン中）はクルクル高速回転！
+			worldTransform_.rotation_.y += 0.3f;
+		} else {
+			// 通常時は進行方向を向く
+			if (velocity_.x > 0.001f)
+				worldTransform_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
+			else if (velocity_.x < -0.001f)
+				worldTransform_.rotation_.y = std::numbers::pi_v<float> * 3.0f / 2.0f;
+		}
 
 		break;
 	}
@@ -215,31 +237,40 @@ void Enemy::HealNearbyEnemies(std::list<Enemy*>& enemies) {
 	if (IsDead())
 		return;
 
-	// クールダウン
-	if (healTimer_ > 0.0f) {
-		healTimer_ -= 1.0f / 60.0f;
-		return;
-	}
-
-	bool healedSomeone = false;
+	// 傷ついている仲間を探す
+	float minDist = FLT_MAX;
+	Enemy* bestCandidate = nullptr;
 
 	for (Enemy* other : enemies) {
-		// 自分や死んでる敵は無視
+		// 自分自身や死んでる敵は無視
 		if (other == this || other->IsDead())
 			continue;
 
-		// 距離チェック
-		float dist = Length(other->GetWorldTransform().translation_ - worldTransform_.translation_);
+		// HPが減っているかチェック (private変数ですが同じクラス同士ならアクセスできます)
+		if (other->hp_ < other->maxHp_) {
+			float dist = Length(other->GetWorldTransform().translation_ - worldTransform_.translation_);
 
-		if (dist < kHealRange) {
-			// ダメージ-2 ＝ 2回復
-			other->TakeDamage(-2);
-			healedSomeone = true;
+			// 一番近い人を優先
+			if (dist < minDist) {
+				minDist = dist;
+				bestCandidate = other;
+			}
 		}
 	}
 
-	if (healedSomeone) {
-		healTimer_ = kHealCooldown;
+	// ターゲットを更新（見つからなければ nullptr になる）
+	healTarget_ = bestCandidate;
+
+	// クールダウン（回復後の休憩）処理
+	if (healTimer_ > 0.0f) {
+		healTimer_ -= 1.0f / 60.0f;
+		return; // クールダウン中は回復できない
+	}
+
+	// ターゲットがいて、かつ射程圏内なら回復実行！
+	if (healTarget_ && minDist < kHealRange) {
+		healTarget_->TakeDamage(-2); // 2回復
+		healTimer_ = kHealCooldown;  // クールダウン開始（この間クルクル回る）
 	}
 }
 

@@ -91,6 +91,7 @@ private:
 	
 	float baseHeight_ = 0.0f;   // 飛行時の基準の高さ
 	float healTimer_ = 0.0f;    // 回復スキルのクールダウン
+	Enemy* healTarget_ = nullptr; // 回復しに行く対象
 
 	// 定数
 	static inline const float kHealRange = 5.0f;    // 回復が届く範囲
