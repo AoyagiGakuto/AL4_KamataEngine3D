@@ -52,6 +52,12 @@ void Enemy::Initialize(Model* model, Model* modelHpBar, Model* modelHp, Camera* 
 
 void Enemy::Update() {
 
+	if (hitStopTimer_ > 0.0f) {
+		hitStopTimer_ -= 1.0f / 60.0f;
+		// 時間停止中は、移動もアニメーションも更新せずここで終わる
+		return;
+	}
+
 	float speedMultiplier = 1.0f; // 通常速度
 	if (slowTimer_ > 0.0f) {
 		slowTimer_ -= 1.0f / 60.0f;
@@ -523,3 +529,5 @@ void Enemy::Knockback(const Vector3& dir) {
 
 	knockbackTimer_ = 0.5f; // 0.5秒間吹っ飛ぶ
 }
+
+void Enemy::ApplyHitStop(float duration) { hitStopTimer_ = duration; }

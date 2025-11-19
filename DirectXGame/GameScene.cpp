@@ -289,7 +289,33 @@ void GameScene::Update() {
 			// 一番近い敵をロックオン
 			player_->LockOn(closestEnemy);
 		}
+		if (Input::GetInstance()->TriggerKey(DIK_L) && player_->IsLockedOn()) {
 
+			Enemy* currentTarget = player_->GetTargetEnemy();
+
+			// 今のターゲットがリストのどこにいるか探す
+			auto it = std::find(enemies_.begin(), enemies_.end(), currentTarget);
+
+			if (it != enemies_.end()) {
+				size_t checkCount = 0;
+				size_t enemyMax = enemies_.size();
+
+				// 最大で敵の数だけループ（全員死んでる場合の無限ループ防止）
+				while (checkCount < enemyMax) {
+					it++; // 次へ
+					if (it == enemies_.end()) {
+						it = enemies_.begin(); // 端まで行ったら先頭に戻る（ループ）
+					}
+
+					// 生きている敵を見つけたらロックオンして終了
+					if (!(*it)->IsDead()) {
+						player_->LockOn(*it);
+						break;
+					}
+					checkCount++;
+				}
+			}
+		}
 	} else {
 		// シフトが押されていない時の処理
 		player_->LockOff();
@@ -316,6 +342,8 @@ void GameScene::Update() {
 				if (distance <= kMeleeRange) {
 					// 1ダメージ
 					target->TakeDamage(1);
+
+					target->ApplyHitStop(0.1f);
 
 					// 斬撃エフェクトを1つ出す
 					const float kEffectSpread = 1.0f; // 敵の中心から少しだけ散らす

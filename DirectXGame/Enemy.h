@@ -41,7 +41,7 @@ public:
 	void TakeDamage(int damage);
 	void SlowDown(float duration);
 	void Knockback(const Vector3& dir);
-
+	void ApplyHitStop(float duration);
 	bool IsDead() const;
 	bool IsReadyToFire();
 
@@ -72,6 +72,7 @@ private:
 
 	float walkTimer_ = 0.0f;                                                          // 敵の歩行モーションのタイマー
 	float shotTimer_ = 0.0f;
+	float hitStopTimer_ = 0.0f;
 
 	WorldTransform worldTransform_;
 	WorldTransform worldTransformHpBar_; // 枠用

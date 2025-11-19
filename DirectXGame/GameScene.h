@@ -81,4 +81,6 @@ private:
 
 	// シーン内フェード
 	Fade* fade_ = nullptr;
+
+	float hitStopTimer_ = 0.0f;
 };
