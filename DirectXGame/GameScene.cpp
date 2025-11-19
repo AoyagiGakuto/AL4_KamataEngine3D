@@ -1,10 +1,10 @@
 #include "GameScene.h"
 #include "CameraController.h"
 #include "MyMath.h"
+#include <algorithm>
 #include <cstdlib>
 #include <ctime>
 #include <numbers>
-#include <algorithm>
 
 using namespace KamataEngine;
 
@@ -37,7 +37,7 @@ void GameScene::Initialize() {
 
 	uiCamera_ = new Camera();
 	uiCamera_->Initialize();
-	
+
 	Vector3 uiPos = {0.0f, 0.0f, -10.0f};
 	Vector3 uiRot = {0.0f, 0.0f, 0.0f};
 	Vector3 uiScale = {1.0f, 1.0f, 1.0f};
@@ -584,8 +584,8 @@ void GameScene::Update() {
 	}
 
 	for (Enemy* enemy : enemies_) {
-        enemy->Update();
-    }
+		enemy->Update();
+	}
 
 	for (Enemy* enemy : enemies_) {
 		if (enemy->GetType() == Enemy::Type::kFlyingSupport) {
@@ -628,23 +628,41 @@ void GameScene::Update() {
 
 void GameScene::CheckAllCollisions() {
 	if (player_->IsDead())
-		return; // すでに死亡なら判定しない
+		return;
 
 	AABB aabb1 = player_->GetAABB();
 
 	for (Enemy* enemy : enemies_) {
+		if (enemy->IsDead())
+			continue;
+
 		AABB aabb2 = enemy->GetAABB();
 
+		// 当たり判定
 		bool isHit = (aabb1.min.x < aabb2.max.x && aabb1.max.x > aabb2.min.x) && (aabb1.min.y < aabb2.max.y && aabb1.max.y > aabb2.min.y) && (aabb1.min.z < aabb2.max.z && aabb1.max.z > aabb2.min.z);
 
 		if (isHit) {
+			// ダメージ処理
 			player_->TakeDamage(1);
 
+			// ノックバック方向の計算
+			// プレイヤーから見た敵の方向
+			Vector3 pPos = player_->GetWorldTransform().translation_;
+			Vector3 ePos = enemy->GetWorldTransform().translation_;
+
+			Vector3 dir = pPos - ePos; // 敵 → プレイヤー の向き
+			dir = Normalize(dir);
+
+			// お互いに弾き飛ばす
+			player_->Knockback(dir);       // プレイヤーは敵と逆方向へ
+			enemy->Knockback(dir * -1.0f); // 敵はプレイヤーと逆方向へ
+
+			// 死亡チェック
 			if (player_->IsDead()) {
 				deathParticle_.Spawn(player_->GetWorldTransform().translation_);
 			}
 
-			break; // 死亡したらループ終了
+			break; // 1フレームに1回ヒットまで
 		}
 	}
 }

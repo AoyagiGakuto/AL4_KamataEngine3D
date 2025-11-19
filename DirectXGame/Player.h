@@ -49,6 +49,9 @@ public:
 	bool IsLockedOn() const { return isLockedOn_; }
 	Enemy* GetTargetEnemy() const { return targetEnemy_; }
 
+	// ノックアップ
+	void Knockback(const Vector3& dir);
+
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
 	const Vector3& GetVelocity() const { return velocity_; }
 	float GetTurnTimer() const { return turnTimer_; }
@@ -91,6 +94,7 @@ private:
 	static inline const float kChargeAttackTime = 3.0f; // 3秒
 	int hp_ = 100;
 	int maxHp_ = 100;
+	float knockbackTimer_ = 0.0f;
 };
 
 Vector3 CornerPosition(const Vector3& center, Corner corner);

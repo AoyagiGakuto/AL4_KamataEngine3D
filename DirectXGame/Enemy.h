@@ -40,6 +40,8 @@ public:
 	void SetTarget(Player* p) { target_ = p; }
 	void TakeDamage(int damage);
 	void SlowDown(float duration);
+	void Knockback(const Vector3& dir);
+
 	bool IsDead() const;
 	bool IsReadyToFire();
 
@@ -85,6 +87,7 @@ private:
 	float maxHp_ = 5.0f;
 	int hp_ = 5; // HP (今は5発で死ぬように)
 	float slowTimer_ = 0.0f;       // スロー効果の残り時間
+	float knockbackTimer_ = 0.0f;
 
 	Type type_ = Type::kNormal; // 自分のタイプ
 

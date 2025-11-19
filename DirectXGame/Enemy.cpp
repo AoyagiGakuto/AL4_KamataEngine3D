@@ -61,6 +61,20 @@ void Enemy::Update() {
 	// 敵の歩行モーションのタイマーを更新
 	walkTimer_ += 1.0f / 60.0f;
 	
+	if (knockbackTimer_ > 0.0f) {
+		knockbackTimer_ -= 1.0f / 60.0f;
+
+		// ノックバック中は重力だけかける
+		velocity_.y -= kGravityAcc;
+
+		CollisionInfo info;
+		info.move = velocity_;
+		CollisionMapCheck(info);
+		worldTransform_.translation_ += info.move;
+
+		goto COMMON_UPDATE;
+	}
+
 	// ==============================================
 	// 行動パターンの分岐
 	// ==============================================
@@ -145,17 +159,17 @@ void Enemy::Update() {
 		Vector3 targetPos = worldTransform_.translation_;
 		bool isHealingMode = false; // 回復モードか射撃モードか
 
-		// 1. 回復対象がいるかチェック
+		// 回復対象がいるかチェック
 		if (healTarget_ && !healTarget_->IsDead() && healTarget_->hp_ < healTarget_->maxHp_) {
 			targetPos = healTarget_->GetWorldTransform().translation_;
 			isHealingMode = true;
 		}
-		// 2. いなければプレイヤーを狙う（射撃モード）
+		// いなければプレイヤーを狙う（射撃モード）
 		else if (target_) {
 			targetPos = target_->GetWorldTransform().translation_;
 			isHealingMode = false;
 
-			// ★ここが重要：射撃モードならタイマーを進める
+			// 射撃モードならタイマーを進める
 			shotTimer_ -= 1.0f / 60.0f;
 		}
 
@@ -210,6 +224,7 @@ void Enemy::Update() {
 		}
 		break;
 	}
+	COMMON_UPDATE:
 	}
 
 	// ==============================================
@@ -501,4 +516,17 @@ bool Enemy::IsReadyToFire() {
 		return true;
 	}
 	return false;
+}
+
+void Enemy::Knockback(const Vector3& dir) {
+	if (knockbackTimer_ > 0.0f)
+		return;
+
+	float knockbackSpeed = 0.1f;
+	float jumpPower = 0.15f;
+
+	velocity_.x = dir.x * knockbackSpeed;
+	velocity_.y = jumpPower;
+
+	knockbackTimer_ = 0.5f; // 0.5秒間吹っ飛ぶ
 }
