@@ -4,6 +4,7 @@
 #include "MyMath.h"
 #include "Player.h"
 #include <numbers>
+#include <list>
 
 using namespace KamataEngine;
 
@@ -12,11 +13,20 @@ class Player;
 
 class Enemy {
 public:
-	void Initialize(Model* model, Model* modelHpBar, Model* modelHp, Camera* camera, const Vector3& position);
+	enum class Type {
+		kNormal,       // 普通の敵
+		kHoming,       // 追いかけてくる敵
+		kFlyingSupport // 飛行＆回復する敵
+	};
+
+	void Initialize(Model* model, Model* modelHpBar, Model* modelHp, Camera* camera, const Vector3& position, Type type = Type::kNormal);
 	void Update();
 	void Draw();
+	void HealNearbyEnemies(std::list<Enemy*>& enemies);
 
 	AABB GetAABB();
+
+	Type GetType() const { return type_; }
 
 	// ワールド変換取得
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
@@ -38,12 +48,6 @@ public:
 	static inline const float kGravityAcc = 0.01f; // 重力
 
 	void SetTarget(Player* p) { target_ = p; }
-	void SetHoming(bool enable) { homing_ = enable; }
-	void SetHomingParams(float maxSpeed, float accel, float stopDist) {
-		homingMaxSpeed_ = maxSpeed;
-		homingAccel_ = accel;
-		homingStopDist_ = stopDist;
-	}
 
 	// ダメージを受ける
 	void TakeDamage(int damage);
@@ -88,4 +92,18 @@ private:
 	float homingStopDist_ = 0.05f; // これ以下の距離で減速・停止
 	float slowTimer_ = 0.0f;       // スロー効果の残り時間
 	float maxHp_ = 5.0f;
+
+	Type type_ = Type::kNormal; // 自分のタイプ
+	
+	// 追尾用
+	float homingMaxSpeed_ = 0.06f;
+	float homingAccel_ = 0.004f;
+	float homingStopDist_ = 0.05f;
+	
+	float baseHeight_ = 0.0f;   // 飛行時の基準の高さ
+	float healTimer_ = 0.0f;    // 回復スキルのクールダウン
+
+	// 定数
+	static inline const float kHealRange = 5.0f;    // 回復が届く範囲
+	static inline const float kHealCooldown = 3.0f; // 回復の間隔（秒）
 };

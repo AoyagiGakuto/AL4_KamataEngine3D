@@ -5,7 +5,7 @@
 
 using namespace KamataEngine;
 
-void Enemy::Initialize(Model* model, Model* modelHpBar, Model* modelHp, Camera* camera, const Vector3& position) {
+void Enemy::Initialize(Model* model, Model* modelHpBar, Model* modelHp, Camera* camera, const Vector3& position, Type type) {
 	assert(model);
 	model_ = model;
 	modelHpBar_ = modelHpBar;
@@ -23,6 +23,14 @@ void Enemy::Initialize(Model* model, Model* modelHpBar, Model* modelHp, Camera* 
 	hp_ = 5;
 	maxHp_ = 5.0f;
 	slowTimer_ = 0.0f;
+	type_ = type;
+	baseHeight_ = position.y; // 出現した高さを基準に飛ぶ
+	healTimer_ = 0.0f;
+	
+	// 飛んでるやつなら
+	if (type_ == Type::kFlyingSupport) {
+		velocity_ = {0.0f, 0.0f, 0.0f};
+	}
 }
 
 void Enemy::Update() {
@@ -32,6 +40,8 @@ void Enemy::Update() {
 		slowTimer_ -= 1.0f / 60.0f;
 		speedMultiplier = 0.3f;
 	}
+
+	if (type_ == Type::kNormal) {
 
 	// 敵の歩行モーションのタイマーを更新
 	walkTimer_ += 1.0f / 60.0f;
