@@ -39,8 +39,9 @@ public:
 	void SetRotationY(float y) { worldTransform_.rotation_.y = y; }
 	void SetTarget(Player* p) { target_ = p; }
 	void TakeDamage(int damage);
-	bool IsDead() const;
 	void SlowDown(float duration);
+	bool IsDead() const;
+	bool IsReadyToFire();
 
 	static inline const float kWalkSpeed = 0.01f;                                     // 敵の移動速度
 	static inline const float kWalkMotionAngelStart = 0.0f;                           // 通常姿勢
@@ -68,6 +69,8 @@ private:
 	void CheckMapCollisionRight(CollisionInfo& info);
 
 	float walkTimer_ = 0.0f;                                                          // 敵の歩行モーションのタイマー
+	float shotTimer_ = 0.0f;
+
 	WorldTransform worldTransform_;
 	WorldTransform worldTransformHpBar_; // 枠用
 	WorldTransform worldTransformHp_;
@@ -94,6 +97,7 @@ private:
 	Enemy* healTarget_ = nullptr; // 回復しに行く対象
 
 	// 定数
+	static inline const float kFireInterval = 2.0f; // 2秒に1回撃つ
 	static inline const float kHealRange = 5.0f;    // 回復が届く範囲
 	static inline const float kHealCooldown = 3.0f; // 回復の間隔（秒）
 };

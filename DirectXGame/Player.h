@@ -29,6 +29,7 @@ public:
 	void Draw();
 	void InputMove();
 	void AnimateTurn();
+	void TakeDamage(int damage);
 	void CollisionMapCheck(CollisionMapInfo& Info);
 	void CheckMapCollision(CollisionMapInfo& Info);
 	void CheckMapCollisionUp(CollisionMapInfo& Info);
@@ -51,6 +52,8 @@ public:
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
 	const Vector3& GetVelocity() const { return velocity_; }
 	float GetTurnTimer() const { return turnTimer_; }
+	float GetHp() const { return (float)hp_; }
+	float GetMaxHp() const { return (float)maxHp_; }
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
 	Vector3 GetPosition() const { return worldTransform_.translation_; }
 	AABB GetAABB();
@@ -86,6 +89,8 @@ private:
 	float chargeTimer_ = 0.0f;
 	bool isChargeAttackReady_ = false;
 	static inline const float kChargeAttackTime = 3.0f; // 3秒
+	int hp_ = 100;
+	int maxHp_ = 100;
 };
 
 Vector3 CornerPosition(const Vector3& center, Corner corner);

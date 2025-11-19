@@ -140,39 +140,52 @@ void Enemy::Update() {
 
 	// --- 飛行・支援タイプ (ふわふわ浮く) ---
 	case Type::kFlyingSupport: {
-		// ふわふわ上下移動
 		float hoverOffset = std::sin(walkTimer_ * 2.0f) * 0.5f;
 
-		// 移動目標の決定
-		Vector3 targetPos = worldTransform_.translation_; // デフォルトは自分の位置
-		bool hasTarget = false;
+		Vector3 targetPos = worldTransform_.translation_;
+		bool isHealingMode = false; // 回復モードか射撃モードか
 
-		// 優先順位1: 傷ついた仲間 (HealNearbyEnemiesで見つけた相手)
+		// 1. 回復対象がいるかチェック
 		if (healTarget_ && !healTarget_->IsDead() && healTarget_->hp_ < healTarget_->maxHp_) {
 			targetPos = healTarget_->GetWorldTransform().translation_;
-			hasTarget = true;
+			isHealingMode = true;
 		}
-		// 優先順位2: プレイヤー (誰も傷ついてない時はプレイヤーを追いかける)
+		// 2. いなければプレイヤーを狙う（射撃モード）
 		else if (target_) {
 			targetPos = target_->GetWorldTransform().translation_;
-			hasTarget = true;
+			isHealingMode = false;
+
+			// ★ここが重要：射撃モードならタイマーを進める
+			shotTimer_ -= 1.0f / 60.0f;
 		}
 
-		// X方向へ移動
+		// 移動処理
 		velocity_.x = 0.0f;
-		if (hasTarget) {
+		if (isHealingMode) {
+			// 回復モード：近づく
 			float dx = targetPos.x - worldTransform_.translation_.x;
-			float flySpeed = 0.02f;
-
-			// 仲間を追いかける時は、重ならないように少し距離を開ける (1.5f)
-			float stopDist = (healTarget_) ? 1.5f : 0.1f;
-
+			float stopDist = 1.5f; // 少し離れる
 			if (std::fabs(dx) > stopDist) {
-				velocity_.x = (dx > 0 ? flySpeed : -flySpeed);
+				velocity_.x = (dx > 0 ? 0.02f : -0.02f);
 			}
+		} else {
+			// 射撃モード：プレイヤーと「一定距離(5.0f)」を保つように動く（近づきすぎない）
+			// ターゲット(プレイヤー)との距離
+			float dx = targetPos.x - worldTransform_.translation_.x;
+			float keepDist = 5.0f; // 射撃に適した距離
+
+			// 近すぎたら離れる、遠すぎたら近づく
+			if (std::fabs(dx) < keepDist - 0.5f) {
+				// 近すぎる！逃げる
+				velocity_.x = (dx > 0 ? -0.02f : 0.02f);
+			} else if (std::fabs(dx) > keepDist + 0.5f) {
+				// 遠すぎる！近づく
+				velocity_.x = (dx > 0 ? 0.02f : -0.02f);
+			}
+			// それ以外(ちょうどいい距離)なら止まって撃つ
 		}
 
-		// 飛行なので重力なし、壁判定のみ
+		// 壁判定と座標更新
 		CollisionInfo info;
 		info.move.x = velocity_.x * speedMultiplier;
 		info.move.y = 0.0f;
@@ -182,18 +195,19 @@ void Enemy::Update() {
 		worldTransform_.translation_.x += info.move.x;
 		worldTransform_.translation_.y = baseHeight_ + hoverOffset;
 
-		// --- 回転の制御 ---
+		// 回転制御
 		if (healTimer_ > 0.0f) {
-			// 【追加】回復中（クールダウン中）はクルクル高速回転！
-			worldTransform_.rotation_.y += 0.3f;
+			worldTransform_.rotation_.y += 0.3f; // 回復後のクールダウン中は回転
 		} else {
-			// 通常時は進行方向を向く
-			if (velocity_.x > 0.001f)
-				worldTransform_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
-			else if (velocity_.x < -0.001f)
-				worldTransform_.rotation_.y = std::numbers::pi_v<float> * 3.0f / 2.0f;
+			// プレイヤーの方を向く
+			if (target_) {
+				float dx = target_->GetWorldTransform().translation_.x - worldTransform_.translation_.x;
+				if (dx > 0)
+					worldTransform_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
+				else
+					worldTransform_.rotation_.y = std::numbers::pi_v<float> * 3.0f / 2.0f;
+			}
 		}
-
 		break;
 	}
 	}
@@ -474,4 +488,17 @@ void Enemy::SlowDown(float duration) {
 	if (slowTimer_ < duration) {
 		slowTimer_ = duration;
 	}
+}
+
+bool Enemy::IsReadyToFire() {
+	// 飛行タイプ以外は撃たない
+	if (type_ != Type::kFlyingSupport)
+		return false;
+
+	// タイマーが0以下なら発射OK
+	if (shotTimer_ <= 0.0f) {
+		shotTimer_ = kFireInterval; // 次回のために時間をセット
+		return true;
+	}
+	return false;
 }

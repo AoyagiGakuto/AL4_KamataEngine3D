@@ -48,9 +48,12 @@ private:
 
 	// ワールドトランスフォーム
 	WorldTransform worldTransform_;
+	WorldTransform worldTransformHudHpBar_;
+	WorldTransform worldTransformHudHp_;
 
 	// カメラ
 	Camera* camera_;
+	Camera* uiCamera_ = nullptr;
 	bool isDebugCameraActive_ = false;
 	DebugCamera* debugCamera_ = nullptr;
 

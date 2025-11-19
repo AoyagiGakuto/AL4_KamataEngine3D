@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <numbers>
+#include <algorithm>
 
 using namespace KamataEngine;
 
@@ -34,6 +35,35 @@ void GameScene::Initialize() {
 	camera_ = new Camera();
 	camera_->Initialize();
 
+	uiCamera_ = new Camera();
+	uiCamera_->Initialize();
+	
+	Vector3 uiPos = {0.0f, 0.0f, -10.0f};
+	Vector3 uiRot = {0.0f, 0.0f, 0.0f};
+	Vector3 uiScale = {1.0f, 1.0f, 1.0f};
+
+	// カメラのワールド行列を作成
+	Matrix4x4 matWorld = MakeAffineMatrix(uiScale, uiRot, uiPos);
+
+	// ビュー行列は「ワールド行列の逆行列」
+	uiCamera_->matView = Inverse(matWorld);
+
+	// 行列を転送
+	uiCamera_->TransferMatrix();
+
+	worldTransformHudHpBar_.Initialize();
+	worldTransformHudHp_.Initialize();
+
+	Vector3 hudPos = {-3.5f, 3.8f, 0.0f};
+
+	worldTransformHudHpBar_.translation_ = hudPos;
+	worldTransformHudHp_.translation_ = hudPos;
+
+	// 大きさ（少し大きめに見やすく）
+	Vector3 hudScale = {1.2f, 0.2f, 0.1f};
+	worldTransformHudHpBar_.scale_ = hudScale;
+	worldTransformHudHp_.scale_ = hudScale;
+
 	GenerateBlooks();
 
 	// プレイヤー初期位置
@@ -53,20 +83,19 @@ void GameScene::Initialize() {
 		// 全員プレイヤーをターゲットとしてセットしておく
 		newEnemy->SetTarget(player_);
 
-		// インデックス(i)によってタイプを変える
+		// タイプを変える
 		if (i == 0) {
-			// 1体目: 通常タイプ
+			// 通常タイプ
 			newEnemy->Initialize(modelEnemy_, modelHpBar_, modelHp_, camera_, enemyPosition, Enemy::Type::kNormal);
 			newEnemy->SetScale({0.4f, 0.4f, 0.4f});
 
 		} else if (i == 1) {
-			// 2体目: 追尾タイプ
+			// 追尾タイプ
 			newEnemy->Initialize(modelEnemy_, modelHpBar_, modelHp_, camera_, enemyPosition, Enemy::Type::kHoming);
 			newEnemy->SetScale({0.4f, 0.4f, 0.4f});
 
 		} else {
-			// 3体目: 飛行支援タイプ
-			// 空中に配置したいのでY座標を上げる
+			// 飛行支援タイプ
 			enemyPosition.y += 5.0f;
 			newEnemy->Initialize(modelEnemy_, modelHpBar_, modelHp_, camera_, enemyPosition, Enemy::Type::kFlyingSupport);
 			newEnemy->SetScale({0.3f, 0.3f, 0.3f}); // 少し小さく
@@ -401,6 +430,34 @@ void GameScene::Update() {
 
 	slowBalls_.erase(std::remove_if(slowBalls_.begin(), slowBalls_.end(), [](const std::unique_ptr<Bullet>& sb) { return !sb->IsAlive(); }), slowBalls_.end());
 
+	// HPの割合を計算
+	float hpRatio = player_->GetHp() / player_->GetMaxHp();
+	hpRatio = std::clamp(hpRatio, 0.0f, 1.0f);
+
+	// スケールの計算
+	float baseScaleX = 1.2f; // 横幅 (Initializeの 1.2f に合わせる)
+	float baseScaleY = 0.2f; // 縦幅 (Initializeの 0.2f に合わせる)
+
+	// 中身(HP)のスケール計算
+	worldTransformHudHp_.scale_.x = baseScaleX * hpRatio;
+	worldTransformHudHp_.scale_.y = baseScaleY;
+	worldTransformHudHp_.scale_.z = 0.1f;
+
+	// 左寄せ計算 (バーが中心に向かって縮まないようにする魔法)
+	float modelHalfWidth = 3.0f; // モデルの幅の半分
+	float shiftAmount = (1.0f - hpRatio) * modelHalfWidth * baseScaleX;
+
+	// 枠の位置を基準に、少し左にずらす
+	worldTransformHudHp_.translation_ = worldTransformHudHpBar_.translation_;
+	worldTransformHudHp_.translation_.x -= shiftAmount;
+
+	// 行列の更新
+	worldTransformHudHpBar_.matWorld_ = MakeAffineMatrix(worldTransformHudHpBar_.scale_, worldTransformHudHpBar_.rotation_, worldTransformHudHpBar_.translation_);
+	worldTransformHudHpBar_.TransferMatrix();
+
+	worldTransformHudHp_.matWorld_ = MakeAffineMatrix(worldTransformHudHp_.scale_, worldTransformHudHp_.rotation_, worldTransformHudHp_.translation_);
+	worldTransformHudHp_.TransferMatrix();
+
 	for (auto it = bullets_.begin(); it != bullets_.end();) {
 		bool bulletRemoved = false;
 		AABB aabbB = (*it)->GetAABB();
@@ -526,10 +583,9 @@ void GameScene::Update() {
 		CheckAllCollisions(); // 衝突判定は生存中だけ
 	}
 
-	// 敵は死亡後も動く
 	for (Enemy* enemy : enemies_) {
-		enemy->Update();
-	}
+        enemy->Update();
+    }
 
 	for (Enemy* enemy : enemies_) {
 		if (enemy->GetType() == Enemy::Type::kFlyingSupport) {
@@ -582,13 +638,13 @@ void GameScene::CheckAllCollisions() {
 		bool isHit = (aabb1.min.x < aabb2.max.x && aabb1.max.x > aabb2.min.x) && (aabb1.min.y < aabb2.max.y && aabb1.max.y > aabb2.min.y) && (aabb1.min.z < aabb2.max.z && aabb1.max.z > aabb2.min.z);
 
 		if (isHit) {
-			// プレイヤー死亡！
-			// player_->Die();
+			player_->TakeDamage(1);
 
-			// 死亡演出（パーティクル発生）
-			// deathParticle_.Spawn(player_->GetWorldTransform().translation_);
+			if (player_->IsDead()) {
+				deathParticle_.Spawn(player_->GetWorldTransform().translation_);
+			}
 
-			// break; // 死亡したらループ終了
+			break; // 死亡したらループ終了
 		}
 	}
 }
@@ -632,6 +688,10 @@ void GameScene::Draw() {
 		vfx->Draw();
 	}
 
+	modelHp_->Draw(worldTransformHudHp_, *uiCamera_);
+
+	modelHpBar_->Draw(worldTransformHudHpBar_, *uiCamera_);
+
 	Model::PostDraw();
 
 	if (fade_)
@@ -649,6 +709,8 @@ GameScene::~GameScene() {
 	delete modelZangeki_;
 	delete player_;
 	delete fade_;
+	delete camera_;
+	delete uiCamera_;
 	for (Enemy* enemy : enemies_) {
 		delete enemy;
 	}

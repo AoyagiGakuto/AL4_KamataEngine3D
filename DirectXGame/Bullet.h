@@ -6,6 +6,12 @@ using namespace KamataEngine;
 
 class Bullet {
 public:
+
+	enum class Type {
+		kPlayer, // プレイヤーの弾
+		kEnemy   // 敵の弾
+	};
+
 	void Initialize(Model* model, Camera* camera, const Vector3& pos, const Vector3& dir);
 	void Update();
 	void Draw();
@@ -14,6 +20,9 @@ public:
 
 	// 当たり判定用
 	void Kill() { alive_ = false; }
+
+	void SetType(Type type) { type_ = type; }
+	Type GetType() const { return type_; }
 
 private:
 	WorldTransform transform_;
@@ -24,4 +33,9 @@ private:
 
 	Model* model_ = nullptr;
 	Camera* camera_ = nullptr;
+
+	bool isDead_ = false;
+
+	// デフォルトはプレイヤーの弾にしておく
+	Type type_ = Type::kPlayer;
 };

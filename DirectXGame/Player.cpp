@@ -27,6 +27,9 @@ void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	worldTransform_.Initialize();
 	worldTransform_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
 	OnGround_ = true;
+	maxHp_ = 100;
+	hp_ = maxHp_;
+	isDead_ = false;
 }
 void Player::Update() {
 	InputMove();
@@ -342,4 +345,14 @@ void Player::LockOn(Enemy* target) {
 void Player::LockOff() {
 	targetEnemy_ = nullptr;
 	isLockedOn_ = false;
+}
+
+void Player::TakeDamage(int damage) {
+	hp_ -= damage;
+
+	// HPが0以下になったら死亡
+	if (hp_ <= 0) {
+		hp_ = 0;
+		Die(); // 死亡処理を実行
+	}
 }
