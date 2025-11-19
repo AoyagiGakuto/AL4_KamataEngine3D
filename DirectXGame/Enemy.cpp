@@ -60,7 +60,7 @@ void Enemy::Update() {
 
 	// 敵の歩行モーションのタイマーを更新
 	walkTimer_ += 1.0f / 60.0f;
-	
+
 	if (knockbackTimer_ > 0.0f) {
 		knockbackTimer_ -= 1.0f / 60.0f;
 
@@ -168,9 +168,6 @@ void Enemy::Update() {
 		else if (target_) {
 			targetPos = target_->GetWorldTransform().translation_;
 			isHealingMode = false;
-
-			// 射撃モードならタイマーを進める
-			shotTimer_ -= 1.0f / 60.0f;
 		}
 
 		// 移動処理
@@ -183,20 +180,16 @@ void Enemy::Update() {
 				velocity_.x = (dx > 0 ? 0.02f : -0.02f);
 			}
 		} else {
-			// 射撃モード：プレイヤーと「一定距離(5.0f)」を保つように動く（近づきすぎない）
-			// ターゲット(プレイヤー)との距離
+			// 距離を保つのではなく、プレイヤーに向かって少し速く突っ込む
 			float dx = targetPos.x - worldTransform_.translation_.x;
-			float keepDist = 5.0f; // 射撃に適した距離
+			float attackSpeed = 0.05f; // 回復移動(0.02)より速くする！
 
-			// 近すぎたら離れる、遠すぎたら近づく
-			if (std::fabs(dx) < keepDist - 0.5f) {
-				// 近すぎる！逃げる
-				velocity_.x = (dx > 0 ? -0.02f : 0.02f);
-			} else if (std::fabs(dx) > keepDist + 0.5f) {
-				// 遠すぎる！近づく
-				velocity_.x = (dx > 0 ? 0.02f : -0.02f);
+			if (std::fabs(dx) < 0.1f) {
+				velocity_.x = 0.0f;
+			} else {
+				// それ以上離れていたら突撃
+				velocity_.x = (dx > 0 ? attackSpeed : -attackSpeed);
 			}
-			// それ以外(ちょうどいい距離)なら止まって撃つ
 		}
 
 		// 壁判定と座標更新
@@ -224,13 +217,13 @@ void Enemy::Update() {
 		}
 		break;
 	}
-	COMMON_UPDATE:
 	}
+COMMON_UPDATE:
 
 	// ==============================================
 	// HPバーの更新
 	// ==============================================
-	
+
 	Vector3 barPos = worldTransform_.translation_;
 	barPos.y += 1.5f;
 
