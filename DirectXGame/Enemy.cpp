@@ -5,15 +5,23 @@
 
 using namespace KamataEngine;
 
-void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position) {
+void Enemy::Initialize(Model* model, Model* modelHpBar, Model* modelHp, Camera* camera, const Vector3& position) {
 	assert(model);
 	model_ = model;
+	modelHpBar_ = modelHpBar;
+	modelHp_ = modelHp;
 	camera_ = camera;
 	worldTransform_.Initialize();
+	worldTransformHpBar_.Initialize();
+	worldTransformHp_.Initialize();
+	Vector3 hpBarScale = {0.15f, 0.15f, 0.15f};
+	worldTransformHpBar_.scale_ = hpBarScale;
+	worldTransformHp_.scale_ = hpBarScale;
 	worldTransform_.translation_ = position;
 	velocity_ = {-kWalkSpeed, 0.0f, 0.0f};
 	walkTimer_ = 0.0f;
 	hp_ = 5;
+	maxHp_ = 5.0f;
 	slowTimer_ = 0.0f;
 }
 
@@ -21,12 +29,12 @@ void Enemy::Update() {
 
 	float speedMultiplier = 1.0f; // 通常速度
 	if (slowTimer_ > 0.0f) {
-		slowTimer_ -= 1.0f / 60.0f; // 60fps前提でタイマーを減らす
-		speedMultiplier = 0.3f;     // 30%の速度にする
+		slowTimer_ -= 1.0f / 60.0f;
+		speedMultiplier = 0.3f;
 	}
 
 	// 敵の歩行モーションのタイマーを更新
-	walkTimer_ += 1.0f / 60.0f; // フレームレートに応じて調整
+	walkTimer_ += 1.0f / 60.0f;
 	// 歩行モーションの角度を計算
 	// 回転アニメーション
 	float param = std::sin(walkTimer_ * (std::numbers::pi_v<float> * 2.0f / kWalkMotionTime)) * (kWalkMotionAngelEnd - kWalkMotionAngelStart) + kWalkMotionAngelStart;
@@ -81,6 +89,42 @@ void Enemy::Update() {
 	worldTransform_.translation_.y += info.move.y;
 	worldTransform_.translation_.z += info.move.z;
 
+	// HPP
+
+	// 敵の頭上に配置 (敵の座標 + Y方向に少し上)
+	Vector3 barPos = worldTransform_.translation_;
+	barPos.y += 1.5f; // 敵の高さ
+
+	worldTransformHpBar_.translation_ = barPos;
+	worldTransformHp_.translation_ = barPos;
+
+	// HPの割合に合わせてバーを縮める
+	float hpRatio = (float)hp_ / maxHp_;
+
+	// 0以下にならないように制限
+	if (hpRatio < 0.0f) {
+		hpRatio = 0.0f;
+	}
+
+	float baseScaleX = 0.15f;
+
+	// スケールを変える
+	worldTransformHp_.scale_.x = baseScaleX * hpRatio;
+	worldTransformHp_.scale_.y = 0.15f;
+	worldTransformHp_.scale_.z = 0.15f;
+
+	float modelHalfWidth = 3.0f;
+	float shiftAmount = (1.0f - hpRatio) * modelHalfWidth * baseScaleX;
+
+	worldTransformHp_.translation_ = barPos;
+	worldTransformHp_.translation_.x -= shiftAmount;
+
+	worldTransformHpBar_.matWorld_ = MakeAffineMatrix(worldTransformHpBar_.scale_, worldTransformHpBar_.rotation_, worldTransformHpBar_.translation_);
+	worldTransformHpBar_.TransferMatrix();
+
+	worldTransformHp_.matWorld_ = MakeAffineMatrix(worldTransformHp_.scale_, worldTransformHp_.rotation_, worldTransformHp_.translation_);
+	worldTransformHp_.TransferMatrix();
+
 	// 行列更新
 	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
 	worldTransform_.TransferMatrix();
@@ -89,6 +133,14 @@ void Enemy::Update() {
 void Enemy::Draw() {
 	if (model_ && camera_) {
 		model_->Draw(worldTransform_, *camera_);
+		if (hp_ > 0) {
+			// 枠を描画
+			if (modelHpBar_)
+				modelHpBar_->Draw(worldTransformHpBar_, *camera_);
+			// 中身を描画
+			if (modelHp_)
+				modelHp_->Draw(worldTransformHp_, *camera_);
+		}
 	}
 }
 

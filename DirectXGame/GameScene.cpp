@@ -16,6 +16,8 @@ void GameScene::Initialize() {
 	modelBullet_ = Model::CreateFromOBJ("bullet");
 	modelSlowBall_ = Model::CreateFromOBJ("bullet");
 	modelZangeki_ = Model::CreateFromOBJ("zangeki");
+	modelHp_ = Model::CreateFromOBJ("hp");
+	modelHpBar_ = Model::CreateFromOBJ("hpbar");
 
 	for (int i = 0; i < 10; ++i) {
 		modelNumbers_[i] = Model::CreateFromOBJ(std::to_string(i));
@@ -44,7 +46,7 @@ void GameScene::Initialize() {
 	for (int32_t i = 0; i < enemyCount; ++i) {
 		Enemy* newEnemy = new Enemy();
 		Vector3 enemyPosition = mapChipField_->GetMapPositionTypeByIndex(30 + i * 3, 18);
-		newEnemy->Initialize(modelEnemy_, camera_, enemyPosition);
+		newEnemy->Initialize(modelEnemy_, modelHpBar_, modelHp_, camera_, enemyPosition);
 		newEnemy->SetMapChipField(mapChipField_);
 		newEnemy->SetScale({0.4f, 0.4f, 0.4f});
 		newEnemy->SetRotationY(std::numbers::pi_v<float> * 3.0f / 2.0f);

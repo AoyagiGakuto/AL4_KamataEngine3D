@@ -43,6 +43,8 @@ private:
 	Model* modelBullet_ = nullptr;
 	Model* modelSlowBall_ = nullptr;
 	Model* modelZangeki_ = nullptr;
+	Model* modelHpBar_ = nullptr;
+	Model* modelHp_ = nullptr;
 
 	// ワールドトランスフォーム
 	WorldTransform worldTransform_;

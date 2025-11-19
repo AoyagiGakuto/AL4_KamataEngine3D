@@ -12,7 +12,7 @@ class Player;
 
 class Enemy {
 public:
-	void Initialize(Model* model, Camera* camera, const Vector3& position);
+	void Initialize(Model* model, Model* modelHpBar, Model* modelHp, Camera* camera, const Vector3& position);
 	void Update();
 	void Draw();
 
@@ -71,7 +71,11 @@ private:
 
 	float walkTimer_ = 0.0f;                                                          // 敵の歩行モーションのタイマー
 	WorldTransform worldTransform_;
+	WorldTransform worldTransformHpBar_; // 枠用
+	WorldTransform worldTransformHp_;
 	Model* model_ = nullptr;
+	Model* modelHpBar_ = nullptr;
+	Model* modelHp_ = nullptr;
 	Camera* camera_ = nullptr;
 	Vector3 velocity_ = {};
 	MapChipField* mapChipField_ = nullptr;
@@ -83,4 +87,5 @@ private:
 	float homingAccel_ = 0.004f;   // 1フレーム加速量
 	float homingStopDist_ = 0.05f; // これ以下の距離で減速・停止
 	float slowTimer_ = 0.0f;       // スロー効果の残り時間
+	float maxHp_ = 5.0f;
 };
