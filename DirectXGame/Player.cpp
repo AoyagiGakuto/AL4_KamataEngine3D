@@ -369,7 +369,7 @@ void Player::Knockback(const Vector3& dir) {
 		return;
 
 	// 弾き飛ばす速度
-	float knockbackSpeed = 0.15f;
+	float knockbackSpeed = 0.05f;
 	float jumpPower = 0.2f; // 少し浮き上がる（ノックアップ）
 
 	velocity_.x = dir.x * knockbackSpeed;

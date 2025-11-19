@@ -304,7 +304,7 @@ void GameScene::Update() {
 
 			if (target && !target->IsDead()) {
 
-				const float kMeleeRange = 2.5f; // 近接攻撃の有効範囲 (例: 2.5f)
+				const float kMeleeRange = 3.5f; // 近接攻撃の有効範囲 (例: 2.5f)
 
 				Vector3 playerPos = player_->GetWorldTransform().translation_;
 				Vector3 targetPos = target->GetWorldTransform().translation_;
