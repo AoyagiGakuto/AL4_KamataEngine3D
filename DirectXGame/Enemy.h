@@ -22,6 +22,7 @@ public:
 	void Initialize(Model* model, Model* modelHpBar, Model* modelHp, Camera* camera, const Vector3& position, Type type = Type::kNormal);
 	void Update();
 	void Draw();
+
 	void HealNearbyEnemies(std::list<Enemy*>& enemies);
 
 	AABB GetAABB();
@@ -33,10 +34,14 @@ public:
 
 	// マップチップフィールドのセット
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
-
 	void OnCollision(const Player* player); 
 	void SetScale(const Vector3& scale) { worldTransform_.scale_ = scale; }
 	void SetRotationY(float y) { worldTransform_.rotation_.y = y; }
+	void SetTarget(Player* p) { target_ = p; }
+	void TakeDamage(int damage);
+	bool IsDead() const;
+	void SlowDown(float duration);
+
 	static inline const float kWalkSpeed = 0.01f;                                     // 敵の移動速度
 	static inline const float kWalkMotionAngelStart = 0.0f;                           // 通常姿勢
 	static inline const float kWalkMotionAngelEnd = std::numbers::pi_v<float> / 6.0f; // 30度
@@ -46,17 +51,6 @@ public:
 	static inline const float kBlank = 0.01f;      // ぶるぶる防止
 	static inline const float kFallLimit = 0.2f;   // 最大落下速度
 	static inline const float kGravityAcc = 0.01f; // 重力
-
-	void SetTarget(Player* p) { target_ = p; }
-
-	// ダメージを受ける
-	void TakeDamage(int damage);
-
-	// 死亡しているか
-	bool IsDead() const;
-
-	// 動きをスローにする
-	void SlowDown(float duration);
 
 private:
 
@@ -85,20 +79,15 @@ private:
 	MapChipField* mapChipField_ = nullptr;
 	Player* target_ = nullptr;
 
+	float maxHp_ = 5.0f;
 	int hp_ = 5; // HP (今は5発で死ぬように)
-	bool homing_ = false;
+	float slowTimer_ = 0.0f;       // スロー効果の残り時間
+
+	Type type_ = Type::kNormal; // 自分のタイプ
+
 	float homingMaxSpeed_ = 0.06f; // 最大速度（横移動）
 	float homingAccel_ = 0.004f;   // 1フレーム加速量
 	float homingStopDist_ = 0.05f; // これ以下の距離で減速・停止
-	float slowTimer_ = 0.0f;       // スロー効果の残り時間
-	float maxHp_ = 5.0f;
-
-	Type type_ = Type::kNormal; // 自分のタイプ
-	
-	// 追尾用
-	float homingMaxSpeed_ = 0.06f;
-	float homingAccel_ = 0.004f;
-	float homingStopDist_ = 0.05f;
 	
 	float baseHeight_ = 0.0f;   // 飛行時の基準の高さ
 	float healTimer_ = 0.0f;    // 回復スキルのクールダウン
