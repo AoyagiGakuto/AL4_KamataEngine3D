@@ -733,6 +733,8 @@ void GameScene::UpdateSpecialMove(float deltaTime) {
 	// R押した瞬間に発動開始
 	if (specialState_ == SpecialState::None) {
 		if (!player_->IsDead() && Input::GetInstance()->TriggerKey(DIK_R)) {
+			player_->StartAimPose();
+			player_->SetAimLocked(true);
 			specialState_ = SpecialState::Charge;
 			specialTimer_ = 3.0f; // 3秒チャージ
 			specialFinalSlashesSpawned_ = false;
@@ -817,6 +819,7 @@ void GameScene::UpdateSpecialMove(float deltaTime) {
 
 		if (specialTimer_ <= 0.0f) {
 			specialState_ = SpecialState::None;
+			player_->SetAimLocked(false);
 		}
 
 		break;
