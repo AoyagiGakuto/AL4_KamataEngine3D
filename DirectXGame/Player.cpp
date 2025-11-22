@@ -28,9 +28,18 @@ void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	worldTransform_.Initialize();
 	worldTransform_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
 	OnGround_ = true;
+	maxHp_ = 100;
+	hp_ = maxHp_;
+	isDead_ = false;
 }
 void Player::Update() {
-	InputMove();
+	if (knockbackTimer_ > 0.0f) {
+		knockbackTimer_ -= 1.0f / 60.0f;
+		// ノックバック中は入力を受け付けない
+	} else {
+		// タイマーが0のときだけ移動操作ができる
+		InputMove();
+	}
 
 	// --- X方向のみ移動---
 	CollisionMapInfo colX;
@@ -343,4 +352,29 @@ void Player::LockOn(Enemy* target) {
 void Player::LockOff() {
 	targetEnemy_ = nullptr;
 	isLockedOn_ = false;
+}
+
+void Player::TakeDamage(int damage) {
+	hp_ -= damage;
+
+	// HPが0以下になったら死亡
+	if (hp_ <= 0) {
+		hp_ = 0;
+		Die(); // 死亡処理を実行
+	}
+}
+
+void Player::Knockback(const Vector3& dir) {
+	// 既にノックバック中なら無視（連続ヒット防止）
+	if (knockbackTimer_ > 0.0f)
+		return;
+
+	// 弾き飛ばす速度
+	float knockbackSpeed = 0.05f;
+	float jumpPower = 0.2f; // 少し浮き上がる（ノックアップ）
+
+	velocity_.x = dir.x * knockbackSpeed;
+	velocity_.y = jumpPower;
+
+	knockbackTimer_ = 0.5f; // 0.5秒間は操作不能＆ノックバック状態
 }

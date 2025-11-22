@@ -43,12 +43,17 @@ private:
 	Model* modelBullet_ = nullptr;
 	Model* modelSlowBall_ = nullptr;
 	Model* modelZangeki_ = nullptr;
+	Model* modelHpBar_ = nullptr;
+	Model* modelHp_ = nullptr;
 
 	// ワールドトランスフォーム
 	WorldTransform worldTransform_;
+	WorldTransform worldTransformHudHpBar_;
+	WorldTransform worldTransformHudHp_;
 
 	// カメラ
 	Camera* camera_;
+	Camera* uiCamera_ = nullptr;
 	bool isDebugCameraActive_ = false;
 	DebugCamera* debugCamera_ = nullptr;
 
@@ -76,4 +81,6 @@ private:
 
 	// シーン内フェード
 	Fade* fade_ = nullptr;
+
+	float hitStopTimer_ = 0.0f;
 };
