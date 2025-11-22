@@ -762,11 +762,41 @@ void GameScene::UpdateSpecialMove(float deltaTime) {
 	case SpecialState::Finish:
 		specialTimer_ -= deltaTime;
 
-		// 画面全体に斬撃エフェクトをばらまく（1回だけ）
 		if (!specialFinalSlashesSpawned_) {
 			specialFinalSlashesSpawned_ = true;
 
-			const int kNumSlashes = 400; // 斬撃の数
+			// Finish開始時に全敵を一括処理する
+			for (auto it = enemies_.begin(); it != enemies_.end();) {
+				Enemy* e = *it;
+				if (!e || e->IsDead()) {
+					++it;
+					continue;
+				}
+
+				// 敵の位置
+				Vector3 enemyPos = e->GetWorldTransform().translation_;
+				enemyPos.y += 0.5f;
+
+				// ここでダメージ
+				e->TakeDamage(9999);
+
+				if (e->IsDead()) {
+					score_++;
+					deathParticle_.Spawn(enemyPos);
+
+					auto hit = std::make_unique<HitEffect>();
+					hit->Initialize(modelNumbers_, camera_, {0, 0, 0}, score_);
+					hitEffects_.push_back(std::move(hit));
+
+					delete e;
+					it = enemies_.erase(it);
+				} else {
+					++it;
+				}
+			}
+
+			// 演出
+			const int kNumSlashes = 200;
 
 			uint32_t width = mapChipField_->GetNumBlockHorizontal();
 			uint32_t height = mapChipField_->GetNumBlockVertical();
@@ -774,6 +804,7 @@ void GameScene::UpdateSpecialMove(float deltaTime) {
 			for (int i = 0; i < kNumSlashes; ++i) {
 				uint32_t ix = rand() % width;
 				uint32_t iy = rand() % height;
+
 				Vector3 pos = mapChipField_->GetMapPositionTypeByIndex(ix, iy);
 				pos.y += 0.5f;
 
@@ -787,6 +818,7 @@ void GameScene::UpdateSpecialMove(float deltaTime) {
 		if (specialTimer_ <= 0.0f) {
 			specialState_ = SpecialState::None;
 		}
+
 		break;
 	}
 }
@@ -833,41 +865,6 @@ void GameScene::PerformSpecialDash(float deltaTime) {
 			warpPos.y += 0.2f;
 
 			player_->WarpTo(warpPos);
-
-			// ダメージ＆コンボポイント
-			target->TakeDamage(999); // つよい！！
-			comboRank_.AddHit(10.0f);
-
-			if (target->IsDead()) {
-				comboRank_.OnEnemyKilled(15.0f);
-				score_++;
-
-				//Vector3 enemyPos = target->GetWorldTransform().translation_;
-				deathParticle_.Spawn(enemyPos);
-
-				// ヒット数エフェクト
-				hitEffects_.clear();
-				auto hit = std::make_unique<HitEffect>();
-				hit->Initialize(modelNumbers_, camera_, {0.0f, 0.0f, 0.0f}, score_);
-				hitEffects_.push_back(std::move(hit));
-
-				// 敵リストから削除
-				for (auto it = enemies_.begin(); it != enemies_.end(); ++it) {
-					if (*it == target) {
-						delete *it;
-						enemies_.erase(it);
-						break;
-					}
-				}
-			}
-
-			// 斬撃エフェクト
-			auto vfx = std::make_unique<ZangekiEffect>();
-			Vector3 slashPos = enemyPos;
-			slashPos.y += 0.5f;
-			vfx->Initialize(modelZangeki_, camera_, slashPos);
-			vfx->SetRandomRotation();
-			zangekiEffects_.push_back(std::move(vfx));
 
 			// 次に斬るまでの間隔
 			specialHitInterval_ = 0.06f;
