@@ -17,6 +17,7 @@ void Enemy::Initialize(Model* model, Model* modelHpBar, Model* modelHp, Camera* 
 	worldTransformHpBar_.Initialize();
 	worldTransformHp_.Initialize();
 
+
 	Vector3 hpBarScale = {0.15f, 0.15f, 0.15f};
 	worldTransformHpBar_.scale_ = hpBarScale;
 	worldTransformHp_.scale_ = hpBarScale;
