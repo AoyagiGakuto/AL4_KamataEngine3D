@@ -19,8 +19,9 @@ void Bullet::Initialize(Model* model, Camera* camera, const Vector3& pos, const 
 }
 
 void Bullet::Update() {
-	if (!alive_)
+	if (!alive_) {
 		return;
+	}
 	transform_.translation_.x += direction_.x * speed_;
 	transform_.translation_.y += direction_.y * speed_;
 	transform_.translation_.z += direction_.z * speed_;
@@ -35,8 +36,9 @@ void Bullet::Update() {
 }
 
 void Bullet::Draw() {
-	if (!alive_ || !model_ || !camera_)
+	if (!alive_ || !model_ || !camera_) {
 		return;
+	}
 	model_->Draw(transform_, *camera_);
 }
 

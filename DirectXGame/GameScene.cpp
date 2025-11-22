@@ -55,6 +55,7 @@ void GameScene::Initialize() {
 	worldTransformHudHp_.Initialize();
 
 	Vector3 hudPos = {-3.5f, 3.8f, 0.0f};
+	comboRank_.Initialize(uiCamera_, {1.0f, 3.5f, 0.0f});
 
 	worldTransformHudHpBar_.translation_ = hudPos;
 	worldTransformHudHp_.translation_ = hudPos;
@@ -123,7 +124,6 @@ void GameScene::Initialize() {
 	score_ = 0;
 	fade_ = new Fade();
 	fade_->Initialize();
-	phase_ = Phase::kFadeIn;
 	fade_->Start(Fade::Status::FadeIn, 1.0f);
 	// 毎回違うパターンで弾が降るように
 	srand((unsigned int)time(NULL));
@@ -151,6 +151,9 @@ void GameScene::GenerateBlooks() {
 }
 
 void GameScene::Update() {
+
+	const float dt = 1.0f / 60.0f;
+
 	if (particleCooldown_ > 0.0f) {
 		particleCooldown_ -= 1.0f / 60.0f;
 	}
@@ -166,6 +169,9 @@ void GameScene::Update() {
 		camera_->matProjection = cameraController_->GetViewProjection().matProjection;
 		camera_->TransferMatrix();
 	}
+
+	// 次元斬
+	UpdateSpecialMove(dt);
 
 	// マップブロック更新
 	for (auto& line : worldTransformBlocks_) {
@@ -345,6 +351,8 @@ void GameScene::Update() {
 
 					target->ApplyHitStop(0.1f);
 
+					 comboRank_.AddHit(8.0f);
+
 					// 斬撃エフェクトを1つ出す
 					const float kEffectSpread = 1.0f; // 敵の中心から少しだけ散らす
 					Vector3 enemyPos = target->GetWorldTransform().translation_;
@@ -365,6 +373,7 @@ void GameScene::Update() {
 					// 死んだかチェック
 					if (target->IsDead()) {
 						score_++;
+						comboRank_.OnEnemyKilled(12.0f);
 						hitEffects_.clear();
 						auto hit = std::make_unique<HitEffect>();
 						hit->Initialize(modelNumbers_, camera_, {0.0f, 0.0f, 0.0f}, score_);
@@ -392,6 +401,8 @@ void GameScene::Update() {
 		player_->ConsumeChargeAttack();
 		Enemy* target = player_->GetTargetEnemy();
 		if (target && !target->IsDead()) {
+
+			 comboRank_.AddHit(15.0f);
 
 			// 複数ヒットダメージ 5回ヒットで雑魚敵はたおせる
 			const int kNumHits = 5;
@@ -424,6 +435,7 @@ void GameScene::Update() {
 		// 敵が死んだ時の処理
 		if (target->IsDead()) {
 			score_++;
+			comboRank_.OnEnemyKilled(12.0f);
 			hitEffects_.clear();
 			auto hit = std::make_unique<HitEffect>();
 			hit->Initialize(modelNumbers_, camera_, {0.0f, 0.0f, 0.0f}, score_);
@@ -499,9 +511,12 @@ void GameScene::Update() {
 				// HP制に
 				(*enemyIt)->TakeDamage(1); // 1ダメージ
 
+				comboRank_.AddHit(5.0f);
+
 				if ((*enemyIt)->IsDead()) { // 敵がHP0かチェック
 					// 敵が死んだ時の処理
 					score_++;
+					comboRank_.OnEnemyKilled(10.0f);
 					hitEffects_.clear();
 					auto hit = std::make_unique<HitEffect>();
 					hit->Initialize(modelNumbers_, camera_, {0.0f, 0.0f, 0.0f}, score_);
@@ -607,11 +622,23 @@ void GameScene::Update() {
 
 	// プレイヤーは死亡後止まるけど、敵は常に動く
 	if (!player_->IsDead()) {
-		player_->Update();
-		CheckAllCollisions(); // 衝突判定は生存中だけ
+		// 次元斬中はpureiya-noUpdateを止める
+		if (specialState_ == SpecialState::None) {
+			player_->Update();
+			CheckAllCollisions(); // 衝突判定は生存中だけ
+		}
 	}
 
 	for (Enemy* enemy : enemies_) {
+		if (!enemy) {
+			continue;
+		}
+
+		// 次元斬(ダッシュ)中は敵を止める（位置はそのまま）
+		if (specialState_ == SpecialState::Dash) {
+			continue;
+		}
+
 		enemy->Update();
 	}
 
@@ -630,28 +657,31 @@ void GameScene::Update() {
 	zangekiEffects_.erase(std::remove_if(zangekiEffects_.begin(), zangekiEffects_.end(), [](const std::unique_ptr<ZangekiEffect>& v) { return !v->IsAlive(); }), zangekiEffects_.end());
 
 	switch (phase_) {
-	case Phase::kFadeIn:
+	case ScenePhase::FadeIn:
 		fade_->Update();
 		if (fade_->IsFinished()) {
-			phase_ = Phase::kPlay;
+			phase_ = ScenePhase::Play;
 		}
 		break;
 
-	case Phase::kPlay:
+	case ScenePhase::Play:
 		// プレイヤー死亡 & パーティクル終了 → フェードアウト開始（出るとき）
 		if (player_->IsDead() && deathParticle_.IsFinished()) {
-			phase_ = Phase::kFadeOut;
+			phase_ = ScenePhase::FadeOut;
 			fade_->Start(Fade::Status::FadeOut, 1.0f);
 		}
 		break;
 
-	case Phase::kFadeOut:
+	case ScenePhase::FadeOut:
 		fade_->Update();
 		if (fade_->IsFinished()) {
 			finished_ = true;
 		}
 		break;
 	}
+
+	// コンボランク
+	comboRank_.Update(1.0f / 60.0f);
 }
 
 void GameScene::CheckAllCollisions() {
@@ -673,6 +703,9 @@ void GameScene::CheckAllCollisions() {
 			// ダメージ処理
 			player_->TakeDamage(1);
 
+			// コンボランクを減らす
+			comboRank_.OnPlayerDamaged();
+
 			// ノックバック方向の計算
 			// プレイヤーから見た敵の方向
 			Vector3 pPos = player_->GetWorldTransform().translation_;
@@ -688,10 +721,163 @@ void GameScene::CheckAllCollisions() {
 			// 死亡チェック
 			if (player_->IsDead()) {
 				deathParticle_.Spawn(player_->GetWorldTransform().translation_);
+				comboRank_.Reset();
 			}
 
 			break; // 1フレームに1回ヒットまで
 		}
+	}
+}
+
+void GameScene::UpdateSpecialMove(float deltaTime) {
+	// R押した瞬間に発動開始
+	if (specialState_ == SpecialState::None) {
+		if (!player_->IsDead() && Input::GetInstance()->TriggerKey(DIK_R)) {
+			specialState_ = SpecialState::Charge;
+			specialTimer_ = 3.0f; // 3秒チャージ
+			specialFinalSlashesSpawned_ = false;
+		}
+	}
+
+	switch (specialState_) {
+	case SpecialState::None:
+		// 何もしない
+		break;
+
+	case SpecialState::Charge:
+		specialTimer_ -= deltaTime;
+		if (specialTimer_ <= 0.0f) {
+			// チャージ終了
+			specialState_ = SpecialState::Dash;
+			specialTimer_ = 0.7f; // ダッシュ全体の長さ（0.7秒くらい）
+			specialHitInterval_ = 0.0f;
+		}
+		break;
+
+	case SpecialState::Dash:
+		// 実際のワープ＆斬撃処理
+		PerformSpecialDash(deltaTime);
+		break;
+
+	case SpecialState::Finish:
+		specialTimer_ -= deltaTime;
+
+		// 画面全体に斬撃エフェクトをばらまく（1回だけ）
+		if (!specialFinalSlashesSpawned_) {
+			specialFinalSlashesSpawned_ = true;
+
+			const int kNumSlashes = 400; // 斬撃の数
+
+			uint32_t width = mapChipField_->GetNumBlockHorizontal();
+			uint32_t height = mapChipField_->GetNumBlockVertical();
+
+			for (int i = 0; i < kNumSlashes; ++i) {
+				uint32_t ix = rand() % width;
+				uint32_t iy = rand() % height;
+				Vector3 pos = mapChipField_->GetMapPositionTypeByIndex(ix, iy);
+				pos.y += 0.5f;
+
+				auto vfx = std::make_unique<ZangekiEffect>();
+				vfx->Initialize(modelZangeki_, camera_, pos);
+				vfx->SetRandomRotation();
+				zangekiEffects_.push_back(std::move(vfx));
+			}
+		}
+
+		if (specialTimer_ <= 0.0f) {
+			specialState_ = SpecialState::None;
+		}
+		break;
+	}
+}
+
+void GameScene::PerformSpecialDash(float deltaTime) {
+	specialTimer_ -= deltaTime;
+	specialHitInterval_ -= deltaTime;
+
+	// 一定間隔で敵のところにワープして斬る
+	if (specialHitInterval_ <= 0.0f) {
+
+		// 生きている敵がいるか確認
+		Enemy* target = nullptr;
+
+		int aliveCount = 0;
+		for (Enemy* e : enemies_) {
+			if (e && !e->IsDead()) {
+				aliveCount++;
+			}
+		}
+
+		if (aliveCount > 0) {
+			// ランダムな敵を1体選ぶ
+			int targetIndex = rand() % aliveCount;
+			int current = 0;
+			for (Enemy* e : enemies_) {
+				if (e && !e->IsDead()) {
+					if (current == targetIndex) {
+						target = e;
+						break;
+					}
+					current++;
+				}
+			}
+		}
+
+		if (target) {
+			Vector3 enemyPos = target->GetWorldTransform().translation_;
+
+			// 敵の周囲のどこかにワープ（左右ランダム）
+			float side = (rand() % 2 == 0) ? -1.0f : 1.0f;
+			Vector3 warpPos = enemyPos;
+			warpPos.x += side * 1.0f;
+			warpPos.y += 0.2f;
+
+			player_->WarpTo(warpPos);
+
+			// ダメージ＆コンボポイント
+			target->TakeDamage(999); // つよい！！
+			comboRank_.AddHit(10.0f);
+
+			if (target->IsDead()) {
+				comboRank_.OnEnemyKilled(15.0f);
+				score_++;
+
+				//Vector3 enemyPos = target->GetWorldTransform().translation_;
+				deathParticle_.Spawn(enemyPos);
+
+				// ヒット数エフェクト
+				hitEffects_.clear();
+				auto hit = std::make_unique<HitEffect>();
+				hit->Initialize(modelNumbers_, camera_, {0.0f, 0.0f, 0.0f}, score_);
+				hitEffects_.push_back(std::move(hit));
+
+				// 敵リストから削除
+				for (auto it = enemies_.begin(); it != enemies_.end(); ++it) {
+					if (*it == target) {
+						delete *it;
+						enemies_.erase(it);
+						break;
+					}
+				}
+			}
+
+			// 斬撃エフェクト
+			auto vfx = std::make_unique<ZangekiEffect>();
+			Vector3 slashPos = enemyPos;
+			slashPos.y += 0.5f;
+			vfx->Initialize(modelZangeki_, camera_, slashPos);
+			vfx->SetRandomRotation();
+			zangekiEffects_.push_back(std::move(vfx));
+
+			// 次に斬るまでの間隔
+			specialHitInterval_ = 0.06f;
+		}
+	}
+
+	// 規定時間が終わったら終わる
+	if (specialTimer_ <= 0.0f) {
+		specialState_ = SpecialState::Finish;
+		specialTimer_ = 0.0f; // 画面全体の斬撃を見せる時間
 	}
 }
 
@@ -738,10 +924,13 @@ void GameScene::Draw() {
 
 	modelHpBar_->Draw(worldTransformHudHpBar_, *uiCamera_);
 
+	comboRank_.Draw();
+
 	Model::PostDraw();
 
-	if (fade_)
+	if (fade_) {
 		fade_->Draw();
+	}
 }
 
 GameScene::~GameScene() {

@@ -107,8 +107,9 @@ void GameOverScene::Draw() {
 		pressSpaceModel_->Draw(pressSpaceTransform_, *camera_);
 
 	Model::PostDraw();
-	if (fade_)
+	if (fade_) {
 		fade_->Draw();
+	}
 }
 
 GameOverScene::~GameOverScene() {

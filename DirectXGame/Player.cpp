@@ -120,8 +120,9 @@ void Player::Draw() {
 		return;
 	}
 
-	if (!model_ || !camera_)
+	if (!model_ || !camera_) {
 		return;
+	}
 	model_->Draw(worldTransform_, *camera_);
 }
 
@@ -143,8 +144,9 @@ void Player::InputMove() {
 		} else if (velocity_.x < 0.0f) {
 			velocity_.x = std::min(0.0f, velocity_.x + decel);
 		}
-		if (std::abs(velocity_.x) < 0.0005f)
+		if (std::abs(velocity_.x) < 0.0005f) {
 			velocity_.x = 0.0f;
+		}
 	}
 
 	// 入力があるときだけ加速
@@ -235,8 +237,9 @@ void Player::CheckMapCollision(CollisionMapInfo& Info) {
 }
 
 void Player::CheckMapCollisionUp(CollisionMapInfo& Info) {
-	if (Info.move.y <= 0.0f)
+	if (Info.move.y <= 0.0f) {
 		return;
+	}
 	Vector3 leftTop = CornerPosition(worldTransform_.translation_ + Info.move, kLeftTop);
 	Vector3 rightTop = CornerPosition(worldTransform_.translation_ + Info.move, kRightTop);
 
@@ -326,6 +329,13 @@ Vector3 Player::GetWorldPosition() {
 	worldPos.y = worldTransform_.translation_.y + Player::kHeight / 2.0f; // プレイヤーの中心位置を考慮
 	worldPos.z = worldTransform_.translation_.z;
 	return worldPos;
+}
+
+void Player::WarpTo(const Vector3& position) {
+	// 位置だけ瞬間移動させて行列を更新
+	worldTransform_.translation_ = position;
+	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
+	worldTransform_.TransferMatrix();
 }
 
 Vector3 CornerPosition(const Vector3& center, Corner corner) {

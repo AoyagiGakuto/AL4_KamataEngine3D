@@ -42,8 +42,9 @@ void ZangekiEffect::SetRotation(float playerRotationY) {
 }
 
 void ZangekiEffect::Update() {
-	if (!alive_)
+	if (!alive_) {
 		return;
+	}
 
 	lifetime_ -= 1.0f / 60.0f;
 	if (lifetime_ <= 0.0f) {

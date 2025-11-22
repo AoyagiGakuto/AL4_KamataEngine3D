@@ -36,6 +36,10 @@ public:
 	void CheckMapCollisionDown(CollisionMapInfo& Info);
 	void CheckMapCollisionLeft(CollisionMapInfo& Info);
 	void CheckMapCollisionRight(CollisionMapInfo& Info);
+
+	// 位置を瞬間移動させる
+	void WarpTo(const Vector3& position);
+
 	// 死亡管理
     void Die();               // 死亡処理
     bool IsDead() const;      // 死亡状態確認

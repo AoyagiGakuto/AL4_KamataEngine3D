@@ -1,6 +1,7 @@
 #pragma once
 #include "Fade.h"
 #include "KamataEngine.h"
+#include "ScenePhase.h"
 
 using namespace KamataEngine;
 
@@ -17,8 +18,7 @@ public:
 
 private:
 	// フェーズ
-	enum class Phase { kFadeIn, kMain, kFadeOut };
-	Phase phase_ = Phase::kFadeIn;
+	ScenePhase phase_ = ScenePhase::FadeIn;
 
 	bool finished_ = false;
 
