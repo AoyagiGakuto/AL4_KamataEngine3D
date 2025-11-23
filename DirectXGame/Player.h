@@ -53,12 +53,6 @@ public:
 	bool IsLockedOn() const { return isLockedOn_; }
 	Enemy* GetTargetEnemy() const { return targetEnemy_; }
 
-	// R技開始時に構える
-	void StartAimPose();
-
-	// R技中ずっと構えを固定する・解除する
-	void SetAimLocked(bool flag);
-
 	// ノックアップ
 	void Knockback(const Vector3& dir);
 
@@ -81,12 +75,6 @@ public:
 	bool isDead_ = false;
 
 private:
-	// 狙い撃ちポーズ用
-	float aimTimer_ = 0.0f;
-	static inline const float kAimDuration = 0.2f;
-
-	// R必殺モード中の構え固定
-	bool aimLocked_ = false;
 
 	WorldTransform worldTransform_;
 	Model* model_ = nullptr;

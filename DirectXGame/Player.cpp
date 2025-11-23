@@ -110,31 +110,11 @@ void Player::Update() {
 		chargeTimer_ = 0.0f;
 	}
 
-	// R技用の構えポーズ処理
-	if (aimLocked_) {
-		// R技中はずっと斜め下に構える（固定）
-		float maxTilt = 0.3f; // ≒ 17度くらい
-		float sign = (lrDirection_ == LRDirection::kRight) ? 1.0f : -1.0f;
-		worldTransform_.rotation_.z = maxTilt * sign;
-	} else if (aimTimer_ > 0.0f) {
-		// 通常アニメーション
-		aimTimer_ -= 1.0f / 60.0f;
-
-		float t = 1.0f - (aimTimer_ / kAimDuration);
-		float maxTilt = 0.3f;
-		float sign = (lrDirection_ == LRDirection::kRight) ? 1.0f : -1.0f;
-
-		worldTransform_.rotation_.z = maxTilt * t * sign;
-	} else {
-		// 戻す処理
-		worldTransform_.rotation_.z *= 0.8f;
-		if (fabs(worldTransform_.rotation_.z) < 0.001f)
-			worldTransform_.rotation_.z = 0.0f;
-	}
-
 	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
 	worldTransform_.TransferMatrix();
 }
+
+
 
 void Player::Draw() {
 	if (isDead_) {
@@ -351,14 +331,6 @@ Vector3 Player::GetWorldPosition() {
 	worldPos.y = worldTransform_.translation_.y + Player::kHeight / 2.0f; // プレイヤーの中心位置を考慮
 	worldPos.z = worldTransform_.translation_.z;
 	return worldPos;
-}
-
-void Player::StartAimPose() {
-	aimTimer_ = kAimDuration; // 0.2秒かけて傾ける
-}
-
-void Player::SetAimLocked(bool flag) {
-	aimLocked_ = flag; 
 }
 
 

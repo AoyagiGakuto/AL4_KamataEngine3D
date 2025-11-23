@@ -613,21 +613,22 @@ void GameScene::Update() {
 	for (auto& hit : hitEffects_) {
 		hit->Update(); // yOffset_ や Alpha の更新
 
-		// 毎フレーム計算した「カメラの前方右上」の座標を渡して、エフェクトの位置を強制的に更新
+		// エフェクトの位置更新
 		hit->UpdatePosition(basePos);
 	}
 
 	// 生存時間が切れたものを削除
 	hitEffects_.erase(std::remove_if(hitEffects_.begin(), hitEffects_.end(), [](const std::unique_ptr<HitEffect>& h) { return !h->IsAlive(); }), hitEffects_.end());
 
-	// プレイヤーは死亡後止まるけど、敵は常に動く
+	    // プレイヤーは死亡後止まるけど、敵は常に動く
 	if (!player_->IsDead()) {
-		// 次元斬中はpureiya-noUpdateを止める
 		if (specialState_ == SpecialState::None) {
+			// 通常時：全部の挙動を更新
 			player_->Update();
 			CheckAllCollisions(); // 衝突判定は生存中だけ
 		}
 	}
+
 
 	for (Enemy* enemy : enemies_) {
 		if (!enemy) {
@@ -733,8 +734,6 @@ void GameScene::UpdateSpecialMove(float deltaTime) {
 	// R押した瞬間に発動開始
 	if (specialState_ == SpecialState::None) {
 		if (!player_->IsDead() && Input::GetInstance()->TriggerKey(DIK_R)) {
-			player_->StartAimPose();
-			player_->SetAimLocked(true);
 			specialState_ = SpecialState::Charge;
 			specialTimer_ = 3.0f; // 3秒チャージ
 			specialFinalSlashesSpawned_ = false;
@@ -819,7 +818,6 @@ void GameScene::UpdateSpecialMove(float deltaTime) {
 
 		if (specialTimer_ <= 0.0f) {
 			specialState_ = SpecialState::None;
-			player_->SetAimLocked(false);
 		}
 
 		break;
