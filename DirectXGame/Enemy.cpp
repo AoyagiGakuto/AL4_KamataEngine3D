@@ -88,7 +88,7 @@ void Enemy::Update() {
 
 	switch (type_) {
 
-	// --- 通常タイプ (壁で反転) ---
+	// --- 通常タイプ ---
 	case Type::kNormal: {
 		// 歩行アニメーション (体を揺らす)
 		float param = std::sin(walkTimer_ * (std::numbers::pi_v<float> * 2.0f / kWalkMotionTime)) * (kWalkMotionAngelEnd - kWalkMotionAngelStart) + kWalkMotionAngelStart;
@@ -120,7 +120,7 @@ void Enemy::Update() {
 		break;
 	}
 
-	// --- 追尾タイプ (プレイヤーを追う) ---
+	// --- 追尾タイプ ---
 	case Type::kHoming: {
 		// 常にプレイヤーの方向を見るなどの処理も入れられる
 		worldTransform_.rotation_.x = 0.0f; // 傾きなし
@@ -143,7 +143,7 @@ void Enemy::Update() {
 		// 重力
 		velocity_.y -= kGravityAcc;
 
-		// 移動 & 当たり判定
+		// 移動と当たり判定
 		CollisionInfo info;
 		info.move = velocity_ * speedMultiplier;
 		CollisionMapCheck(info);
@@ -159,7 +159,7 @@ void Enemy::Update() {
 		break;
 	}
 
-	// --- 飛行・支援タイプ (ふわふわ浮く) ---
+	// --- 飛行・支援タイプ ---
 	case Type::kFlyingSupport: {
 		float hoverOffset = std::sin(walkTimer_ * 2.0f) * 0.5f;
 
@@ -171,7 +171,7 @@ void Enemy::Update() {
 			targetPos = healTarget_->GetWorldTransform().translation_;
 			isHealingMode = true;
 		}
-		// いなければプレイヤーを狙う（射撃モード）
+		// 射撃モードまだみ
 		else if (target_) {
 			targetPos = target_->GetWorldTransform().translation_;
 			isHealingMode = false;
@@ -180,14 +180,13 @@ void Enemy::Update() {
 		// 移動処理
 		velocity_.x = 0.0f;
 		if (isHealingMode) {
-			// 回復モード：近づく
+			// 回復モード
 			float dx = targetPos.x - worldTransform_.translation_.x;
 			float stopDist = 1.5f; // 少し離れる
 			if (std::fabs(dx) > stopDist) {
 				velocity_.x = (dx > 0 ? 0.02f : -0.02f);
 			}
 		} else {
-			// 距離を保つのではなく、プレイヤーに向かって少し速く突っ込む
 			float dx = targetPos.x - worldTransform_.translation_.x;
 			float attackSpeed = 0.05f; // 回復移動(0.02)より速くする！
 
@@ -275,7 +274,7 @@ void Enemy::HealNearbyEnemies(std::list<Enemy*>& enemies) {
 		if (other == this || other->IsDead())
 			continue;
 
-		// HPが減っているかチェック (private変数ですが同じクラス同士ならアクセスできます)
+		// HPが減っているかチェック
 		if (other->hp_ < other->maxHp_) {
 			float dist = Length(other->GetWorldTransform().translation_ - worldTransform_.translation_);
 
@@ -354,8 +353,6 @@ void Enemy::CheckMapCollisionDown(CollisionInfo& info) {
 	MapChipType type_R = mapChipField_->GetMapChipTypeByIndex(indexSet_R.xIndex, indexSet_R.yIndex);
 
 	if (type_L == MapChipType::kBlock || type_R == MapChipType::kBlock) {
-		// -FLT_MAXはfloatの最小値0で初期化するとバグが起きちゃうかもしれない
-		// まちがって0で初期化しないように注意
 		float blockTop = -FLT_MAX;
 		if (type_L == MapChipType::kBlock) {
 			float topL = mapChipField_->GetRectByIndex(indexSet_L.xIndex, indexSet_L.yIndex).top;
