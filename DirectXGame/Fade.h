@@ -15,7 +15,7 @@ public:
 	void Start(Status status, float duration);
 	void Stop();
 	bool IsFinished() const;
-	Status GetStatus() const { return status_; } // ★これを追加
+	Status GetStatus() const { return status_; } 
 
 private:
 	uint32_t textureHandle = 0;
