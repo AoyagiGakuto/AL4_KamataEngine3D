@@ -188,7 +188,7 @@ void Enemy::Update() {
 			}
 		} else {
 			float dx = targetPos.x - worldTransform_.translation_.x;
-			float attackSpeed = 0.05f; // 回復移動(0.02)より速くする！
+			float attackSpeed = 0.05f; // 回復移動(0.02)より速くする
 
 			if (std::fabs(dx) < 0.1f) {
 				velocity_.x = 0.0f;
@@ -286,7 +286,7 @@ void Enemy::HealNearbyEnemies(std::list<Enemy*>& enemies) {
 		}
 	}
 
-	// ターゲットを更新（見つからなければ nullptr になる）
+	// ターゲットを更新
 	healTarget_ = bestCandidate;
 
 	// クールダウン（回復後の休憩）処理
@@ -298,7 +298,7 @@ void Enemy::HealNearbyEnemies(std::list<Enemy*>& enemies) {
 	// ターゲットがいて、かつ射程圏内なら回復実行！
 	if (healTarget_ && minDist < kHealRange) {
 		healTarget_->TakeDamage(-2); // 2回復
-		healTimer_ = kHealCooldown;  // クールダウン開始（この間クルクル回る）
+		healTimer_ = kHealCooldown;  // この間クルクル回る
 	}
 }
 

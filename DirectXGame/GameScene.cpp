@@ -45,7 +45,7 @@ void GameScene::Initialize() {
 	// カメラのワールド行列を作成
 	Matrix4x4 matWorld = MakeAffineMatrix(uiScale, uiRot, uiPos);
 
-	// ビュー行列は「ワールド行列の逆行列」
+	// ui
 	uiCamera_->matView = Inverse(matWorld);
 
 	// 行列を転送
@@ -60,7 +60,7 @@ void GameScene::Initialize() {
 	worldTransformHudHpBar_.translation_ = hudPos;
 	worldTransformHudHp_.translation_ = hudPos;
 
-	// 大きさ（少し大きめに見やすく）
+	// 大きさ
 	Vector3 hudScale = {1.2f, 0.2f, 0.1f};
 	worldTransformHudHpBar_.scale_ = hudScale;
 	worldTransformHudHp_.scale_ = hudScale;
@@ -306,11 +306,11 @@ void GameScene::Update() {
 				size_t checkCount = 0;
 				size_t enemyMax = enemies_.size();
 
-				// 最大で敵の数だけループ（全員死んでる場合の無限ループ防止）
+				// 最大で敵の数だけループ
 				while (checkCount < enemyMax) {
 					it++; // 次へ
 					if (it == enemies_.end()) {
-						it = enemies_.begin(); // 端まで行ったら先頭に戻る（ループ）
+						it = enemies_.begin(); // 端まで行ったら先頭に戻る
 					}
 
 					// 生きている敵を見つけたらロックオンして終了
@@ -475,8 +475,8 @@ void GameScene::Update() {
 	hpRatio = std::clamp(hpRatio, 0.0f, 1.0f);
 
 	// スケールの計算
-	float baseScaleX = 1.2f; // 横幅 (Initializeの 1.2f に合わせる)
-	float baseScaleY = 0.2f; // 縦幅 (Initializeの 0.2f に合わせる)
+	float baseScaleX = 1.2f; // 横幅
+	float baseScaleY = 0.2f; // 縦幅
 
 	// 中身(HP)のスケール計算
 	worldTransformHudHp_.scale_.x = baseScaleX * hpRatio;
@@ -595,7 +595,7 @@ void GameScene::Update() {
 		MapChipType type = mapChipField_->GetMapChipTypeByIndex(idx.xIndex, idx.yIndex);
 		bool hitBlock = (type == MapChipType::kBlock);
 
-		// 地面 (Y=0より下) またはブロックに当たったら消える
+		// 地面またはブロックに当たったら消える
 		if (hitBlock || aabbB.min.y < 0.0f) {
 			(*it)->Kill();
 			it = slowBalls_.erase(it);
@@ -708,11 +708,10 @@ void GameScene::CheckAllCollisions() {
 			comboRank_.OnPlayerDamaged();
 
 			// ノックバック方向の計算
-			// プレイヤーから見た敵の方向
 			Vector3 pPos = player_->GetWorldTransform().translation_;
 			Vector3 ePos = enemy->GetWorldTransform().translation_;
 
-			Vector3 dir = pPos - ePos; // 敵 → プレイヤー の向き
+			Vector3 dir = pPos - ePos;
 			dir = Normalize(dir);
 
 			// お互いに弾き飛ばす
@@ -766,7 +765,6 @@ void GameScene::UpdateSpecialMove(float deltaTime) {
 		if (!specialFinalSlashesSpawned_) {
 			specialFinalSlashesSpawned_ = true;
 
-			// Finish開始時に全敵を一括処理する
 			for (auto it = enemies_.begin(); it != enemies_.end();) {
 				Enemy* e = *it;
 				if (!e || e->IsDead()) {
@@ -859,7 +857,7 @@ void GameScene::PerformSpecialDash(float deltaTime) {
 		if (target) {
 			Vector3 enemyPos = target->GetWorldTransform().translation_;
 
-			// 敵の周囲のどこかにワープ（左右ランダム）
+			// 敵の周囲のどこかにワープ
 			float side = (rand() % 2 == 0) ? -1.0f : 1.0f;
 			Vector3 warpPos = enemyPos;
 			warpPos.x += side * 1.0f;

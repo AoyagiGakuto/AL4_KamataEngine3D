@@ -45,7 +45,6 @@ private:
 	float specialHitInterval_ = 0.0f; // 何フレームごとに敵を斬るか
 	bool specialFinalSlashesSpawned_ = false;
 
-	// フェーズを追加：入る/遊ぶ/出る
 	ScenePhase phase_ = ScenePhase::FadeIn;
 
 	// モデル

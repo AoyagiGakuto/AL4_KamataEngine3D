@@ -12,8 +12,8 @@ static inline void ResizeToBackbuffer(KamataEngine::Sprite* spr) {
 void Fade::Initialize() {
 	textureHandle = TextureManager::Load("white1x1.png");
 	sprite_ = Sprite::Create(textureHandle, {0, 0});
-	sprite_->SetColor(Vector4(0, 0, 0, 1)); // 黒
-	ResizeToBackbuffer(sprite_);            // 初期フレームから全面
+	sprite_->SetColor(Vector4(0, 0, 0, 1));
+	ResizeToBackbuffer(sprite_);
 }
 
 void Fade::Update() {
