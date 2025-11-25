@@ -1,5 +1,4 @@
 #include "MyMath.h"
-
 #include <cmath>
 #include <numbers>
 

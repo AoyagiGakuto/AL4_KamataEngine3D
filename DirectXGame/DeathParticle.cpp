@@ -91,7 +91,6 @@ void DeathParticle::Draw() {
 		model_->Draw(p->transform, *camera_, &p->objectColor);
 	}
 }
-
 bool DeathParticle::IsFinished() const {
 	// パーティクルが全部消えたら true
 	return particles_.empty();
