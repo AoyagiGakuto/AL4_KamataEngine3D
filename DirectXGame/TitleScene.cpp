@@ -52,7 +52,7 @@ void TitleScene::Update() {
 		break;
 
 	case ScenePhase::Play:
-		// Space でゲームへ → フェードアウト開始
+		// Space でゲーム フェードアウト開始
 		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
 			phase_ = ScenePhase::FadeOut;
 			fade_->Start(Fade::Status::FadeOut, 1.0f);

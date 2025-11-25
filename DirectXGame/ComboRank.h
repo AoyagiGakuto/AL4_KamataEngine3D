@@ -55,6 +55,6 @@ private:
 
 	// パラメータけい
 	static inline const float kMaxPoint = 100.0f;
-	static inline const float kStartDecayTime = 0.8f; // 減衰開始までの猶予
+	static inline const float kStartDecayTime = 0.8f; // 開始までの猶予
 	static inline const float kDecaySpeed = 15.0f;    // 1秒あたり減る量
 };
