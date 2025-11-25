@@ -33,8 +33,8 @@ void TitleScene::Initialize() {
 	// フェード（シーン内）
 	fade_ = new Fade();
 	fade_->Initialize();
-	phase_ = Phase::kFadeIn;
-	fade_->Start(Fade::Status::FadeIn, 1.0f); // 起動時にフェードイン
+	phase_ = ScenePhase::FadeIn;
+	fade_->Start(Fade::Status::FadeIn, 1.0f);
 
 	// 状態初期化
 	blinkTimer_ = 0.0f;
@@ -45,21 +45,21 @@ void TitleScene::Initialize() {
 
 void TitleScene::Update() {
 	switch (phase_) {
-	case Phase::kFadeIn:
+	case ScenePhase::FadeIn:
 		fade_->Update();
 		if (fade_->IsFinished())
-			phase_ = Phase::kMain;
+			phase_ = ScenePhase::Play;
 		break;
 
-	case Phase::kMain:
+	case ScenePhase::Play:
 		// Space でゲームへ → フェードアウト開始
 		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
-			phase_ = Phase::kFadeOut;
+			phase_ = ScenePhase::FadeOut;
 			fade_->Start(Fade::Status::FadeOut, 1.0f);
 		}
 		break;
 
-	case Phase::kFadeOut:
+	case ScenePhase::FadeOut:
 		fade_->Update();
 		if (fade_->IsFinished()) {
 			finished_ = true; 
@@ -96,6 +96,7 @@ void TitleScene::Draw() {
 
 	Model::PostDraw();
 
-	if (fade_)
+	if (fade_) {
 		fade_->Draw();
+	}
 }

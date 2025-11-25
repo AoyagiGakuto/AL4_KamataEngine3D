@@ -10,7 +10,6 @@ HitEffect::~HitEffect() {
 }
 
 void HitEffect::Initialize(std::array<Model*, 10>& numberModels, Camera* camera, const Vector3& pos, int number) {
-
 	camera_ = camera;
 	alive_ = true;
 	lifetime_ = 0.75f;
@@ -62,8 +61,9 @@ void HitEffect::UpdatePosition(const Vector3& basePos) {
 }
 
 void HitEffect::Update() {
-	if (!alive_)
+	if (!alive_) {
 		return;
+	}
 
 	lifetime_ -= 1.0f / 60.0f;
 	if (lifetime_ <= 0.0f) {
@@ -74,7 +74,7 @@ void HitEffect::Update() {
 	float lifeRatio = lifetime_ / maxLifetime_;
 	float alpha = std::clamp(lifeRatio, 0.0f, 1.0f);
 
-	// フェードアウト（α値を減らす）
+	// フェードアウト
 	color_.w = alpha;
 	objectColor_.SetColor(color_);
 
@@ -82,8 +82,9 @@ void HitEffect::Update() {
 }
 
 void HitEffect::Draw() {
-	if (!alive_ || !camera_)
+	if (!alive_ || !camera_) {
 		return;
+	}
 
 	for (size_t i = 0; i < modelsToDraw_.size(); ++i) {
 		if (modelsToDraw_[i]) {

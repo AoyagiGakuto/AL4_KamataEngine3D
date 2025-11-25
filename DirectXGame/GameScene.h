@@ -2,6 +2,7 @@
 #include "CameraController.h"
 #include "ZangekiEffect.h"
 #include "DeathParticle.h"
+#include "ScenePhase.h"
 #include "Enemy.h"
 #include "Fade.h"
 #include "KamataEngine.h"
@@ -9,6 +10,7 @@
 #include "Bullet.h"
 #include "Player.h"
 #include "Skydome.h"
+#include "ComboRank.h"
 #include "HitEffect.h"
 #include <memory>
 #include <vector>
@@ -28,10 +30,23 @@ public:
 private:
 	void GenerateBlooks();
 	void CheckAllCollisions();
+	void UpdateSpecialMove(float deltaTime);
+	void PerformSpecialDash(float deltaTime);
+
+	enum class SpecialState {
+		None,
+		Charge, // プレイヤーだけ止まってチャージ
+		Dash,   // 次元斬
+		Finish  // 画面全体の斬撃演出
+	};
+
+	SpecialState specialState_ = SpecialState::None;
+	float specialTimer_ = 0.0f;       // 各フェーズの残り時間
+	float specialHitInterval_ = 0.0f; // 何フレームごとに敵を斬るか
+	bool specialFinalSlashesSpawned_ = false;
 
 	// フェーズを追加：入る/遊ぶ/出る
-	enum class Phase { kFadeIn, kPlay, kFadeOut };
-	Phase phase_ = Phase::kFadeIn;
+	ScenePhase phase_ = ScenePhase::FadeIn;
 
 	// モデル
 	Model* modelCube_ = nullptr;
@@ -83,4 +98,7 @@ private:
 	Fade* fade_ = nullptr;
 
 	float hitStopTimer_ = 0.0f;
+	
+	// コンボランク
+	ComboRank comboRank_;
 };

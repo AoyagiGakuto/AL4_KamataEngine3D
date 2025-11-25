@@ -98,18 +98,26 @@ void GameClearScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 	Model::PreDraw(dxCommon->GetCommandList());
 
-	if (skyDomeModel_)
+	if (skyDomeModel_) {
 		skyDomeModel_->Draw(skyDomeWT_, *camera_);
-	if (backgroundModel_)
+	}
+
+	if (backgroundModel_) {
 		backgroundModel_->Draw(backgroundTransform_, *camera_);
-	if (textModel_)
+	}
+
+	if (textModel_) {
 		textModel_->Draw(textTransform_, *camera_);
-	if (pressSpaceModel_ && blinkVisible_)
+	}
+
+	if (pressSpaceModel_ && blinkVisible_) {
 		pressSpaceModel_->Draw(pressSpaceTransform_, *camera_);
+	}
 
 	Model::PostDraw();
-	if (fade_)
+	if (fade_) {
 		fade_->Draw();
+	}
 }
 
 GameClearScene::~GameClearScene() {

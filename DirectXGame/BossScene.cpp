@@ -180,8 +180,9 @@ void BossScene::Draw() {
 	deathParticle_.Draw();
 
 	Model::PostDraw();
-	if (fade_)
+	if (fade_){
 		fade_->Draw();
+		}
 }
 
 BossScene::~BossScene() {

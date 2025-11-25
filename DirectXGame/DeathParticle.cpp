@@ -83,8 +83,9 @@ void DeathParticle::Update() {
 }
 
 void DeathParticle::Draw() {
-	if (!model_ || !camera_)
+	if (!model_ || !camera_) {
 		return;
+	}
 
 	for (auto& p : particles_) {
 		model_->Draw(p->transform, *camera_, &p->objectColor);

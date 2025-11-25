@@ -41,8 +41,9 @@ void Fade::Update() {
 }
 
 void Fade::Draw() {
-	if (status_ == Status::None)
+	if (status_ == Status::None) {
 		return;
+	}
 	auto* dx = DirectXCommon::GetInstance();
 	Sprite::PreDraw(dx->GetCommandList());
 	sprite_->Draw();
