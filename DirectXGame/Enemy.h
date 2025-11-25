@@ -51,9 +51,9 @@ public:
 	static inline const float kWalkMotionTime = 2.0f;                                 // 敵の歩行モーションの時間
 	static inline const float kWidth = 0.8f;
 	static inline const float kHeight = 0.8f;
-	static inline const float kBlank = 0.01f;      // ぶるぶる防止
-	static inline const float kFallLimit = 0.2f;   // 最大落下速度
-	static inline const float kGravityAcc = 0.01f; // 重力
+	static inline const float kBlank = 0.01f;                                         // ぶるぶる防止
+	static inline const float kFallLimit = 0.2f;                                      // 最大落下速度
+	static inline const float kGravityAcc = 0.01f;                                    // 重力
 
 private:
 
@@ -103,5 +103,5 @@ private:
 	// 定数
 	static inline const float kFireInterval = 2.0f; // 2秒に1回撃つ
 	static inline const float kHealRange = 5.0f;    // 回復が届く範囲
-	static inline const float kHealCooldown = 3.0f; // 回復の間隔（秒）
+	static inline const float kHealCooldown = 3.0f; // 回復の間隔
 };
