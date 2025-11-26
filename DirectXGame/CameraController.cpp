@@ -30,7 +30,7 @@ void CameraController::Update() {
 	camera_.translation_.x = min(camera_.translation_.x, movebleArea_.right);
 	camera_.translation_.y = max(camera_.translation_.y, movebleArea_.bottom);
 	camera_.translation_.y = min(camera_.translation_.y, movebleArea_.top);
-
+  
 	camera_.UpdateMatrix();
 }
 

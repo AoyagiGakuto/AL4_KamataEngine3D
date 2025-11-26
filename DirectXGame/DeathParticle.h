@@ -10,11 +10,12 @@ public:
 	struct Particle {
 		WorldTransform transform;
 		Vector3 velocity;
+
 		// 残り寿命
 		float lifetime;
 		// 最大寿命
 		float maxLifetime;
-
+    
 		// フェードアウト用カラー
 		Vector4 color;
 		ObjectColor objectColor;
