@@ -13,7 +13,7 @@ public:
 	};
 
 	// 初期化
-	void Initialize(Model* model, Camera* camera, const Vector3& pos, const Vector3& dir);
+	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& pos, const KamataEngine::Vector3& dir);
 
 	// 更新処理
 	void Update();
@@ -43,9 +43,9 @@ private:
 	*/
 
 	// ワールド変換情報
-	WorldTransform transform_;
+	KamataEngine::WorldTransform transform_;
 	// 進行方向
-	Vector3 direction_ = {1.0f, 0.0f, 0.0f};
+	KamataEngine::Vector3 direction_ = {1.0f, 0.0f, 0.0f};
 	// 速度
 	float speed_ = 0.25f;
 
@@ -65,9 +65,9 @@ private:
 	*/
 
 	// モデル
-	Model* model_ = nullptr;
+	KamataEngine::Model* model_ = nullptr;
 	// カメラ
-	Camera* camera_ = nullptr;
+	KamataEngine::Camera* camera_ = nullptr;
 	// 弾の種類
 	Type type_ = Type::kPlayer; // デフォルトはプレイヤーの弾にしておく
 };
