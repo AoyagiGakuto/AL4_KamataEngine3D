@@ -75,3 +75,4 @@ private:
 	// ターゲットが画面端に寄りすぎないための余白
 	static inline const Rect targetMargin = {6.0f, 100 - 12.0f, 5.0f, 5.0f};
 };
+
