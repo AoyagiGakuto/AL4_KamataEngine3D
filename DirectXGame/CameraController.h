@@ -3,8 +3,6 @@
 #include "KamataEngine.h"
 #include "Player.h"
 
-using namespace MathUtility;
-
 class CameraController {
 public:
 
@@ -32,12 +30,12 @@ public:
 	void SetMovableArea(const Rect& area) { movebleArea_ = area; }
 
 	// ビュープロジェクション行列の取得
-	const Camera& GetViewProjection() const { return camera_; }
+	const KamataEngine::Camera& GetViewProjection() const { return camera_; }
 	
 	// ビュー行列
-	Matrix4x4 matView_;
+	KamataEngine::Matrix4x4 matView_;
 	// プロジェクション行列
-	Matrix4x4 matProjection_;
+	KamataEngine::Matrix4x4 matProjection_;
 
 private:
 
@@ -55,14 +53,14 @@ private:
 	// 追尾対象プレイヤー
 	Player* target_ = nullptr;
 	// カメラの追尾オフセット
-	Vector3 targetOffset_ = {0, 0, -15.0f};
+	KamataEngine::Vector3 targetOffset_ = {0, 0, -15.0f};
 
 	/*
 	// --- 制御用パラメータ ---
 	*/
 
 	// カメラの目標座標
-	Vector3 targetPosition_ = {0, 0, 0};
+	KamataEngine::Vector3 targetPosition_ = {0, 0, 0};
 	// カメラ移動可能範囲
 	Rect movebleArea_ = {0, 100, 0, 100};
 	
