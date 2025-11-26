@@ -6,8 +6,6 @@
 #include <numbers>
 #include <list>
 
-using namespace KamataEngine;
-
 class MapChipField;
 class Player;
 
