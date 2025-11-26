@@ -41,8 +41,11 @@ private:
 	void LoadModels();
 	void UpdateRank();
 
-	float comboPoint_ = 0.0f; // コンボポイント
-	float decayTimer_ = 0.0f; // 最後にヒットしてからの時間
+	// コンボポイント
+	float comboPoint_ = 0.0f;
+	// 最後にヒットしてからの時間
+	float decayTimer_ = 0.0f;
+	
 	Rank rank_ = Rank::None;
 
 	// ランクモデル
@@ -53,7 +56,7 @@ private:
 	// UIのカメラ
 	Camera* uiCamera_ = nullptr;
 
-	// パラメータけい
+	// パラメータ
 	static inline const float kMaxPoint = 100.0f;
 	static inline const float kStartDecayTime = 0.8f; // 開始までの猶予
 	static inline const float kDecaySpeed = 15.0f;    // 1秒あたり減る量

@@ -3,6 +3,8 @@
 #include <cmath>
 #include <numbers>
 
+// 未実装です
+
 void GameOverScene::Initialize() {
 	// GAMEOVEROBJ
 	textModel_ = Model::CreateFromOBJ("gameover");

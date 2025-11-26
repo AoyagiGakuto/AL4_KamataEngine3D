@@ -39,8 +39,10 @@ void Enemy::Initialize(Model* model, Model* modelHpBar, Model* modelHp, Camera* 
 		break;
 	case Type::kHoming:
 		velocity_ = {0.0f, 0.0f, 0.0f};
-		homingMaxSpeed_ = 0.08f; // 追尾は少し速く
-		hp_ = 3;                 // 少し弱く
+		// 追尾は少し速く
+		homingMaxSpeed_ = 0.08f;
+		// いまは少し弱く
+		hp_ = 3;
 		maxHp_ = 3.0f;
 		break;
 	case Type::kFlyingSupport:

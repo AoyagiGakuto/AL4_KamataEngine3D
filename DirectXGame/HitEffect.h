@@ -37,5 +37,5 @@ private:
 	float yOffset_ = 0.0f;
 	Vector3 basePos_ = {};
 	ObjectColor objectColor_;
-	Vector4 color_ = {1.0f, 1.0f, 1.0f, 1.0f}; // 色 (RGBA)
+	Vector4 color_ = {1.0f, 1.0f, 1.0f, 1.0f};
 };

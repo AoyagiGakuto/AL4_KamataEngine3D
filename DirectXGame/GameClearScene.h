@@ -4,6 +4,8 @@
 
 using namespace KamataEngine;
 
+// 未実装です
+
 class GameClearScene {
 public:
 	GameClearScene() = default;
