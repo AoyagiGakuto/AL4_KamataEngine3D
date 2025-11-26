@@ -1,4 +1,5 @@
 #pragma once
+
 #include "KamataEngine.h"
 #include "MyMath.h"
 
@@ -38,16 +39,15 @@ public:
 	Type GetType() const { return type_; }
 
 private:
+
 	/*
 	// --- 移動系 ---
 	*/
 
 	// ワールド変換情報
 	WorldTransform transform_;
-
 	// 進行方向
 	Vector3 direction_ = {1.0f, 0.0f, 0.0f};
-
 	// 速度
 	float speed_ = 0.25f;
 
@@ -57,10 +57,8 @@ private:
 
 	// 生存時間
 	float lifetime_ = 2.0f;
-
 	// 生存フラグ
 	bool alive_ = true;
-
 	// 死亡フラグ（当たり判定用）
 	bool isDead_ = false;
 
@@ -70,10 +68,8 @@ private:
 
 	// モデル
 	Model* model_ = nullptr;
-	
 	// カメラ
 	Camera* camera_ = nullptr;
-
 	// 弾の種類
 	Type type_ = Type::kPlayer; // デフォルトはプレイヤーの弾にしておく
 };
