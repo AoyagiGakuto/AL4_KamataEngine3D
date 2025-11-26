@@ -2,8 +2,6 @@
 #include "KamataEngine.h"
 #include <array>
 
-using namespace KamataEngine;
-
 class ComboRank {
 public:
 
@@ -14,7 +12,7 @@ public:
 	~ComboRank();
 
 	// 初期化
-	void Initialize(Camera* uiCamera, const Vector3& pos);
+	void Initialize(KamataEngine::Camera* uiCamera, const KamataEngine::Vector3& pos);
 
 	// 更新
 	void Update(float deltaTime);
@@ -59,13 +57,13 @@ private:
 	*/
 
 	// ランクモデル
-	std::array<Model*, static_cast<size_t>(Rank::Count)> models_{};
+	std::array<KamataEngine::Model*, static_cast<size_t>(Rank::Count)> models_{};
 
 	// ワールド変換
-	WorldTransform wt_;
+	KamataEngine::WorldTransform wt_;
 
 	// UIのカメラ
-	Camera* uiCamera_ = nullptr;
+	KamataEngine::Camera* uiCamera_ = nullptr;
 
 	// パラメータ
 	static inline const float kMaxPoint = 100.0f;
