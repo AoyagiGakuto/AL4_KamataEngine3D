@@ -11,6 +11,8 @@
 #include <memory>
 #include <vector>
 
+// 未実装です
+
 using namespace KamataEngine;
 /*
 class BossScene {

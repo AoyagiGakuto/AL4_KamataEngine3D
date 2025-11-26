@@ -28,7 +28,8 @@ private:
 	WorldTransform transform_;
 	Vector3 direction_ = {1.0f, 0.0f, 0.0f};
 	float speed_ = 0.25f;
-	float lifetime_ = 2.0f; // 秒
+	// 秒
+	float lifetime_ = 2.0f;
 	bool alive_ = true;
 
 	Model* model_ = nullptr;

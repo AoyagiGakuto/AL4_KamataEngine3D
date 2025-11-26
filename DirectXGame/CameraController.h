@@ -22,17 +22,22 @@ public:
 	void Reset();
 
 	const Camera& GetViewProjection() const { return camera_; }
-	Matrix4x4 matView_;       // ビュー行列
-	Matrix4x4 matProjection_; // プロジェクション行列
+	
+	// ビュー行列
+	Matrix4x4 matView_;
+	// プロジェクション行列
+	Matrix4x4 matProjection_;
 
 private:
 	// カメラ
 	Camera camera_;
 	Player* target_ = nullptr;
 	Vector3 targetOffset_ = {0, 0, -15.0f};
+
 	// カメラの目標座標
 	KamataEngine::Vector3 targetPosition_ = {0, 0, 0};
 	Rect movebleArea_ = {0, 100, 0, 100};
+	
 	// 座標線形保管割合
 	static inline const float kInterpolationRate = 0.08f;
 	static inline const float kVelocityBias = 30.0f;

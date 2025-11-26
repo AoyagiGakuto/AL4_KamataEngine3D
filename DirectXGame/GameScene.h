@@ -1,6 +1,6 @@
 #pragma once
 #include "CameraController.h"
-#include "ZangekiEffect.h"
+#include "SlashEffect.h"
 #include "DeathParticle.h"
 #include "ScenePhase.h"
 #include "Enemy.h"
@@ -83,7 +83,7 @@ private:
 
 	std::array<Model*, 10> modelNumbers_{};
 	std::vector<std::unique_ptr<HitEffect>> hitEffects_;
-	std::vector<std::unique_ptr<ZangekiEffect>> zangekiEffects_;
+	std::vector<std::unique_ptr<SlashEffect>> SlashEffects_;
 	int score_ = 0;
 
 	// デスパーティクル

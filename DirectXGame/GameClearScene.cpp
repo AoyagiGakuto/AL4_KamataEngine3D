@@ -3,8 +3,9 @@
 #include <cmath>
 #include <numbers>
 
+// 未実装です
+
 void GameClearScene::Initialize() {
-	// 「GAME CLEAR」OBJ
 	textModel_ = Model::CreateFromOBJ("gameclear");
 	textTransform_.Initialize();
 	textTransform_.translation_ = {0.0f, 5.0f, 6.0f};

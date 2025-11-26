@@ -336,7 +336,7 @@ void GameScene::Update() {
 
 			if (target && !target->IsDead()) {
 
-				const float kMeleeRange = 3.5f; // 近接攻撃の有効範囲 (例: 2.5f)
+				const float kMeleeRange = 3.5f; // 近接攻撃の有効範囲 (いまは2.5f)
 
 				Vector3 playerPos = player_->GetWorldTransform().translation_;
 				Vector3 targetPos = target->GetWorldTransform().translation_;
@@ -358,7 +358,7 @@ void GameScene::Update() {
 					Vector3 enemyPos = target->GetWorldTransform().translation_;
 					enemyPos.y += 0.1f; // 敵の少し上あたり
 
-					auto vfx = std::make_unique<ZangekiEffect>();
+					auto vfx = std::make_unique<SlashEffect>();
 
 					float randX = ((float)(rand() % 1000) / 999.0f - 0.5f) * kEffectSpread;
 					float randY = ((float)(rand() % 1000) / 999.0f - 0.5f) * kEffectSpread;
@@ -368,7 +368,7 @@ void GameScene::Update() {
 
 					vfx->SetRotation(player_->GetWorldTransform().rotation_.y);
 
-					zangekiEffects_.push_back(std::move(vfx));
+					SlashEffects_.push_back(std::move(vfx));
 
 					// 死んだかチェック
 					if (target->IsDead()) {
@@ -417,7 +417,7 @@ void GameScene::Update() {
 			enemyPos.y += 0.5f; // 敵の少し上あたり
 
 			for (int i = 0; i < kNumSlashes; ++i) {
-				auto vfx = std::make_unique<ZangekiEffect>();
+				auto vfx = std::make_unique<SlashEffect>();
 
 				// ランダム
 				float randX = ((float)(rand() % 1000) / 999.0f - 0.5f) * kEffectSpread;
@@ -428,7 +428,7 @@ void GameScene::Update() {
 				vfx->Initialize(modelZangeki_, camera_, spawnPos);
 				vfx->SetRandomRotation(); // 斬撃の向きをランダムに
 
-				zangekiEffects_.push_back(std::move(vfx));
+				SlashEffects_.push_back(std::move(vfx));
 			}
 		}
 
@@ -652,10 +652,10 @@ void GameScene::Update() {
 	// 死亡パーティクル演出
 	deathParticle_.Update();
 
-	for (auto& vfx : zangekiEffects_) {
+	for (auto& vfx : SlashEffects_) {
 		vfx->Update();
 	}
-	zangekiEffects_.erase(std::remove_if(zangekiEffects_.begin(), zangekiEffects_.end(), [](const std::unique_ptr<ZangekiEffect>& v) { return !v->IsAlive(); }), zangekiEffects_.end());
+	SlashEffects_.erase(std::remove_if(SlashEffects_.begin(), SlashEffects_.end(), [](const std::unique_ptr<SlashEffect>& v) { return !v->IsAlive(); }), SlashEffects_.end());
 
 	switch (phase_) {
 	case ScenePhase::FadeIn:
@@ -807,10 +807,10 @@ void GameScene::UpdateSpecialMove(float deltaTime) {
 				Vector3 pos = mapChipField_->GetMapPositionTypeByIndex(ix, iy);
 				pos.y += 0.5f;
 
-				auto vfx = std::make_unique<ZangekiEffect>();
+				auto vfx = std::make_unique<SlashEffect>();
 				vfx->Initialize(modelZangeki_, camera_, pos);
 				vfx->SetRandomRotation();
-				zangekiEffects_.push_back(std::move(vfx));
+				SlashEffects_.push_back(std::move(vfx));
 			}
 		}
 
@@ -912,7 +912,7 @@ void GameScene::Draw() {
 	// DeathParticle描画
 	deathParticle_.Draw();
 
-	for (const auto& vfx : zangekiEffects_) {
+	for (const auto& vfx : SlashEffects_) {
 		vfx->Draw();
 	}
 

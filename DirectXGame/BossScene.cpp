@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <numbers>
 
+// 未実装です
+
 using namespace KamataEngine;
 /*
 void BossScene::Initialize() {

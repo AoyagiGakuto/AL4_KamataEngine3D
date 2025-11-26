@@ -4,9 +4,9 @@
 
 using namespace KamataEngine;
 
-class ZangekiEffect {
+class SlashEffect {
 public:
-	~ZangekiEffect();
+	~SlashEffect();
 
 	// 初期化
 	void Initialize(Model* model, Camera* camera, const Vector3& pos);
@@ -32,7 +32,8 @@ private:
 	ObjectColor objectColor_;
 	Vector4 color_ = {1.0f, 1.0f, 1.0f, 1.0f};
 
-	float lifetime_ = 0.4f; // 0.4秒で消える
+	// 0.4秒で消える
+	float lifetime_ = 0.4f;
 	float maxLifetime_ = 0.4f;
 	bool alive_ = true;
 };

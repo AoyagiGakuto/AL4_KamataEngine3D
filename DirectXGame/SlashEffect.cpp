@@ -1,22 +1,23 @@
-#include "ZangekiEffect.h"
+#include "SlashEffect.h"
 #include <cstdlib>
 #include <numbers>
 
-ZangekiEffect::~ZangekiEffect() {}
+SlashEffect::~SlashEffect() {}
 
-void ZangekiEffect::Initialize(Model* model, Camera* camera, const Vector3& pos) {
+void SlashEffect::Initialize(Model* model, Camera* camera, const Vector3& pos) {
 	model_ = model;
 	camera_ = camera;
 	transform_.Initialize();
 	transform_.translation_ = pos;
-	transform_.scale_ = {0.5f, 0.5f, 0.5f}; // 少し小さめに開始
+	// 少し小さめに開始
+	transform_.scale_ = {0.5f, 0.5f, 0.5f};
 	alive_ = true;
 	lifetime_ = maxLifetime_;
 	objectColor_.Initialize();
 	objectColor_.SetColor(color_);
 }
 
-void ZangekiEffect::SetRandomRotation() {
+void SlashEffect::SetRandomRotation() {
 	float kPi = std::numbers::pi_v<float>;
 	// X, Y, Z 軸にランダムな回転を与える
 	transform_.rotation_.x = ((float)(rand() % 1000) / 999.0f) * 2.0f * kPi;
@@ -24,7 +25,7 @@ void ZangekiEffect::SetRandomRotation() {
 	transform_.rotation_.z = ((float)(rand() % 1000) / 999.0f) * 2.0f * kPi;
 }
 
-void ZangekiEffect::SetRotation(float playerRotationY) {
+void SlashEffect::SetRotation(float playerRotationY) {
 	float kPi = std::numbers::pi_v<float>;
 
 	bool isFacingRight = (playerRotationY < kPi);
@@ -41,7 +42,7 @@ void ZangekiEffect::SetRotation(float playerRotationY) {
 	}
 }
 
-void ZangekiEffect::Update() {
+void SlashEffect::Update() {
 	if (!alive_) {
 		return;
 	}
@@ -67,7 +68,7 @@ void ZangekiEffect::Update() {
 	transform_.TransferMatrix();
 }
 
-void ZangekiEffect::Draw() {
+void SlashEffect::Draw() {
 	if (alive_ && model_ && camera_) {
 		model_->Draw(transform_, *camera_, &objectColor_);
 	}
