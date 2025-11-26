@@ -3,8 +3,6 @@
 #include "KamataEngine.h"
 #include "ScenePhase.h"
 
-using namespace KamataEngine;
-
 class TitleScene {
 public:
 	TitleScene();
@@ -23,8 +21,8 @@ private:
 	bool finished_ = false;
 
 	// タイトルロゴ
-	Model* titleFontModel_ = nullptr;
-	WorldTransform titleTransform_;
+	KamataEngine::Model* titleFontModel_ = nullptr;
+	KamataEngine::WorldTransform titleTransform_;
 	float blinkTimer_ = 0.0f;
 	bool blinkVisible_ = true;
 
@@ -32,10 +30,10 @@ private:
 	float logoMoveTimer_ = 0.0f;
 
 	// プレイヤー表示（オブジェとして）
-	Model* playerModel_ = nullptr;
-	WorldTransform playerTransform_;
+	KamataEngine::Model* playerModel_ = nullptr;
+	KamataEngine::WorldTransform playerTransform_;
 
-	Camera* camera_ = nullptr;
+	KamataEngine::Camera* camera_ = nullptr;
 
 	// フェード（シーン内で管理）
 	Fade* fade_ = nullptr;

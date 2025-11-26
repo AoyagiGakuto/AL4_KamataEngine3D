@@ -16,8 +16,6 @@
 #include <vector>
 #include <array>
 
-using namespace KamataEngine;
-
 class GameScene {
 public:
 	~GameScene();

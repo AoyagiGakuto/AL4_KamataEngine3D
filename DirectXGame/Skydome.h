@@ -3,8 +3,6 @@
 #include <vector>
 #include "GameScene.h"
 
-using namespace KamataEngine;
-
 class Skydome {
 public:
 	void Initialize();
