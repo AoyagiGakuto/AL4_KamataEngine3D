@@ -2,6 +2,8 @@
 #include "MyMath.h"
 #include <algorithm>
 
+using namespace KamataEngine;
+
 ComboRank::~ComboRank() {
 	for (Model* m : models_) {
 		delete m;

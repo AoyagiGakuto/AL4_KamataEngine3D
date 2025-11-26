@@ -6,6 +6,7 @@ using namespace KamataEngine;
 
 class ComboRank {
 public:
+
 	// コンボランク
 	enum class Rank { None = 0, D, C, B, A, S, Count };
 
@@ -33,24 +34,34 @@ public:
 	// リセット
 	void Reset();
 
-	// 情報取得
+	// ゲッター
 	Rank GetRank() const { return rank_; }
 	float GetPoint() const { return comboPoint_; }
 
 private:
+
 	void LoadModels();
 	void UpdateRank();
+
+	/*
+	// --- 状態データ ---
+	*/
 
 	// コンボポイント
 	float comboPoint_ = 0.0f;
 	// 最後にヒットしてからの時間
 	float decayTimer_ = 0.0f;
-	
+	// ランク
 	Rank rank_ = Rank::None;
+
+	/*
+	// --- 描画系 ---
+	*/
 
 	// ランクモデル
 	std::array<Model*, static_cast<size_t>(Rank::Count)> models_{};
 
+	// ワールド変換
 	WorldTransform wt_;
 
 	// UIのカメラ
@@ -58,6 +69,8 @@ private:
 
 	// パラメータ
 	static inline const float kMaxPoint = 100.0f;
-	static inline const float kStartDecayTime = 0.8f; // 開始までの猶予
-	static inline const float kDecaySpeed = 15.0f;    // 1秒あたり減る量
+	// 開始までの猶予
+	static inline const float kStartDecayTime = 0.8f;
+	// 1秒あたり減る量
+	static inline const float kDecaySpeed = 15.0f;
 };

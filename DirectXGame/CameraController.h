@@ -3,9 +3,7 @@
 #include "KamataEngine.h"
 #include "Player.h"
 
-using namespace KamataEngine;
 using namespace MathUtility;
-
 
 class CameraController {
 public:
