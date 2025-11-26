@@ -5,6 +5,8 @@
 #include <sstream>
 #include <string>
 
+using namespace KamataEngine;
+
 namespace {
 std::map<std::string, MapChipType> mapChipTable = {
     {"0", MapChipType::kBlank},

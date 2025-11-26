@@ -2,14 +2,12 @@
 #include "KamataEngine.h"
 #include "MyMath.h"
 
-using namespace KamataEngine;
-
 class SlashEffect {
 public:
 	~SlashEffect();
 
 	// 初期化
-	void Initialize(Model* model, Camera* camera, const Vector3& pos);
+	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& pos);
 
 	// 更新
 	void Update();
@@ -26,11 +24,11 @@ public:
 	void SetRandomRotation();
 
 private:
-	WorldTransform transform_;
-	Model* model_ = nullptr;
-	Camera* camera_ = nullptr;
-	ObjectColor objectColor_;
-	Vector4 color_ = {1.0f, 1.0f, 1.0f, 1.0f};
+	KamataEngine::WorldTransform transform_;
+	KamataEngine::Model* model_ = nullptr;
+	KamataEngine::Camera* camera_ = nullptr;
+	KamataEngine::ObjectColor objectColor_;
+	KamataEngine::Vector4 color_ = {1.0f, 1.0f, 1.0f, 1.0f};
 
 	// 0.4秒で消える
 	float lifetime_ = 0.4f;

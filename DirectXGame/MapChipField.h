@@ -3,8 +3,6 @@
 #include <cstdint>
 #include <vector>
 
-using namespace KamataEngine;
-
 enum class MapChipType {
 	kBlank, // 空白
 	kBlock, // ブロック
@@ -43,10 +41,10 @@ public:
 
 	MapChipData mapChipData_;
 	MapChipType GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex);
-	IndexSet GetMapChipIndexSetByPosition(const Vector3& position);
+	IndexSet GetMapChipIndexSetByPosition(const KamataEngine::Vector3& position);
 	void ResetMapChipData();
 	void LoadMapChipCsv(const std::string& filePath);
-	Vector3 GetMapPositionTypeByIndex(uint32_t xIndex, uint32_t yIndex);
+	KamataEngine::Vector3 GetMapPositionTypeByIndex(uint32_t xIndex, uint32_t yIndex);
 	Rect GetRectByIndex(uint32_t xIndex, uint32_t yIndex);
 
 	uint32_t GetNumBlockVertical() const { return kNumBlockVertical; }
