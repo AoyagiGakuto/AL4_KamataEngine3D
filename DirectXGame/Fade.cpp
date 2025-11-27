@@ -2,12 +2,20 @@
 #include <algorithm>
 using namespace KamataEngine;
 
+// ==========================================================================
+// ヘルパー関数
+// ==========================================================================
+
 // 画面サイズに合わせるヘルパ
 static inline void ResizeToBackbuffer(KamataEngine::Sprite* spr) {
 	auto* dx = DirectXCommon::GetInstance();
 	spr->SetSize(Vector2(static_cast<float>(dx->GetBackBufferWidth()), static_cast<float>(dx->GetBackBufferHeight())));
 	spr->SetPosition(Vector2(0.0f, 0.0f));
 }
+
+// ==========================================================================
+// 初期化
+// ==========================================================================
 
 void Fade::Initialize() {
 	textureHandle = TextureManager::Load("white1x1.png");
@@ -16,9 +24,14 @@ void Fade::Initialize() {
 	ResizeToBackbuffer(sprite_);
 }
 
+// ==========================================================================
+// 更新処理
+// ==========================================================================
+
 void Fade::Update() {
 	switch (status_) {
 	case Status::None:
+		// 何もしない
 		break;
 	case Status::FadeIn:
 		counter_ += 1.0f / 60.0f;
@@ -37,8 +50,13 @@ void Fade::Update() {
 		}
 		break;
 	}
+
 	ResizeToBackbuffer(sprite_);
 }
+
+// ==========================================================================
+// 描画処理
+// ==========================================================================
 
 void Fade::Draw() {
 	if (status_ == Status::None) {
@@ -49,6 +67,10 @@ void Fade::Draw() {
 	sprite_->Draw();
 	Sprite::PostDraw();
 }
+
+// ==========================================================================
+// 制御関数
+// ==========================================================================
 
 void Fade::Start(Status status, float duration) {
 	status_ = status;
