@@ -17,7 +17,8 @@ public:
 		kFlyingSupport // 飛行＆回復する敵
 	};
 
-	void Initialize(Model* model, Model* modelHpBar, Model* modelHp, Camera* camera, const Vector3& position, Type type = Type::kNormal);
+	void Initialize(
+	    KamataEngine::Model* model, KamataEngine::Model* modelHpBar, KamataEngine::Model* modelHp, KamataEngine::Camera* camera, const KamataEngine::Vector3& position, Type type = Type::kNormal);
 	void Update();
 	void Draw();
 
@@ -28,17 +29,17 @@ public:
 	Type GetType() const { return type_; }
 
 	// ワールド変換取得
-	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
+	const KamataEngine::WorldTransform& GetWorldTransform() const { return worldTransform_; }
 
 	// マップチップフィールドのセット
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
 	void OnCollision(const Player* player); 
-	void SetScale(const Vector3& scale) { worldTransform_.scale_ = scale; }
+	void SetScale(const KamataEngine::Vector3& scale) { worldTransform_.scale_ = scale; }
 	void SetRotationY(float y) { worldTransform_.rotation_.y = y; }
 	void SetTarget(Player* p) { target_ = p; }
 	void TakeDamage(int damage);
 	void SlowDown(float duration);
-	void Knockback(const Vector3& dir);
+	void Knockback(const KamataEngine::Vector3& dir);
 	void ApplyHitStop(float duration);
 	bool IsDead() const;
 	bool IsReadyToFire();
@@ -56,7 +57,7 @@ public:
 private:
 
 	struct CollisionInfo {
-		Vector3 move{0, 0, 0};
+		KamataEngine::Vector3 move{0, 0, 0};
 		bool isOnGround = false;
 		bool isCeiling = false;
 		bool isHitWall = false;
@@ -72,14 +73,14 @@ private:
 	float shotTimer_ = 0.0f;
 	float hitStopTimer_ = 0.0f;
 
-	WorldTransform worldTransform_;
-	WorldTransform worldTransformHpBar_; // 枠用
-	WorldTransform worldTransformHp_;
-	Model* model_ = nullptr;
-	Model* modelHpBar_ = nullptr;
-	Model* modelHp_ = nullptr;
-	Camera* camera_ = nullptr;
-	Vector3 velocity_ = {};
+	KamataEngine::WorldTransform worldTransform_;
+	KamataEngine::WorldTransform worldTransformHpBar_; // 枠用
+	KamataEngine::WorldTransform worldTransformHp_;
+	KamataEngine::Model* model_ = nullptr;
+	KamataEngine::Model* modelHpBar_ = nullptr;
+	KamataEngine::Model* modelHp_ = nullptr;
+	KamataEngine::Camera* camera_ = nullptr;
+	KamataEngine::Vector3 velocity_ = {};
 	MapChipField* mapChipField_ = nullptr;
 	Player* target_ = nullptr;
 

@@ -15,14 +15,14 @@ struct CollisionMapInfo {
 	bool isOnGround = false;
 	bool isHitWall = false;
 	bool isCeiling = false;
-	Vector3 move = {0.0f, 0.0f, 0.0f};
+	KamataEngine::Vector3 move = {0.0f, 0.0f, 0.0f};
 };
 
 enum Corner { kRightBottom, kLeftBottom, kRightTop, kLeftTop, kNumCorner };
 
 class Player {
 public:
-	void Initialize(Model* model, Camera* camera, const Vector3& position);
+	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& position);
 	void Update();
 	void Draw();
 	void InputMove();
@@ -36,14 +36,14 @@ public:
 	void CheckMapCollisionRight(CollisionMapInfo& Info);
 
 	// 位置を瞬間移動させる
-	void WarpTo(const Vector3& position);
+	void WarpTo(const KamataEngine::Vector3& position);
 
 	// 死亡管理
     void Die();               // 死亡処理
     bool IsDead() const;      // 死亡状態確認
 	// チャージ攻撃の準備ができているか
 	bool IsChargeAttackReady() const { return isChargeAttackReady_; }
-	// チャージ攻撃を消費（GameSceneが呼び出す）
+	// チャージ攻撃を消費
 	void ConsumeChargeAttack() { isChargeAttackReady_ = false; }
 	// ロックオン処理
 	void LockOn(Enemy* target);
@@ -52,15 +52,15 @@ public:
 	Enemy* GetTargetEnemy() const { return targetEnemy_; }
 
 	// ノックアップ
-	void Knockback(const Vector3& dir);
+	void Knockback(const KamataEngine::Vector3& dir);
 
-	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
-	const Vector3& GetVelocity() const { return velocity_; }
+	const KamataEngine::WorldTransform& GetWorldTransform() const { return worldTransform_; }
+	const KamataEngine::Vector3& GetVelocity() const { return velocity_; }
 	float GetTurnTimer() const { return turnTimer_; }
 	float GetHp() const { return (float)hp_; }
 	float GetMaxHp() const { return (float)maxHp_; }
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
-	Vector3 GetPosition() const { return worldTransform_.translation_; }
+	KamataEngine::Vector3 GetPosition() const { return worldTransform_.translation_; }
 	AABB GetAABB();
 
 	static inline const float kWidth = 0.8f;
@@ -74,20 +74,20 @@ public:
 
 private:
 
-	WorldTransform worldTransform_;
-	Model* model_ = nullptr;
+	KamataEngine::WorldTransform worldTransform_;
+	KamataEngine::Model* model_ = nullptr;
 	bool OnGround_ = true;
 	int jumpCount_ = 0;
 	bool isGliding_ = false;
-	Camera* camera_ = nullptr;
+	KamataEngine::Camera* camera_ = nullptr;
 	uint32_t textureHandle_ = 0u;
-	Vector3 velocity_ = {};
+	KamataEngine::Vector3 velocity_ = {};
 	float kAcceleration = 0.1f;
 	LRDirection lrDirection_ = LRDirection::kRight;
 	float turnFirstRotationY_ = 0.0f;
 	float turnTimer_ = 0.0f;
 	MapChipField* mapChipField_ = nullptr;
-	Vector3 GetWorldPosition();
+	KamataEngine::Vector3 GetWorldPosition();
 	bool input = false;
 	Enemy* targetEnemy_ = nullptr;
 	bool isLockedOn_ = false;
@@ -100,4 +100,4 @@ private:
 	float knockbackTimer_ = 0.0f;
 };
 
-Vector3 CornerPosition(const Vector3& center, Corner corner);
+KamataEngine::Vector3 CornerPosition(const KamataEngine::Vector3& center, Corner corner);

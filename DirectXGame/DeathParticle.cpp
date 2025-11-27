@@ -2,6 +2,8 @@
 #include "MyMath.h"
 #include <algorithm>
 
+using namespace KamataEngine;
+
 DeathParticle::DeathParticle() {}
 DeathParticle::~DeathParticle() {}
 

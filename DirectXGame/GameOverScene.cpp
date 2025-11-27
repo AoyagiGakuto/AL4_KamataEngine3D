@@ -5,6 +5,8 @@
 
 // 未実装です
 
+using namespace KamataEngine;
+
 void GameOverScene::Initialize() {
 	// GAMEOVEROBJ
 	textModel_ = Model::CreateFromOBJ("gameover");

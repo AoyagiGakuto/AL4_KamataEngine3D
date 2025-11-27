@@ -2,6 +2,8 @@
 #include <cstdlib>
 #include <numbers>
 
+using namespace KamataEngine;
+
 SlashEffect::~SlashEffect() {}
 
 void SlashEffect::Initialize(Model* model, Camera* camera, const Vector3& pos) {

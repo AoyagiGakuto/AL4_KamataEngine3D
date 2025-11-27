@@ -4,7 +4,7 @@
 #include <numbers>
 
 using namespace KamataEngine;
-using namespace MathUtility;
+using namespace KamataEngine::MathUtility;
 
 float EaseInOut(float x1, float x2, float t) {
 	float easedT = (std::cosf(std::numbers::pi_v<float>*t)-1.0f) /2.0f;

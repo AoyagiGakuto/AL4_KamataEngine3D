@@ -11,9 +11,9 @@ public:
 
 private:
 	// ワールド
-	WorldTransform worldTransform_;
+	KamataEngine::WorldTransform worldTransform_;
 	// model
-	Model* model_ = nullptr;
+	KamataEngine::Model* model_ = nullptr;
 	// カメラ
-	Camera* camera_ = nullptr;
+	KamataEngine::Camera* camera_ = nullptr;
 };

@@ -2,6 +2,8 @@
 #include "MyMath.h"
 #include <cmath>
 
+using namespace KamataEngine;
+
 TitleScene::TitleScene() {}
 
 TitleScene::~TitleScene() {

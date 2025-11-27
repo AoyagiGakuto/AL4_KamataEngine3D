@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <numbers>
+
 using namespace KamataEngine::MathUtility;
 
 using namespace KamataEngine;

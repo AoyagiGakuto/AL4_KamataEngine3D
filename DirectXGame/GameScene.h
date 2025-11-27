@@ -46,30 +46,30 @@ private:
 	ScenePhase phase_ = ScenePhase::FadeIn;
 
 	// モデル
-	Model* modelCube_ = nullptr;
-	Model* modelSkyDome_ = nullptr;
-	Model* model_ = nullptr;
-	Model* modelPlayer_ = nullptr;
-	Model* modelEnemy_ = nullptr;
-	Model* modelDeathParticle_ = nullptr;
-	Model* modelBullet_ = nullptr;
-	Model* modelSlowBall_ = nullptr;
-	Model* modelZangeki_ = nullptr;
-	Model* modelHpBar_ = nullptr;
-	Model* modelHp_ = nullptr;
+	KamataEngine::Model* modelCube_ = nullptr;
+	KamataEngine::Model* modelSkyDome_ = nullptr;
+	KamataEngine::Model* model_ = nullptr;
+	KamataEngine::Model* modelPlayer_ = nullptr;
+	KamataEngine::Model* modelEnemy_ = nullptr;
+	KamataEngine::Model* modelDeathParticle_ = nullptr;
+	KamataEngine::Model* modelBullet_ = nullptr;
+	KamataEngine::Model* modelSlowBall_ = nullptr;
+	KamataEngine::Model* modelZangeki_ = nullptr;
+	KamataEngine::Model* modelHpBar_ = nullptr;
+	KamataEngine::Model* modelHp_ = nullptr;
 
 	// ワールドトランスフォーム
-	WorldTransform worldTransform_;
-	WorldTransform worldTransformHudHpBar_;
-	WorldTransform worldTransformHudHp_;
+	KamataEngine::WorldTransform worldTransform_;
+	KamataEngine::WorldTransform worldTransformHudHpBar_;
+	KamataEngine::WorldTransform worldTransformHudHp_;
 
 	// カメラ
-	Camera* camera_;
-	Camera* uiCamera_ = nullptr;
+	KamataEngine::Camera* camera_;
+	KamataEngine::Camera* uiCamera_ = nullptr;
 	bool isDebugCameraActive_ = false;
-	DebugCamera* debugCamera_ = nullptr;
+	KamataEngine::DebugCamera* debugCamera_ = nullptr;
 
-	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
+	std::vector<std::vector<KamataEngine::WorldTransform*>> worldTransformBlocks_;
 	MapChipField* mapChipField_ = nullptr;
 
 	Player* player_ = nullptr;
@@ -79,7 +79,7 @@ private:
 	std::vector<std::unique_ptr<Bullet>> bullets_;
 	std::vector<std::unique_ptr<Bullet>> slowBalls_;
 
-	std::array<Model*, 10> modelNumbers_{};
+	std::array<KamataEngine::Model*, 10> modelNumbers_{};
 	std::vector<std::unique_ptr<HitEffect>> hitEffects_;
 	std::vector<std::unique_ptr<SlashEffect>> SlashEffects_;
 	int score_ = 0;

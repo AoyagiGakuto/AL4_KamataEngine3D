@@ -11,7 +11,7 @@ public:
 	~HitEffect();
 
 	// 初期化
-	void Initialize(std::array<Model*, 10>& numberModels, KamataEngine::Camera* camera, const KamataEngine::Vector3& pos, int number);
+	void Initialize(std::array<KamataEngine::Model*, 10>& numberModels, KamataEngine::Camera* camera, const KamataEngine::Vector3& pos, int number);
 
 	// 更新
 	void Update();
@@ -28,10 +28,10 @@ public:
 private:
 
 	// ワールド変換群
-	std::vector<WorldTransform*> transforms_;
+	std::vector<KamataEngine::WorldTransform*> transforms_;
 
 	// モデル群
-	std::vector<Model*> modelsToDraw_;
+	std::vector<KamataEngine::Model*> modelsToDraw_;
 
 	KamataEngine::Camera* camera_ = nullptr;
 	KamataEngine::ObjectColor objectColor_; // フェード用の色

@@ -2,6 +2,7 @@
 #include "GameScene.h"
 #include "Player.h"
 
+using namespace KamataEngine;
 using namespace KamataEngine::MathUtility;
 
 // ==========================================================================

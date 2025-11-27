@@ -5,6 +5,8 @@
 
 // 未実装です
 
+using namespace KamataEngine;
+
 void GameClearScene::Initialize() {
 	textModel_ = Model::CreateFromOBJ("gameclear");
 	textTransform_.Initialize();
