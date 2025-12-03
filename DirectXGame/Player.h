@@ -27,13 +27,12 @@ class Player {
 public:
 	// 初期化
 	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& position);
-	
+
 	// 更新
 	void Update();
-	
+
 	// 描画
 	void Draw();
-
 
 	/*
 	// --- アクション・制御 ---
@@ -47,7 +46,7 @@ public:
 	void TakeDamage(int damage);
 	// 死亡処理
 	void Die();
-	// ノックバック
+	// ノックバック（吹き飛び）
 	void Knockback(const KamataEngine::Vector3& dir);
 
 	/*
@@ -56,7 +55,6 @@ public:
 
 	// マップチップとの衝突チェック（全体）
 	void CollisionMapCheck(CollisionMapInfo& Info);
-
 	// 4方向それぞれの衝突チェック
 	void CheckMapCollision(CollisionMapInfo& Info);
 	void CheckMapCollisionUp(CollisionMapInfo& Info);
@@ -64,16 +62,15 @@ public:
 	void CheckMapCollisionLeft(CollisionMapInfo& Info);
 	void CheckMapCollisionRight(CollisionMapInfo& Info);
 
+	/*
+	// --- ゲッター・セッター・その他 ---
+	*/
+
 	// 位置を瞬間移動させる
 	void WarpTo(const KamataEngine::Vector3& position);
 
-	// 死亡管理
-    void Die();
-    bool IsDead() const;
-
 	// チャージ攻撃の準備ができているか
 	bool IsChargeAttackReady() const { return isChargeAttackReady_; }
-
 	// チャージ攻撃を消費
 	void ConsumeChargeAttack() { isChargeAttackReady_ = false; }
 
@@ -83,19 +80,24 @@ public:
 	bool IsLockedOn() const { return isLockedOn_; }
 	Enemy* GetTargetEnemy() const { return targetEnemy_; }
 
-	// ノックアップ
-	void Knockback(const KamataEngine::Vector3& dir);
+	// 死亡状態確認
+	bool IsDead() const { return isDead_; }
 
+	// 各種ゲッター
 	const KamataEngine::WorldTransform& GetWorldTransform() const { return worldTransform_; }
 	const KamataEngine::Vector3& GetVelocity() const { return velocity_; }
 	float GetTurnTimer() const { return turnTimer_; }
 	float GetHp() const { return (float)hp_; }
 	float GetMaxHp() const { return (float)maxHp_; }
 	KamataEngine::Vector3 GetPosition() const { return worldTransform_.translation_; }
-	AABB GetAABB();
 
+	// マップチップフィールドのセット
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
 
+	// AABB取得
+	AABB GetAABB();
+
+	// 定数パラメータ
 	static inline const float kWidth = 0.8f;
 	static inline const float kHeight = 0.8f;
 	static inline const float kBlank = 0.01f;
@@ -103,16 +105,16 @@ public:
 	static inline const float kGravityAcceleration = 0.01f;
 	static inline const float kLimitFallSpeed = 0.5f;
 	static inline const float kJumpAcceleration = 0.3f;
-	
+
+	// 死亡フラグ（publicアクセス用）
 	bool isDead_ = false;
 
 private:
-
 	// ワールド座標取得（中心補正あり）
 	KamataEngine::Vector3 GetWorldPosition();
 
 	/*
-	// --- モデル ---
+	// --- 変換・モデル ---
 	*/
 
 	KamataEngine::WorldTransform worldTransform_;
@@ -120,7 +122,7 @@ private:
 	KamataEngine::Camera* camera_ = nullptr;
 
 	/*
-	// --- 移動 ---
+	// --- 移動・物理 ---
 	*/
 
 	KamataEngine::Vector3 velocity_ = {};
@@ -135,6 +137,7 @@ private:
 	float turnFirstRotationY_ = 0.0f;
 	float turnTimer_ = 0.0f;
 
+	// 外部参照
 	MapChipField* mapChipField_ = nullptr;
 
 	/*

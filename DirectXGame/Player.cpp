@@ -5,33 +5,44 @@
 #include "MyMath.h"
 #include <algorithm>
 #include <array>
-#include <numbers>
 #include <cassert>
+#include <numbers>
 
 using namespace KamataEngine;
 using namespace MathUtility;
 
+// 定数定義
 const float kJumpVelocity = 0.25f;
 const float kGravity = 0.01f;
 static inline const float kAttenuation = 0.005f;
 static inline const float kLimitRunSpeed = 0.1f;
-static inline const float kLimitFallSpeed = 0.1f;       // 落下速度の上限ｋabutteru
-static inline const float kGlideGravityScale = 0.1f;   // 重力
+static inline const float kLimitFallSpeed = 0.1f;       // 落下速度の上限
+static inline const float kGlideGravityScale = 0.1f;    // 滑空中の重力倍率
 static inline const float kLimitGlideFallSpeed = 0.02f; // 滑空中の最大落下速度
 bool landing = false;
+
+// ==========================================================================
+// 初期化
+// ==========================================================================
 
 void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	assert(model);
 	model_ = model;
-	worldTransform_.translation_ = position;
 	camera_ = camera;
+
 	worldTransform_.Initialize();
+	worldTransform_.translation_ = position;
 	worldTransform_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
+
 	OnGround_ = true;
 	maxHp_ = 100;
 	hp_ = maxHp_;
 	isDead_ = false;
 }
+
+// ==========================================================================
+// 更新処理
+// ==========================================================================
 
 void Player::Update() {
 	if (knockbackTimer_ > 0.0f) {
@@ -42,7 +53,10 @@ void Player::Update() {
 		InputMove();
 	}
 
+	/*
 	// --- X方向のみ移動---
+	*/
+
 	CollisionMapInfo colX;
 	colX.move = {velocity_.x, 0.0f, 0.0f};
 	CollisionMapCheck(colX);
@@ -51,7 +65,10 @@ void Player::Update() {
 		velocity_.x = 0;
 	}
 
+	/*
 	// --- Y方向のみ移動---
+	*/
+
 	CollisionMapInfo colY;
 	colY.move = {0.0f, velocity_.y, 0.0f};
 	CollisionMapCheck(colY);
@@ -62,7 +79,7 @@ void Player::Update() {
 		jumpCount_ = 0;
 		isGliding_ = false;
 	} else {
-		// gは重力
+		// 重力計算
 		const float g = kGravityAcceleration * (isGliding_ ? kGlideGravityScale : 1.0f);
 		velocity_.y -= g;
 
@@ -75,6 +92,10 @@ void Player::Update() {
 	if (colY.isCeiling) {
 		velocity_.y = 0;
 	}
+
+	/*
+	// --- ロックオンと向き制御 ---
+	*/
 
 	if (isLockedOn_ && targetEnemy_) {
 		// ロックオン中は敵の方向を向く
@@ -97,14 +118,17 @@ void Player::Update() {
 		AnimateTurn();
 	}
 
-	// K長押しチャージ処理
+	/*
+	// --- チャージ処理 ---
+	*/
+
 	if (isLockedOn_ && Input::GetInstance()->PushKey(DIK_K)) {
 		// 既に準備完了でなければチャージ
 		if (!isChargeAttackReady_) {
 			chargeTimer_ += 1.0f / 60.0f;
 			if (chargeTimer_ >= kChargeAttackTime) {
 				isChargeAttackReady_ = true;
-				chargeTimer_ = 0.0f;         // タイマーリセット
+				chargeTimer_ = 0.0f; // タイマーリセット
 			}
 		}
 	} else {
@@ -112,11 +136,14 @@ void Player::Update() {
 		chargeTimer_ = 0.0f;
 	}
 
+	// 行列更新
 	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
 	worldTransform_.TransferMatrix();
 }
 
-
+// ==========================================================================
+// 描画処理
+// ==========================================================================
 
 void Player::Draw() {
 	if (isDead_) {
@@ -129,6 +156,10 @@ void Player::Draw() {
 	}
 	model_->Draw(worldTransform_, *camera_);
 }
+
+// ==========================================================================
+// 入力移動処理
+// ==========================================================================
 
 void Player::InputMove() {
 
@@ -204,6 +235,10 @@ void Player::InputMove() {
 	}
 }
 
+// ==========================================================================
+// 振り向きアニメーション
+// ==========================================================================
+
 void Player::AnimateTurn() {
 	if (turnTimer_ > 0.0f) {
 		turnTimer_ -= 1.0f / 60.0f;
@@ -220,12 +255,54 @@ void Player::AnimateTurn() {
 	}
 }
 
+// ==========================================================================
+// 状態管理
+// ==========================================================================
+
 void Player::Die() {
 	isDead_ = true;
 	velocity_ = {0.0f, 0.0f, 0.0f}; // 動きを止める
 }
 
-bool Player::IsDead() const { return isDead_; }
+void Player::LockOn(Enemy* target) {
+	targetEnemy_ = target;
+	isLockedOn_ = (target != nullptr);
+}
+
+void Player::LockOff() {
+	targetEnemy_ = nullptr;
+	isLockedOn_ = false;
+}
+
+void Player::TakeDamage(int damage) {
+	hp_ -= damage;
+
+	// HPが0以下になったら死亡
+	if (hp_ <= 0) {
+		hp_ = 0;
+		Die(); // 死亡処理を実行
+	}
+}
+
+void Player::Knockback(const Vector3& dir) {
+	// 既にノックバック中なら無視（連続ヒット防止）
+	if (knockbackTimer_ > 0.0f) {
+		return;
+	}
+
+	// 弾き飛ばす速度
+	float knockbackSpeed = 0.05f;
+	float jumpPower = 0.2f; // 少し浮き上がる（ノックアップ）
+
+	velocity_.x = dir.x * knockbackSpeed;
+	velocity_.y = jumpPower;
+
+	knockbackTimer_ = 0.5f; // 0.5秒間は操作不能＆ノックバック状態
+}
+
+// ==========================================================================
+// 衝突判定系
+// ==========================================================================
 
 void Player::CollisionMapCheck(CollisionMapInfo& Info) {
 	CheckMapCollisionDown(Info);
@@ -321,6 +398,10 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& Info) {
 	}
 }
 
+// ==========================================================================
+// ヘルパー関数
+// ==========================================================================
+
 AABB Player::GetAABB() {
 	AABB aabb;
 
@@ -338,11 +419,10 @@ AABB Player::GetAABB() {
 Vector3 Player::GetWorldPosition() {
 	Vector3 worldPos;
 	worldPos.x = worldTransform_.translation_.x;
-	worldPos.y = worldTransform_.translation_.y + Player::kHeight / 2.0f; // プレイヤーの中心位置を考慮
+	worldPos.y = worldTransform_.translation_.y + Player::kHeight / 2.0f;
 	worldPos.z = worldTransform_.translation_.z;
 	return worldPos;
 }
-
 
 void Player::WarpTo(const Vector3& position) {
 	// 位置だけ瞬間移動させて行列を更新
@@ -364,40 +444,4 @@ Vector3 CornerPosition(const Vector3& center, Corner corner) {
 	default:
 		return center;
 	}
-}
-
-void Player::LockOn(Enemy* target) {
-	targetEnemy_ = target;
-	isLockedOn_ = (target != nullptr);
-}
-
-void Player::LockOff() {
-	targetEnemy_ = nullptr;
-	isLockedOn_ = false;
-}
-
-void Player::TakeDamage(int damage) {
-	hp_ -= damage;
-
-	// HPが0以下になったら死亡
-	if (hp_ <= 0) {
-		hp_ = 0;
-		Die(); // 死亡処理を実行
-	}
-}
-
-void Player::Knockback(const Vector3& dir) {
-	// 既にノックバック中なら無視（連続ヒット防止）
-	if (knockbackTimer_ > 0.0f) {
-		return;
-	}
-
-	// 弾き飛ばす速度
-	float knockbackSpeed = 0.05f;
-	float jumpPower = 0.2f; // 少し浮き上がる（ノックアップ）
-
-	velocity_.x = dir.x * knockbackSpeed;
-	velocity_.y = jumpPower;
-
-	knockbackTimer_ = 0.5f; // 0.5秒間は操作不能＆ノックバック状態
 }
