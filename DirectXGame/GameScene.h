@@ -29,11 +29,25 @@ private:
 	void CheckAllCollisions();
 	void UpdateSpecialMove(float deltaTime);
 	void PerformSpecialDash(float deltaTime);
+	// マップブロックの更新
+	void UpdateMapBlocks();
+	// プレイヤーの入力攻撃処理
+	void UpdatePlayerAction();
+	// 弾の移動と寿命管理
+	void UpdateProjectiles();
+	// 敵の更新と回復行動
+	void UpdateEnemies();
+	// 弾などの当たり判定
+	void CheckCollisions();
+	// UIの更新
+	void UpdateHud();
+	// フェードやシーン遷移の管理
+	void UpdateSceneFlow();
 
 	enum class SpecialState {
 		None,
 		Charge, // プレイヤーだけ止まってチャージ
-		Dash,   // 次元斬
+		Dash,   // 走る
 		Finish  // 画面全体の斬撃演出
 	};
 
