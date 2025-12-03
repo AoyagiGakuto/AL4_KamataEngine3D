@@ -7,6 +7,10 @@ using namespace KamataEngine::MathUtility;
 
 using namespace KamataEngine;
 
+// ==========================================================================
+// 初期化処理
+// ==========================================================================
+
 void Enemy::Initialize(Model* model, Model* modelHpBar, Model* modelHp, Camera* camera, const Vector3& position, Type type) {
 	assert(model);
 	model_ = model;
@@ -14,10 +18,12 @@ void Enemy::Initialize(Model* model, Model* modelHpBar, Model* modelHp, Camera* 
 	modelHp_ = modelHp;
 	camera_ = camera;
 
+	// ワールド変換の初期化
 	worldTransform_.Initialize();
 	worldTransformHpBar_.Initialize();
 	worldTransformHp_.Initialize();
 
+	// HPバーのスケール設定
 	Vector3 hpBarScale = {0.15f, 0.15f, 0.15f};
 	worldTransformHpBar_.scale_ = hpBarScale;
 	worldTransformHp_.scale_ = hpBarScale;
@@ -53,13 +59,25 @@ void Enemy::Initialize(Model* model, Model* modelHpBar, Model* modelHp, Camera* 
 	}
 }
 
+// ==========================================================================
+// 更新処理
+// ==========================================================================
+
 void Enemy::Update() {
+
+	/*
+	// --- ヒットストップ ---
+	*/
 
 	if (hitStopTimer_ > 0.0f) {
 		hitStopTimer_ -= 1.0f / 60.0f;
 		// 時間停止中は、移動もアニメーションも更新せずここで終わる
 		return;
 	}
+
+	/*
+	// --- スロー処理 ---
+	*/
 
 	// 通常速度
 	float speedMultiplier = 1.0f;
@@ -71,6 +89,10 @@ void Enemy::Update() {
 
 	// 敵の歩行モーションのタイマーを更新
 	walkTimer_ += 1.0f / 60.0f;
+
+	/*
+	// --- ノックバック処理 ---
+	*/
 
 	if (knockbackTimer_ > 0.0f) {
 		knockbackTimer_ -= 1.0f / 60.0f;
@@ -277,6 +299,10 @@ COMMON_UPDATE:
 	worldTransform_.TransferMatrix();
 }
 
+// ==========================================================================
+// なんちゃってAIの処理
+// ==========================================================================
+
 // 仲間(敵から見て)の回復処理
 void Enemy::HealNearbyEnemies(std::list<Enemy*>& enemies) {
 	if (IsDead()) {
@@ -321,6 +347,10 @@ void Enemy::HealNearbyEnemies(std::list<Enemy*>& enemies) {
 	}
 }
 
+// ==========================================================================
+// 描画処理
+// ==========================================================================
+
 void Enemy::Draw() {
 	if (model_ && camera_) {
 		model_->Draw(worldTransform_, *camera_);
@@ -336,6 +366,10 @@ void Enemy::Draw() {
 	}
 }
 
+// ==========================================================================
+// 状態管理
+// ==========================================================================
+
 void Enemy::OnCollision(const Player* player) { (void)player; }
 
 AABB Enemy::GetAABB() {
@@ -347,6 +381,10 @@ AABB Enemy::GetAABB() {
 
 	return aabb;
 }
+
+// ==========================================================================
+// 衝突判定系
+// ==========================================================================
 
 void Enemy::CollisionMapCheck(CollisionInfo& info) {
 	CheckMapCollisionDown(info);
