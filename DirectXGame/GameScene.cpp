@@ -376,10 +376,6 @@ void GameScene::Update() {
 					if (target->IsDead()) {
 						score_++;
 						comboRank_.OnEnemyKilled(12.0f);
-						hitEffects_.clear();
-						auto hit = std::make_unique<HitEffect>();
-						hit->Initialize(modelNumbers_, camera_, {0.0f, 0.0f, 0.0f}, score_);
-						hitEffects_.push_back(std::move(hit));
 						deathParticle_.Spawn(target->GetWorldTransform().translation_);
 
 						for (auto it = enemies_.begin(); it != enemies_.end(); ++it) {
@@ -438,10 +434,6 @@ void GameScene::Update() {
 		if (target->IsDead()) {
 			score_++;
 			comboRank_.OnEnemyKilled(12.0f);
-			hitEffects_.clear();
-			auto hit = std::make_unique<HitEffect>();
-			hit->Initialize(modelNumbers_, camera_, {0.0f, 0.0f, 0.0f}, score_);
-			hitEffects_.push_back(std::move(hit));
 			deathParticle_.Spawn(target->GetWorldTransform().translation_);
 
 			for (auto it = enemies_.begin(); it != enemies_.end(); ++it) {
@@ -519,10 +511,6 @@ void GameScene::Update() {
 					// 敵が死んだ時の処理
 					score_++;
 					comboRank_.OnEnemyKilled(10.0f);
-					hitEffects_.clear();
-					auto hit = std::make_unique<HitEffect>();
-					hit->Initialize(modelNumbers_, camera_, {0.0f, 0.0f, 0.0f}, score_);
-					hitEffects_.push_back(std::move(hit));
 					deathParticle_.Spawn((*enemyIt)->GetWorldTransform().translation_);
 
 					delete *enemyIt;
@@ -608,19 +596,6 @@ void GameScene::Update() {
 
 	// カメラの座標を取得
 	Vector3 cameraPos = cameraController_->GetViewProjection().translation_;
-
-	// スコア表示の基準座標を計算
-	Vector3 basePos = cameraPos;
-
-	for (auto& hit : hitEffects_) {
-		hit->Update(); // yOffset_ や Alpha の更新
-
-		// エフェクトの位置更新
-		hit->UpdatePosition(basePos);
-	}
-
-	// 生存時間が切れたものを削除
-	hitEffects_.erase(std::remove_if(hitEffects_.begin(), hitEffects_.end(), [](const std::unique_ptr<HitEffect>& h) { return !h->IsAlive(); }), hitEffects_.end());
 
 	    // プレイヤーは死亡後止まるけど、敵は常に動く
 	if (!player_->IsDead()) {
@@ -785,10 +760,6 @@ void GameScene::UpdateSpecialMove(float deltaTime) {
 					score_++;
 					deathParticle_.Spawn(enemyPos);
 
-					auto hit = std::make_unique<HitEffect>();
-					hit->Initialize(modelNumbers_, camera_, {0, 0, 0}, score_);
-					hitEffects_.push_back(std::move(hit));
-
 					delete e;
 					it = enemies_.erase(it);
 				} else {
@@ -905,10 +876,6 @@ void GameScene::Draw() {
 	// スロー弾の描画
 	for (const auto& sb : slowBalls_) {
 		sb->Draw();
-	}
-
-	for (const auto& hit : hitEffects_) {
-		hit->Draw();
 	}
 
 	// DeathParticle描画

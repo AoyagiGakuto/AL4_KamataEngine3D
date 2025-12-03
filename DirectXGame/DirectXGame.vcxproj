@@ -117,7 +117,6 @@
     <ClCompile Include="GameClearScene.cpp" />
     <ClCompile Include="GameOverScene.cpp" />
     <ClCompile Include="GameScene.cpp" />
-    <ClCompile Include="HitEffect.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MapChipField.cpp" />
     <ClCompile Include="MyMath.cpp" />
@@ -213,7 +212,6 @@
     <ClInclude Include="GameClearScene.h" />
     <ClInclude Include="GameOverScene.h" />
     <ClInclude Include="GameScene.h" />
-    <ClInclude Include="HitEffect.h" />
     <ClInclude Include="MapChipField.h" />
     <ClInclude Include="MyMath.h" />
     <ClInclude Include="ScenePhase.h" />

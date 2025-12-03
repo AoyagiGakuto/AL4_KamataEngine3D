@@ -11,7 +11,6 @@
 #include "Player.h"
 #include "Skydome.h"
 #include "ComboRank.h"
-#include "HitEffect.h"
 #include <memory>
 #include <vector>
 #include <array>
@@ -80,7 +79,6 @@ private:
 	std::vector<std::unique_ptr<Bullet>> slowBalls_;
 
 	std::array<KamataEngine::Model*, 10> modelNumbers_{};
-	std::vector<std::unique_ptr<HitEffect>> hitEffects_;
 	std::vector<std::unique_ptr<SlashEffect>> SlashEffects_;
 	int score_ = 0;
 
