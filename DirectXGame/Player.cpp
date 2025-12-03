@@ -32,6 +32,7 @@ void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	hp_ = maxHp_;
 	isDead_ = false;
 }
+
 void Player::Update() {
 	if (knockbackTimer_ > 0.0f) {
 		knockbackTimer_ -= 1.0f / 60.0f;
@@ -206,8 +207,9 @@ void Player::InputMove() {
 void Player::AnimateTurn() {
 	if (turnTimer_ > 0.0f) {
 		turnTimer_ -= 1.0f / 60.0f;
-		if (turnTimer_ < 0.0f)
+		if (turnTimer_ < 0.0f) {
 			turnTimer_ = 0.0f;
+		}
 		float destinationRotationYTable[] = {std::numbers::pi_v<float> / 2.0f, std::numbers::pi_v<float> * 3.0f / 2.0f};
 		float destinationRotationY = destinationRotationYTable[static_cast<uint32_t>(lrDirection_)];
 		float t = turnTimer_ / kTimeTurn;
@@ -243,6 +245,7 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& Info) {
 	if (Info.move.y <= 0.0f) {
 		return;
 	}
+
 	Vector3 leftTop = CornerPosition(worldTransform_.translation_ + Info.move, kLeftTop);
 	Vector3 rightTop = CornerPosition(worldTransform_.translation_ + Info.move, kRightTop);
 
@@ -259,8 +262,10 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& Info) {
 }
 
 void Player::CheckMapCollisionDown(CollisionMapInfo& Info) {
-	if (Info.move.y >= 0.0f)
+	if (Info.move.y >= 0.0f) {
 		return;
+	}
+
 	Vector3 leftBottom = CornerPosition(worldTransform_.translation_ + Info.move, kLeftBottom);
 	Vector3 rightBottom = CornerPosition(worldTransform_.translation_ + Info.move, kRightBottom);
 
@@ -277,8 +282,10 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& Info) {
 }
 
 void Player::CheckMapCollisionLeft(CollisionMapInfo& Info) {
-	if (Info.move.x >= 0.0f)
+	if (Info.move.x >= 0.0f) {
 		return;
+	}
+
 	Vector3 leftTop = CornerPosition(worldTransform_.translation_ + Info.move, kLeftTop);
 	Vector3 leftBottom = CornerPosition(worldTransform_.translation_ + Info.move, kLeftBottom);
 
@@ -295,8 +302,10 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& Info) {
 }
 
 void Player::CheckMapCollisionRight(CollisionMapInfo& Info) {
-	if (Info.move.x <= 0.0f)
+	if (Info.move.x <= 0.0f) {
 		return;
+	}
+
 	Vector3 rightTop = CornerPosition(worldTransform_.translation_ + Info.move, kRightTop);
 	Vector3 rightBottom = CornerPosition(worldTransform_.translation_ + Info.move, kRightBottom);
 
@@ -379,8 +388,9 @@ void Player::TakeDamage(int damage) {
 
 void Player::Knockback(const Vector3& dir) {
 	// 既にノックバック中なら無視（連続ヒット防止）
-	if (knockbackTimer_ > 0.0f)
+	if (knockbackTimer_ > 0.0f) {
 		return;
+	}
 
 	// 弾き飛ばす速度
 	float knockbackSpeed = 0.05f;

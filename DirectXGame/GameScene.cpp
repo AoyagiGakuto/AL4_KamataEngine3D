@@ -906,6 +906,7 @@ GameScene::~GameScene() {
 	for (Enemy* enemy : enemies_) {
 		delete enemy;
 	}
+
 	enemies_.clear();
 
 	for (auto& line : worldTransformBlocks_) {

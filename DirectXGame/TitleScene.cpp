@@ -49,8 +49,10 @@ void TitleScene::Update() {
 	switch (phase_) {
 	case ScenePhase::FadeIn:
 		fade_->Update();
-		if (fade_->IsFinished())
+		if (fade_->IsFinished()) {
 			phase_ = ScenePhase::Play;
+		}
+
 		break;
 
 	case ScenePhase::Play:
