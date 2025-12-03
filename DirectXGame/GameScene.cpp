@@ -882,7 +882,15 @@ void GameScene::Draw() {
 	}
 }
 
+// ==========================================================================
+// 解放処理
+// ==========================================================================
+
 GameScene::~GameScene() {
+	delete modelPlayer_;
+	delete modelEnemy_;
+	delete modelDeathParticle_;
+	delete modelBullet_;
 	delete model_;
 	delete modelCube_;
 	delete modelSkyDome_;
@@ -895,9 +903,11 @@ GameScene::~GameScene() {
 	delete fade_;
 	delete camera_;
 	delete uiCamera_;
+
 	for (Enemy* enemy : enemies_) {
 		delete enemy;
 	}
+
 	for (auto& line : worldTransformBlocks_) {
 		for (auto& block : line) {
 			delete block;

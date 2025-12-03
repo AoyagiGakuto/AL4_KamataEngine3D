@@ -11,6 +11,7 @@
 #include "Player.h"
 #include "Skydome.h"
 #include "ComboRank.h"
+
 #include <memory>
 #include <vector>
 #include <array>
@@ -19,16 +20,24 @@ class GameScene {
 public:
 	~GameScene();
 
+	// 初期化
 	void Initialize();
+	// 更新処理
 	void Update();
+	// 描画処理
 	void Draw();
+
+	// シーン終了確認
 	bool IsFinished() const { return finished_; }
 
 private:
+
+	/*
+	// --- Updateの仲間たち ---
+	*/
+
+	// マップブロックの生成
 	void GenerateBlooks();
-	void CheckAllCollisions();
-	void UpdateSpecialMove(float deltaTime);
-	void PerformSpecialDash(float deltaTime);
 	// マップブロックの更新
 	void UpdateMapBlocks();
 	// プレイヤーの入力攻撃処理
@@ -39,10 +48,16 @@ private:
 	void UpdateEnemies();
 	// 弾などの当たり判定
 	void CheckCollisions();
+	// プレイヤーと敵の衝突判定
+	void CheckAllCollisions();
 	// UIの更新
 	void UpdateHud();
 	// フェードやシーン遷移の管理
 	void UpdateSceneFlow();
+	// 特殊攻撃の全体制御
+	void UpdateSpecialMove(float deltaTime);
+	// 特殊攻撃中のダッシュ処理
+	void PerformSpecialDash(float deltaTime);
 
 	enum class SpecialState {
 		None,
@@ -51,63 +66,64 @@ private:
 		Finish  // 画面全体の斬撃演出
 	};
 
+	// シーン状態
+	ScenePhase phase_ = ScenePhase::FadeIn;
+	bool finished_ = false;
+	Fade* fade_ = nullptr;
+
+	// 特殊攻撃用パラメータ
 	SpecialState specialState_ = SpecialState::None;
-	float specialTimer_ = 0.0f;       // 各フェーズの残り時間
-	float specialHitInterval_ = 0.0f; // 何フレームごとに敵を斬るか
+	float specialTimer_ = 0.0f;
+	float specialHitInterval_ = 0.0f;
 	bool specialFinalSlashesSpawned_ = false;
 
-	ScenePhase phase_ = ScenePhase::FadeIn;
-
-	// モデル
-	KamataEngine::Model* modelCube_ = nullptr;
-	KamataEngine::Model* modelSkyDome_ = nullptr;
-	KamataEngine::Model* model_ = nullptr;
-	KamataEngine::Model* modelPlayer_ = nullptr;
-	KamataEngine::Model* modelEnemy_ = nullptr;
-	KamataEngine::Model* modelDeathParticle_ = nullptr;
-	KamataEngine::Model* modelBullet_ = nullptr;
-	KamataEngine::Model* modelSlowBall_ = nullptr;
-	KamataEngine::Model* modelZangeki_ = nullptr;
-	KamataEngine::Model* modelHpBar_ = nullptr;
-	KamataEngine::Model* modelHp_ = nullptr;
-
-	// ワールドトランスフォーム
-	KamataEngine::WorldTransform worldTransform_;
-	KamataEngine::WorldTransform worldTransformHudHpBar_;
-	KamataEngine::WorldTransform worldTransformHudHp_;
-
 	// カメラ
-	KamataEngine::Camera* camera_;
+	KamataEngine::Camera* camera_ = nullptr;
 	KamataEngine::Camera* uiCamera_ = nullptr;
 	bool isDebugCameraActive_ = false;
 	KamataEngine::DebugCamera* debugCamera_ = nullptr;
-
-	std::vector<std::vector<KamataEngine::WorldTransform*>> worldTransformBlocks_;
-	MapChipField* mapChipField_ = nullptr;
-
-	Player* player_ = nullptr;
-	std::list<Enemy*> enemies_;
 	CameraController* cameraController_ = nullptr;
 
+	// マップ・背景
+	KamataEngine::WorldTransform worldTransform_;
+	KamataEngine::Model* modelCube_ = nullptr;
+	KamataEngine::Model* modelSkyDome_ = nullptr;
+	std::vector<std::vector<KamataEngine::WorldTransform*>> worldTransformBlocks_;
+	MapChipField* mapChipField_ = nullptr;
+	KamataEngine::Model* model_ = nullptr; // 汎用
+
+	// プレイヤー
+	Player* player_ = nullptr;
+	KamataEngine::Model* modelPlayer_ = nullptr;
+
+	// 敵
+	std::list<Enemy*> enemies_;
+	KamataEngine::Model* modelEnemy_ = nullptr;
+	KamataEngine::Model* modelHpBar_ = nullptr;
+	KamataEngine::Model* modelHp_ = nullptr; // 敵HP用
+
+	// 弾
 	std::vector<std::unique_ptr<Bullet>> bullets_;
 	std::vector<std::unique_ptr<Bullet>> slowBalls_;
+	KamataEngine::Model* modelBullet_ = nullptr;
+	KamataEngine::Model* modelSlowBall_ = nullptr;
 
-	std::array<KamataEngine::Model*, 10> modelNumbers_{};
+	// エフェクト
 	std::vector<std::unique_ptr<SlashEffect>> SlashEffects_;
-	int score_ = 0;
+	KamataEngine::Model* modelZangeki_ = nullptr;
 
-	// デスパーティクル
 	DeathParticle deathParticle_;
+	KamataEngine::Model* modelDeathParticle_ = nullptr;
 	float particleCooldown_ = 0.0f;
 
-	// シーン終了フラグ
-	bool finished_ = false;
+	// UI
+	KamataEngine::WorldTransform worldTransformHudHpBar_;
+	KamataEngine::WorldTransform worldTransformHudHp_;
+	ComboRank comboRank_;
 
-	// シーン内フェード
-	Fade* fade_ = nullptr;
+	// スコア・数字モデル
+	int score_ = 0;
+	std::array<KamataEngine::Model*, 10> modelNumbers_{};
 
 	float hitStopTimer_ = 0.0f;
-	
-	// コンボランク
-	ComboRank comboRank_;
 };
