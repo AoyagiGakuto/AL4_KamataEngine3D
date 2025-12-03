@@ -30,6 +30,8 @@ void GameScene::Initialize() {
 		modelNumbers_[i] = Model::CreateFromOBJ(std::to_string(i));
 	}
 
+	// delete忘れないように
+
 	model_ = Model::Create();
 	mapChipField_ = new MapChipField();
 	player_ = new Player();
@@ -59,15 +61,15 @@ void GameScene::Initialize() {
 	worldTransformHudHpBar_.Initialize();
 	worldTransformHudHp_.Initialize();
 
-	Vector3 hudPos = {-3.5f, 3.8f, 0.0f};
-	comboRank_.Initialize(uiCamera_, {1.0f, 3.5f, 0.0f});
+	// UI位置
+	comboRank_.Initialize(uiCamera_, GameParam::kComboPos);
 
-	worldTransformHudHpBar_.translation_ = hudPos;
-	worldTransformHudHp_.translation_ = hudPos;
+	worldTransformHudHpBar_.translation_ = GameParam::kHudPos;
+	worldTransformHudHp_.translation_ = GameParam::kHudPos;
 
-	Vector3 hudScale = {1.2f, 0.2f, 0.1f};
-	worldTransformHudHpBar_.scale_ = hudScale;
-	worldTransformHudHp_.scale_ = hudScale;
+	// UIスケール
+	worldTransformHudHpBar_.scale_ = GameParam::kHudScale;
+	worldTransformHudHp_.scale_ = GameParam::kHudScale;
 
 	// ブロック生成
 	GenerateBlooks();
@@ -77,38 +79,33 @@ void GameScene::Initialize() {
 	player_->Initialize(modelPlayer_, camera_, playerPosition);
 	player_->SetMapChipField(mapChipField_);
 
-	// 敵配置
-	const int enemyCount = 3; // 3体（ふつう敵、ついてくる敵、飛んで回復する敵）
-
-	for (int32_t i = 0; i < enemyCount; ++i) {
+	// 敵の数
+	for (int32_t i = 0; i < GameParam::kEnemyCount; ++i) {
 		Enemy* newEnemy = new Enemy();
 
 		// 敵の基本位置(仮)
 		Vector3 enemyPosition = mapChipField_->GetMapPositionTypeByIndex(30 + i * 3, 18);
 
-		// 全員プレイヤーをターゲットとしてセットしておく
 		newEnemy->SetTarget(player_);
 
-		// タイプを変える
 		if (i == 0) {
 			// 通常タイプ
 			newEnemy->Initialize(modelEnemy_, modelHpBar_, modelHp_, camera_, enemyPosition, Enemy::Type::kNormal);
-			newEnemy->SetScale({0.4f, 0.4f, 0.4f});
+			newEnemy->SetScale({GameParam::kEnemyScaleNormal, GameParam::kEnemyScaleNormal, GameParam::kEnemyScaleNormal});
 
 		} else if (i == 1) {
 			// 追尾タイプ
 			newEnemy->Initialize(modelEnemy_, modelHpBar_, modelHp_, camera_, enemyPosition, Enemy::Type::kHoming);
-			newEnemy->SetScale({0.4f, 0.4f, 0.4f});
+			newEnemy->SetScale({GameParam::kEnemyScaleNormal, GameParam::kEnemyScaleNormal, GameParam::kEnemyScaleNormal});
 
 		} else {
 			// 飛行支援タイプ
-			enemyPosition.y += 5.0f;
+			enemyPosition.y += GameParam::kFlyingHeightOffset;
 			newEnemy->Initialize(modelEnemy_, modelHpBar_, modelHp_, camera_, enemyPosition, Enemy::Type::kFlyingSupport);
-			newEnemy->SetScale({0.3f, 0.3f, 0.3f}); // 少し小さめ
+			newEnemy->SetScale({GameParam::kEnemyScaleSmall, GameParam::kEnemyScaleSmall, GameParam::kEnemyScaleSmall});
 		}
 
 		newEnemy->SetMapChipField(mapChipField_);
-		// 回転の初期値
 		newEnemy->SetRotationY(std::numbers::pi_v<float> * 3.0f / 2.0f);
 
 		enemies_.push_back(newEnemy);
@@ -122,7 +119,6 @@ void GameScene::Initialize() {
 	cameraController_->Initialize();
 	cameraController_->Reset();
 
-	// DeathParticle 初期化
 	deathParticle_.Initialize(modelDeathParticle_, camera_);
 
 	particleCooldown_ = 0.0f;
@@ -130,7 +126,7 @@ void GameScene::Initialize() {
 	fade_ = new Fade();
 	fade_->Initialize();
 	fade_->Start(Fade::Status::FadeIn, 1.0f);
-	// 毎回違うパターンで弾が降るように
+
 	srand((unsigned int)time(NULL));
 }
 
@@ -172,7 +168,6 @@ void GameScene::Update() {
 
 	cameraController_->Update();
 
-	// カメラ行列の更新
 	if (isDebugCameraActive_) {
 		debugCamera_->Update();
 		camera_->matView = debugCamera_->GetCamera().matView;
@@ -183,12 +178,10 @@ void GameScene::Update() {
 		camera_->TransferMatrix();
 	}
 
-	// いろいろ更新処理
 	UpdateSpecialMove(dt);
 	UpdateMapBlocks();
 	UpdatePlayerAction();
 
-	// プレイヤーの移動更新
 	if (!player_->IsDead()) {
 		if (specialState_ == SpecialState::None) {
 			player_->Update();
@@ -200,10 +193,8 @@ void GameScene::Update() {
 	UpdateProjectiles();
 	CheckCollisions();
 
-	// エフェクト更新
 	deathParticle_.Update();
 
-	// 斬撃エフェクトの更新
 	for (auto& vfx : SlashEffects_) {
 		vfx->Update();
 	}
@@ -211,7 +202,6 @@ void GameScene::Update() {
 	SlashEffects_.erase(std::remove_if(SlashEffects_.begin(), SlashEffects_.end(), [](const std::unique_ptr<SlashEffect>& v) { return !v->IsAlive(); }), SlashEffects_.end());
 
 	UpdateHud();
-
 	UpdateSceneFlow();
 }
 
@@ -250,7 +240,6 @@ void GameScene::UpdatePlayerAction() {
 				Vector3 targetPos = player_->GetTargetEnemy()->GetWorldTransform().translation_;
 				targetPos.y += 0.4f;
 				Vector3 diff = targetPos - spawnPos;
-
 				dir = Normalize(diff);
 			} else {
 				float y = player_->GetWorldTransform().rotation_.y;
@@ -271,12 +260,12 @@ void GameScene::UpdatePlayerAction() {
 		if (!player_->IsDead() && player_->IsLockedOn()) {
 			Enemy* targetEnemy = player_->GetTargetEnemy();
 			if (targetEnemy && !targetEnemy->IsDead()) {
-				const int kNumRainBalls = 10;
+				// スロー弾の数など
 				const float kRainAreaWidth = 5.0f;
 				const float kRainHeight = 10.0f;
 				float centerX = targetEnemy->GetWorldTransform().translation_.x;
 
-				for (int i = 0; i < kNumRainBalls; ++i) {
+				for (int i = 0; i < GameParam::kRainBallCount; ++i) {
 					float randomRatio = (float)(rand() % 1000) / 999.0f;
 					float randomX = (randomRatio - 0.5f) * kRainAreaWidth;
 					Vector3 spawnPos = {centerX + randomX, kRainHeight, 0.0f};
@@ -320,7 +309,6 @@ void GameScene::UpdatePlayerAction() {
 			player_->LockOn(closestEnemy);
 		}
 
-		// 切り替え
 		if (Input::GetInstance()->TriggerKey(DIK_L) && player_->IsLockedOn()) {
 			Enemy* currentTarget = player_->GetTargetEnemy();
 			auto it = std::find(enemies_.begin(), enemies_.end(), currentTarget);
@@ -343,21 +331,18 @@ void GameScene::UpdatePlayerAction() {
 		player_->LockOff();
 	}
 
-	/*
-	// ---近接攻撃---
-	*/
-
+	/* ---近接攻撃--- */
 	if (Input::GetInstance()->TriggerKey(DIK_K)) {
 		if (player_->IsLockedOn()) {
 			Enemy* target = player_->GetTargetEnemy();
 			if (target && !target->IsDead()) {
-				const float kMeleeRange = 3.5f;
+				// 近接攻撃の射程
 				float distance = Length(target->GetWorldTransform().translation_ - player_->GetWorldTransform().translation_);
 
-				if (distance <= kMeleeRange) {
-					target->TakeDamage(1);
-					target->ApplyHitStop(0.1f);
-					comboRank_.AddHit(8.0f);
+				if (distance <= GameParam::kPlayerMeleeRange) {
+					target->TakeDamage(GameParam::kDamageNormal);
+					target->ApplyHitStop(GameParam::kHitStopDuration);
+					comboRank_.AddHit(GameParam::kComboPointHit);
 
 					// エフェクト生成
 					const float kEffectSpread = 1.0f;
@@ -370,10 +355,9 @@ void GameScene::UpdatePlayerAction() {
 					vfx->SetRotation(player_->GetWorldTransform().rotation_.y);
 					SlashEffects_.push_back(std::move(vfx));
 
-					// 撃破処理
 					if (target->IsDead()) {
 						score_++;
-						comboRank_.OnEnemyKilled(12.0f);
+						comboRank_.OnEnemyKilled(GameParam::kComboPointKill);
 						deathParticle_.Spawn(target->GetWorldTransform().translation_);
 
 						enemies_.remove(target);
@@ -385,17 +369,15 @@ void GameScene::UpdatePlayerAction() {
 		}
 	}
 
-	/*
-	// ---チャージ攻撃---
-	*/
-
+	/* ---チャージ攻撃--- */
 	if (player_->IsChargeAttackReady()) {
 		player_->ConsumeChargeAttack();
 		Enemy* target = player_->GetTargetEnemy();
 		if (target && !target->IsDead()) {
-			comboRank_.AddHit(15.0f);
-			for (int i = 0; i < 5; ++i) {
-				target->TakeDamage(1);
+			comboRank_.AddHit(GameParam::kComboPointCharge);
+			// チャージ攻撃のヒット数
+			for (int i = 0; i < GameParam::kChargeAttackHitCount; ++i) {
+				target->TakeDamage(GameParam::kDamageNormal);
 			}
 
 			// エフェクト生成
@@ -413,10 +395,9 @@ void GameScene::UpdatePlayerAction() {
 				SlashEffects_.push_back(std::move(vfx));
 			}
 
-			// 撃破処理
 			if (target->IsDead()) {
 				score_++;
-				comboRank_.OnEnemyKilled(12.0f);
+				comboRank_.OnEnemyKilled(GameParam::kComboPointKill);
 				deathParticle_.Spawn(target->GetWorldTransform().translation_);
 
 				enemies_.remove(target);
@@ -430,15 +411,12 @@ void GameScene::UpdatePlayerAction() {
 // ==========================================================================
 // 弾の更新処理
 // ==========================================================================
-
 void GameScene::UpdateProjectiles() {
-	// 通常弾
 	for (auto& b : bullets_) {
 		b->Update();
 	}
 	bullets_.erase(std::remove_if(bullets_.begin(), bullets_.end(), [](const std::unique_ptr<Bullet>& b) { return !b->IsAlive(); }), bullets_.end());
 
-	// スロー弾
 	for (auto& sb : slowBalls_) {
 		sb->Update();
 	}
@@ -448,21 +426,14 @@ void GameScene::UpdateProjectiles() {
 // ==========================================================================
 // 敵の更新処理
 // ==========================================================================
-
 void GameScene::UpdateEnemies() {
 	for (Enemy* enemy : enemies_) {
-		if (!enemy) {
+		if (!enemy)
 			continue;
-		}
-
-		if (specialState_ == SpecialState::Dash) {
+		if (specialState_ == SpecialState::Dash)
 			continue;
-		}
-
 		enemy->Update();
 	}
-
-	// 回復行動
 	for (Enemy* enemy : enemies_) {
 		if (enemy->GetType() == Enemy::Type::kFlyingSupport) {
 			enemy->HealNearbyEnemies(enemies_);
@@ -473,18 +444,13 @@ void GameScene::UpdateEnemies() {
 // ==========================================================================
 // 当たり判定処理
 // ==========================================================================
-
 void GameScene::CheckCollisions() {
-	
-	/*
-	// --通常弾と敵---
-	*/
 
+	/* ---通常弾と敵--- */
 	for (auto it = bullets_.begin(); it != bullets_.end();) {
 		bool bulletRemoved = false;
 		AABB aabbB = (*it)->GetAABB();
 
-		// 敵との判定
 		auto enemyIt = enemies_.begin();
 		while (enemyIt != enemies_.end()) {
 			Enemy* enemy = *enemyIt;
@@ -493,8 +459,9 @@ void GameScene::CheckCollisions() {
 			    (aabbB.min.x < aabbE.max.x && aabbB.max.x > aabbE.min.x) && (aabbB.min.y < aabbE.max.y && aabbB.max.y > aabbE.min.y) && (aabbB.min.z < aabbE.max.z && aabbB.max.z > aabbE.min.z);
 
 			if (isHit) {
-				enemy->TakeDamage(1);
-				comboRank_.AddHit(5.0f);
+				// 通常弾ダメージ
+				enemy->TakeDamage(GameParam::kDamageNormal);
+				comboRank_.AddHit(5.0f); // 弾ヒットの点数
 
 				if (enemy->IsDead()) {
 					score_++;
@@ -520,7 +487,6 @@ void GameScene::CheckCollisions() {
 			continue;
 		}
 
-		// 壁との判定 (残っていたら)
 		MapChipField::IndexSet idx = mapChipField_->GetMapChipIndexSetByPosition((*it)->GetAABB().min);
 		MapChipType type = mapChipField_->GetMapChipTypeByIndex(idx.xIndex, idx.yIndex);
 		if (type == MapChipType::kBlock) {
@@ -531,10 +497,7 @@ void GameScene::CheckCollisions() {
 		}
 	}
 
-	/*
-	// ---スロー弾と敵---
-	*/
-
+	/* ---スロー弾と敵--- */
 	for (auto it = slowBalls_.begin(); it != slowBalls_.end();) {
 		bool ballRemoved = false;
 		AABB aabbB = (*it)->GetAABB();
@@ -545,7 +508,8 @@ void GameScene::CheckCollisions() {
 			    (aabbB.min.x < aabbE.max.x && aabbB.max.x > aabbE.min.x) && (aabbB.min.y < aabbE.max.y && aabbB.max.y > aabbE.min.y) && (aabbB.min.z < aabbE.max.z && aabbB.max.z > aabbE.min.z);
 
 			if (isHit) {
-				enemy->SlowDown(2.0f);
+				// スロー効果時間
+				enemy->SlowDown(GameParam::kSlowDuration);
 				(*it)->Kill();
 				ballRemoved = true;
 				break;
@@ -557,7 +521,6 @@ void GameScene::CheckCollisions() {
 			continue;
 		}
 
-		// 壁地面判定
 		MapChipField::IndexSet idx = mapChipField_->GetMapChipIndexSetByPosition((*it)->GetAABB().min);
 		MapChipType type = mapChipField_->GetMapChipTypeByIndex(idx.xIndex, idx.yIndex);
 		if (type == MapChipType::kBlock || aabbB.min.y < 0.0f) {
@@ -572,13 +535,12 @@ void GameScene::CheckCollisions() {
 // ==========================================================================
 // UI更新
 // ==========================================================================
-
 void GameScene::UpdateHud() {
 	float hpRatio = player_->GetHp() / player_->GetMaxHp();
 	hpRatio = std::clamp(hpRatio, 0.0f, 1.0f);
 
-	float baseScaleX = 1.2f;
-	float baseScaleY = 0.2f;
+	float baseScaleX = GameParam::kHudScale.x;
+	float baseScaleY = GameParam::kHudScale.y;
 
 	worldTransformHudHp_.scale_.x = baseScaleX * hpRatio;
 	worldTransformHudHp_.scale_.y = baseScaleY;
@@ -602,7 +564,6 @@ void GameScene::UpdateHud() {
 // ==========================================================================
 // シーン遷移管理
 // ==========================================================================
-
 void GameScene::UpdateSceneFlow() {
 	switch (phase_) {
 	case ScenePhase::FadeIn:
@@ -631,7 +592,6 @@ void GameScene::UpdateSceneFlow() {
 // ==========================================================================
 // プレイヤーと敵の衝突判定
 // ==========================================================================
-
 void GameScene::CheckAllCollisions() {
 	if (player_->IsDead()) {
 		return;
@@ -650,29 +610,23 @@ void GameScene::CheckAllCollisions() {
 		bool isHit = (aabb1.min.x < aabb2.max.x && aabb1.max.x > aabb2.min.x) && (aabb1.min.y < aabb2.max.y && aabb1.max.y > aabb2.min.y) && (aabb1.min.z < aabb2.max.z && aabb1.max.z > aabb2.min.z);
 
 		if (isHit) {
-			// ダメージ処理
-			player_->TakeDamage(1);
-
-			// コンボランクを減らす
+			// 被ダメージ
+			player_->TakeDamage(GameParam::kDamageNormal);
 			comboRank_.OnPlayerDamaged();
 
-			// ノックバック方向の計算
 			Vector3 pPos = player_->GetWorldTransform().translation_;
 			Vector3 ePos = enemy->GetWorldTransform().translation_;
 
 			Vector3 dir = pPos - ePos;
 			dir = Normalize(dir);
 
-			// お互いに弾き飛ばす
-			player_->Knockback(dir);       // プレイヤーは敵と逆方向へ
-			enemy->Knockback(dir * -1.0f); // 敵はプレイヤーと逆方向へ
+			player_->Knockback(dir);
+			enemy->Knockback(dir * -1.0f);
 
-			// 死亡チェック
 			if (player_->IsDead()) {
 				deathParticle_.Spawn(player_->GetWorldTransform().translation_);
 				comboRank_.Reset();
 			}
-
 			break;
 		}
 	}
@@ -681,34 +635,30 @@ void GameScene::CheckAllCollisions() {
 // ==========================================================================
 // 特殊攻撃の更新
 // ==========================================================================
-
 void GameScene::UpdateSpecialMove(float deltaTime) {
 	// R押した瞬間に発動開始
 	if (specialState_ == SpecialState::None) {
 		if (!player_->IsDead() && Input::GetInstance()->TriggerKey(DIK_R)) {
 			specialState_ = SpecialState::Charge;
-			specialTimer_ = 3.0f; // 3秒チャージ
+			specialTimer_ = GameParam::kSpecialChargeTime;
 			specialFinalSlashesSpawned_ = false;
 		}
 	}
 
 	switch (specialState_) {
 	case SpecialState::None:
-		// 何もしない
 		break;
 
 	case SpecialState::Charge:
 		specialTimer_ -= deltaTime;
 		if (specialTimer_ <= 0.0f) {
-			// チャージ終了
 			specialState_ = SpecialState::Dash;
-			specialTimer_ = 0.7f; // ダッシュ全体の長さ（0.7秒くらい）
+			specialTimer_ = GameParam::kSpecialDashTime;
 			specialHitInterval_ = 0.0f;
 		}
 		break;
 
 	case SpecialState::Dash:
-		// ワープと斬撃処理
 		PerformSpecialDash(deltaTime);
 		break;
 
@@ -725,12 +675,11 @@ void GameScene::UpdateSpecialMove(float deltaTime) {
 					continue;
 				}
 
-				// 敵の位置
 				Vector3 enemyPos = e->GetWorldTransform().translation_;
 				enemyPos.y += 0.5f;
 
-				// ここでダメージ
-				e->TakeDamage(9999);// (調整必)
+				// ひっさつ
+				e->TakeDamage(GameParam::kDamageSpecial);
 
 				if (e->IsDead()) {
 					score_++;
@@ -743,9 +692,8 @@ void GameScene::UpdateSpecialMove(float deltaTime) {
 				}
 			}
 
-			// 演出
-			const int kNumSlashes = 200;
-
+			// フィニッシュ斬撃数
+			const int kNumSlashes = GameParam::kSpecialFinaleSlashCount;
 			uint32_t width = mapChipField_->GetNumBlockHorizontal();
 			uint32_t height = mapChipField_->GetNumBlockVertical();
 
@@ -766,7 +714,6 @@ void GameScene::UpdateSpecialMove(float deltaTime) {
 		if (specialTimer_ <= 0.0f) {
 			specialState_ = SpecialState::None;
 		}
-
 		break;
 	}
 }
@@ -774,17 +721,12 @@ void GameScene::UpdateSpecialMove(float deltaTime) {
 // ==========================================================================
 // 必殺技の時のダッシュの実装
 // ==========================================================================
-
 void GameScene::PerformSpecialDash(float deltaTime) {
 	specialTimer_ -= deltaTime;
 	specialHitInterval_ -= deltaTime;
 
-	// 一定間隔で敵のところにワープして斬る
 	if (specialHitInterval_ <= 0.0f) {
-
-		// 生きている敵がいるか確認
 		Enemy* target = nullptr;
-
 		int aliveCount = 0;
 		for (Enemy* e : enemies_) {
 			if (e && !e->IsDead()) {
@@ -793,7 +735,6 @@ void GameScene::PerformSpecialDash(float deltaTime) {
 		}
 
 		if (aliveCount > 0) {
-			// ランダムな敵を1体選ぶ
 			int targetIndex = rand() % aliveCount;
 			int current = 0;
 			for (Enemy* e : enemies_) {
@@ -809,8 +750,6 @@ void GameScene::PerformSpecialDash(float deltaTime) {
 
 		if (target) {
 			Vector3 enemyPos = target->GetWorldTransform().translation_;
-
-			// 敵の周囲のどこかにワープ
 			float side = (rand() % 2 == 0) ? -1.0f : 1.0f;
 			Vector3 warpPos = enemyPos;
 			warpPos.x += side * 1.0f;
@@ -818,22 +757,19 @@ void GameScene::PerformSpecialDash(float deltaTime) {
 
 			player_->WarpTo(warpPos);
 
-			// 次に斬るまでの間隔
-			specialHitInterval_ = 0.06f;
+			specialHitInterval_ = GameParam::kSpecialHitInterval;
 		}
 	}
 
-	// 規定時間が終わったら終わる
 	if (specialTimer_ <= 0.0f) {
 		specialState_ = SpecialState::Finish;
-		specialTimer_ = 0.0f; // 画面全体の斬撃を見せる時間
+		specialTimer_ = 0.0f;
 	}
 }
 
 // ==========================================================================
 // 描画処理
 // ==========================================================================
-
 void GameScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 	Model::PreDraw(dxCommon->GetCommandList());
@@ -852,17 +788,14 @@ void GameScene::Draw() {
 		enemy->Draw();
 	}
 
-	// 弾の描画
 	for (const auto& b : bullets_) {
 		b->Draw();
 	}
 
-	// スロー弾の描画
 	for (const auto& sb : slowBalls_) {
 		sb->Draw();
 	}
 
-	// DeathParticle描画
 	deathParticle_.Draw();
 
 	for (const auto& vfx : SlashEffects_) {
@@ -870,9 +803,7 @@ void GameScene::Draw() {
 	}
 
 	modelHp_->Draw(worldTransformHudHp_, *uiCamera_);
-
 	modelHpBar_->Draw(worldTransformHudHpBar_, *uiCamera_);
-
 	comboRank_.Draw();
 
 	Model::PostDraw();
@@ -885,7 +816,6 @@ void GameScene::Draw() {
 // ==========================================================================
 // 解放処理
 // ==========================================================================
-
 GameScene::~GameScene() {
 	delete modelPlayer_;
 	delete modelEnemy_;
@@ -894,10 +824,6 @@ GameScene::~GameScene() {
 	delete model_;
 	delete modelCube_;
 	delete modelSkyDome_;
-	delete modelPlayer_;
-	delete modelEnemy_;
-	delete modelDeathParticle_;
-	delete modelBullet_;
 	delete modelHp_;
 	delete modelHpBar_;
 	delete debugCamera_;
