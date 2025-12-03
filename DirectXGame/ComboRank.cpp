@@ -1,6 +1,7 @@
 #include "ComboRank.h"
 #include "MyMath.h"
 #include <algorithm>
+#include <numbers>
 
 using namespace KamataEngine;
 
@@ -29,6 +30,8 @@ void ComboRank::Initialize(Camera* uiCamera, const Vector3& pos) {
 	wt_.translation_ = pos;
 	// スケールセット
 	wt_.scale_ = {1.5f, 1.5f, 1.0f};
+
+	wt_.rotation_.y = std::numbers::pi_v<float>;
 
 	// モデル読み込み
 	LoadModels();
