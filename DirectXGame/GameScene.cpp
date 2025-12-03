@@ -894,6 +894,12 @@ GameScene::~GameScene() {
 	delete model_;
 	delete modelCube_;
 	delete modelSkyDome_;
+	delete modelPlayer_;
+	delete modelEnemy_;
+	delete modelDeathParticle_;
+	delete modelBullet_;
+	delete modelHp_;
+	delete modelHpBar_;
 	delete debugCamera_;
 	delete cameraController_;
 	delete modelSlowBall_;
