@@ -66,6 +66,10 @@ private:
 		Finish  // 画面全体の斬撃演出
 	};
 
+	/*
+	// --- メンバ変数 ---
+	*/
+
 	// シーン状態
 	ScenePhase phase_ = ScenePhase::FadeIn;
 	bool finished_ = false;
@@ -121,7 +125,7 @@ private:
 	KamataEngine::WorldTransform worldTransformHudHp_;
 	ComboRank comboRank_;
 
-	// スコア・数字モデル
+	// スコア数字モデル
 	int score_ = 0;
 	std::array<KamataEngine::Model*, 10> modelNumbers_{};
 
