@@ -562,6 +562,7 @@ void Enemy::SlowDown(float duration) {
 	}
 }
 
+// 発射準備ができているか
 bool Enemy::IsReadyToFire() {
 	// 飛行タイプ以外は撃たない
 	if (type_ != Type::kFlyingSupport) {
@@ -577,6 +578,7 @@ bool Enemy::IsReadyToFire() {
 	return false;
 }
 
+// ノックバック処理
 void Enemy::Knockback(const Vector3& dir) {
 	if (knockbackTimer_ > 0.0f) {
 		return;
@@ -591,4 +593,5 @@ void Enemy::Knockback(const Vector3& dir) {
 	knockbackTimer_ = 0.5f; // 0.5秒間吹っ飛ぶ
 }
 
+// ヒットストップ処理
 void Enemy::ApplyHitStop(float duration) { hitStopTimer_ = duration; }
