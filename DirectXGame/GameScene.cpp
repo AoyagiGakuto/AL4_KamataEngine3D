@@ -830,7 +830,9 @@ void GameScene::PerformSpecialDash(float deltaTime) {
 	}
 }
 
-
+// ==========================================================================
+// 描画処理
+// ==========================================================================
 
 void GameScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
