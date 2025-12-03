@@ -212,8 +212,10 @@ void GameScene::Update() {
 void GameScene::UpdateMapBlocks() {
 	for (auto& line : worldTransformBlocks_) {
 		for (auto& block : line) {
-			if (!block)
+			if (!block) {
 				continue;
+			}
+
 			block->matWorld_ = MakeAffineMatrix(block->scale_, block->rotation_, block->translation_);
 			block->TransferMatrix();
 		}
@@ -444,10 +446,14 @@ void GameScene::UpdateProjectiles() {
 
 void GameScene::UpdateEnemies() {
 	for (Enemy* enemy : enemies_) {
-		if (!enemy)
+		if (!enemy) {
 			continue;
-		if (specialState_ == SpecialState::Dash)
+		}
+
+		if (specialState_ == SpecialState::Dash) {
 			continue;
+		}
+
 		enemy->Update();
 	}
 
@@ -643,7 +649,7 @@ void GameScene::CheckAllCollisions() {
 		if (isHit) {
 			// 被ダメージ
 			player_->TakeDamage(GameParam::kDamageNormal);
-			
+
 			// コンボランクを減らす
 			comboRank_.OnPlayerDamaged();
 
@@ -815,8 +821,10 @@ void GameScene::Draw() {
 
 	for (auto& line : worldTransformBlocks_) {
 		for (auto& block : line) {
-			if (!block)
+			if (!block) {
 				continue;
+			}
+
 			modelCube_->Draw(*block, *camera_);
 		}
 	}
@@ -857,7 +865,7 @@ void GameScene::Draw() {
 // ==========================================================================
 
 GameScene::~GameScene() {
-	
+
 	/*
 	// --- モデルの削除 ---
 	*/
@@ -882,7 +890,7 @@ GameScene::~GameScene() {
 	/*
 	// --- ゲームオブジェクトの削除 ---
 	*/
-	
+
 	delete player_;
 	delete mapChipField_;
 	delete debugCamera_;
