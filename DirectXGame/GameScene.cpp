@@ -331,7 +331,10 @@ void GameScene::UpdatePlayerAction() {
 		player_->LockOff();
 	}
 
-	/* ---近接攻撃--- */
+	/*
+	// ---近接攻撃---
+	*/
+
 	if (Input::GetInstance()->TriggerKey(DIK_K)) {
 		if (player_->IsLockedOn()) {
 			Enemy* target = player_->GetTargetEnemy();
@@ -369,7 +372,10 @@ void GameScene::UpdatePlayerAction() {
 		}
 	}
 
-	/* ---チャージ攻撃--- */
+	/*
+	// ---チャージ攻撃---
+	*/
+
 	if (player_->IsChargeAttackReady()) {
 		player_->ConsumeChargeAttack();
 		Enemy* target = player_->GetTargetEnemy();
@@ -411,6 +417,7 @@ void GameScene::UpdatePlayerAction() {
 // ==========================================================================
 // 弾の更新処理
 // ==========================================================================
+
 void GameScene::UpdateProjectiles() {
 	for (auto& b : bullets_) {
 		b->Update();
@@ -426,6 +433,7 @@ void GameScene::UpdateProjectiles() {
 // ==========================================================================
 // 敵の更新処理
 // ==========================================================================
+
 void GameScene::UpdateEnemies() {
 	for (Enemy* enemy : enemies_) {
 		if (!enemy)
@@ -444,9 +452,13 @@ void GameScene::UpdateEnemies() {
 // ==========================================================================
 // 当たり判定処理
 // ==========================================================================
+
 void GameScene::CheckCollisions() {
 
-	/* ---通常弾と敵--- */
+	/*
+	/* ---通常弾と敵---
+	*/
+
 	for (auto it = bullets_.begin(); it != bullets_.end();) {
 		bool bulletRemoved = false;
 		AABB aabbB = (*it)->GetAABB();
@@ -497,7 +509,10 @@ void GameScene::CheckCollisions() {
 		}
 	}
 
-	/* ---スロー弾と敵--- */
+	/*
+	// ---スロー弾と敵---
+	*/
+
 	for (auto it = slowBalls_.begin(); it != slowBalls_.end();) {
 		bool ballRemoved = false;
 		AABB aabbB = (*it)->GetAABB();
@@ -535,6 +550,7 @@ void GameScene::CheckCollisions() {
 // ==========================================================================
 // UI更新
 // ==========================================================================
+
 void GameScene::UpdateHud() {
 	float hpRatio = player_->GetHp() / player_->GetMaxHp();
 	hpRatio = std::clamp(hpRatio, 0.0f, 1.0f);
@@ -564,6 +580,7 @@ void GameScene::UpdateHud() {
 // ==========================================================================
 // シーン遷移管理
 // ==========================================================================
+
 void GameScene::UpdateSceneFlow() {
 	switch (phase_) {
 	case ScenePhase::FadeIn:
@@ -592,6 +609,7 @@ void GameScene::UpdateSceneFlow() {
 // ==========================================================================
 // プレイヤーと敵の衝突判定
 // ==========================================================================
+
 void GameScene::CheckAllCollisions() {
 	if (player_->IsDead()) {
 		return;
@@ -635,6 +653,7 @@ void GameScene::CheckAllCollisions() {
 // ==========================================================================
 // 特殊攻撃の更新
 // ==========================================================================
+
 void GameScene::UpdateSpecialMove(float deltaTime) {
 	// R押した瞬間に発動開始
 	if (specialState_ == SpecialState::None) {
@@ -721,6 +740,7 @@ void GameScene::UpdateSpecialMove(float deltaTime) {
 // ==========================================================================
 // 必殺技の時のダッシュの実装
 // ==========================================================================
+
 void GameScene::PerformSpecialDash(float deltaTime) {
 	specialTimer_ -= deltaTime;
 	specialHitInterval_ -= deltaTime;
@@ -770,6 +790,7 @@ void GameScene::PerformSpecialDash(float deltaTime) {
 // ==========================================================================
 // 描画処理
 // ==========================================================================
+
 void GameScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 	Model::PreDraw(dxCommon->GetCommandList());
@@ -816,39 +837,55 @@ void GameScene::Draw() {
 // ==========================================================================
 // 解放処理
 // ==========================================================================
+
 GameScene::~GameScene() {
+	
+	/*
+	// --- モデルの削除 ---
+	*/
+
 	delete modelPlayer_;
 	delete modelEnemy_;
 	delete modelDeathParticle_;
 	delete modelBullet_;
+	delete modelSlowBall_;
+	delete modelZangeki_;
+	delete modelHp_;
+	delete modelHpBar_;
 	delete model_;
 	delete modelCube_;
 	delete modelSkyDome_;
-	delete modelHp_;
-	delete modelHpBar_;
+
+	// 数字モデル配列の削除
+	for (Model* model : modelNumbers_) {
+		delete model;
+	}
+
+	/*
+	// --- ゲームオブジェクトの削除 ---
+	*/
+	
+	delete player_;
+	delete mapChipField_;
 	delete debugCamera_;
 	delete cameraController_;
-	delete modelSlowBall_;
-	delete mapChipField_;
-	delete modelZangeki_;
-	delete player_;
-	delete fade_;
 	delete camera_;
 	delete uiCamera_;
+	delete fade_;
+
+	/*
+	// --- リスト管理されているものの削除 ---
+	*/
 
 	for (Enemy* enemy : enemies_) {
 		delete enemy;
 	}
+	enemies_.clear();
 
 	for (auto& line : worldTransformBlocks_) {
 		for (auto& block : line) {
 			delete block;
 		}
 	}
-
-	for (Model* model : modelNumbers_) {
-		delete model;
-	}
-
 	worldTransformBlocks_.clear();
 }

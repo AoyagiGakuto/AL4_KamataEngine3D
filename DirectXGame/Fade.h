@@ -9,6 +9,9 @@ public:
 		FadeOut,
 	};
 
+	// デストラクタ
+	~Fade();
+
 	// 初期化
 	void Initialize();
 	
