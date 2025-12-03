@@ -141,7 +141,7 @@ private:
 	MapChipField* mapChipField_ = nullptr;
 
 	/*
-	// --- バトル・ステータス ---
+	// --- ステータス ---
 	*/
 
 	// HP
