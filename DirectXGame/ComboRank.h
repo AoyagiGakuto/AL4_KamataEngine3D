@@ -2,6 +2,8 @@
 #include "KamataEngine.h"
 #include <array>
 
+// とりあえずで作ってみたものなのでまだ画面には描画してないです
+
 class ComboRank {
 public:
 
