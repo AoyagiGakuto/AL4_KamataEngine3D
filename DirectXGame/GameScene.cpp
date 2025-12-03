@@ -309,6 +309,7 @@ void GameScene::UpdatePlayerAction() {
 			player_->LockOn(closestEnemy);
 		}
 
+		// 切り替え
 		if (Input::GetInstance()->TriggerKey(DIK_L) && player_->IsLockedOn()) {
 			Enemy* currentTarget = player_->GetTargetEnemy();
 			auto it = std::find(enemies_.begin(), enemies_.end(), currentTarget);
@@ -317,12 +318,15 @@ void GameScene::UpdatePlayerAction() {
 				size_t enemyMax = enemies_.size();
 				while (checkCount < enemyMax) {
 					it++;
-					if (it == enemies_.end())
+					if (it == enemies_.end()) {
 						it = enemies_.begin();
+					}
+
 					if (!(*it)->IsDead()) {
 						player_->LockOn(*it);
 						break;
 					}
+
 					checkCount++;
 				}
 			}
@@ -358,6 +362,7 @@ void GameScene::UpdatePlayerAction() {
 					vfx->SetRotation(player_->GetWorldTransform().rotation_.y);
 					SlashEffects_.push_back(std::move(vfx));
 
+					// 撃破処理
 					if (target->IsDead()) {
 						score_++;
 						comboRank_.OnEnemyKilled(GameParam::kComboPointKill);
@@ -401,6 +406,7 @@ void GameScene::UpdatePlayerAction() {
 				SlashEffects_.push_back(std::move(vfx));
 			}
 
+			// 撃破処理
 			if (target->IsDead()) {
 				score_++;
 				comboRank_.OnEnemyKilled(GameParam::kComboPointKill);
@@ -419,11 +425,13 @@ void GameScene::UpdatePlayerAction() {
 // ==========================================================================
 
 void GameScene::UpdateProjectiles() {
+	// 通常弾
 	for (auto& b : bullets_) {
 		b->Update();
 	}
 	bullets_.erase(std::remove_if(bullets_.begin(), bullets_.end(), [](const std::unique_ptr<Bullet>& b) { return !b->IsAlive(); }), bullets_.end());
 
+	// スロー弾
 	for (auto& sb : slowBalls_) {
 		sb->Update();
 	}
@@ -442,6 +450,8 @@ void GameScene::UpdateEnemies() {
 			continue;
 		enemy->Update();
 	}
+
+	// 回復行動
 	for (Enemy* enemy : enemies_) {
 		if (enemy->GetType() == Enemy::Type::kFlyingSupport) {
 			enemy->HealNearbyEnemies(enemies_);
@@ -463,6 +473,7 @@ void GameScene::CheckCollisions() {
 		bool bulletRemoved = false;
 		AABB aabbB = (*it)->GetAABB();
 
+		// 敵との判定
 		auto enemyIt = enemies_.begin();
 		while (enemyIt != enemies_.end()) {
 			Enemy* enemy = *enemyIt;
@@ -499,6 +510,7 @@ void GameScene::CheckCollisions() {
 			continue;
 		}
 
+		// 壁との判定
 		MapChipField::IndexSet idx = mapChipField_->GetMapChipIndexSetByPosition((*it)->GetAABB().min);
 		MapChipType type = mapChipField_->GetMapChipTypeByIndex(idx.xIndex, idx.yIndex);
 		if (type == MapChipType::kBlock) {
@@ -536,6 +548,7 @@ void GameScene::CheckCollisions() {
 			continue;
 		}
 
+		// 壁地面判定
 		MapChipField::IndexSet idx = mapChipField_->GetMapChipIndexSetByPosition((*it)->GetAABB().min);
 		MapChipType type = mapChipField_->GetMapChipTypeByIndex(idx.xIndex, idx.yIndex);
 		if (type == MapChipType::kBlock || aabbB.min.y < 0.0f) {
@@ -630,17 +643,22 @@ void GameScene::CheckAllCollisions() {
 		if (isHit) {
 			// 被ダメージ
 			player_->TakeDamage(GameParam::kDamageNormal);
+			
+			// コンボランクを減らす
 			comboRank_.OnPlayerDamaged();
 
+			// ノックバック方向の計算
 			Vector3 pPos = player_->GetWorldTransform().translation_;
 			Vector3 ePos = enemy->GetWorldTransform().translation_;
 
 			Vector3 dir = pPos - ePos;
 			dir = Normalize(dir);
 
+			// お互いに弾き飛ばす
 			player_->Knockback(dir);
 			enemy->Knockback(dir * -1.0f);
 
+			// 死亡チェック
 			if (player_->IsDead()) {
 				deathParticle_.Spawn(player_->GetWorldTransform().translation_);
 				comboRank_.Reset();
