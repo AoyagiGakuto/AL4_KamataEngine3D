@@ -2,9 +2,14 @@
 #include "MyMath.h"
 #include <algorithm>
 #include <cassert>
+
 using namespace KamataEngine::MathUtility;
 
 using namespace KamataEngine;
+
+// ==========================================================================
+// 初期化処理
+// ==========================================================================
 
 void Enemy::Initialize(Model* model, Model* modelHpBar, Model* modelHp, Camera* camera, const Vector3& position, Type type) {
 	assert(model);
@@ -13,11 +18,12 @@ void Enemy::Initialize(Model* model, Model* modelHpBar, Model* modelHp, Camera* 
 	modelHp_ = modelHp;
 	camera_ = camera;
 
+	// ワールド変換の初期化
 	worldTransform_.Initialize();
 	worldTransformHpBar_.Initialize();
 	worldTransformHp_.Initialize();
 
-
+	// HPバーのスケール設定
 	Vector3 hpBarScale = {0.15f, 0.15f, 0.15f};
 	worldTransformHpBar_.scale_ = hpBarScale;
 	worldTransformHp_.scale_ = hpBarScale;
@@ -53,7 +59,15 @@ void Enemy::Initialize(Model* model, Model* modelHpBar, Model* modelHp, Camera* 
 	}
 }
 
+// ==========================================================================
+// 更新処理
+// ==========================================================================
+
 void Enemy::Update() {
+
+	/*
+	// --- ヒットストップ ---
+	*/
 
 	if (hitStopTimer_ > 0.0f) {
 		hitStopTimer_ -= 1.0f / 60.0f;
@@ -61,7 +75,17 @@ void Enemy::Update() {
 		return;
 	}
 
-	float speedMultiplier = 1.0f; // 通常速度
+	if (shotTimer_ > 0.0f) {
+		shotTimer_ -= 1.0f / 60.0f;
+	}
+
+	/*
+	// --- スロー処理 ---
+	*/
+
+	// 通常速度
+	float speedMultiplier = 1.0f;
+
 	if (slowTimer_ > 0.0f) {
 		slowTimer_ -= 1.0f / 60.0f;
 		speedMultiplier = 0.3f;
@@ -69,6 +93,10 @@ void Enemy::Update() {
 
 	// 敵の歩行モーションのタイマーを更新
 	walkTimer_ += 1.0f / 60.0f;
+
+	/*
+	// --- ノックバック処理 ---
+	*/
 
 	if (knockbackTimer_ > 0.0f) {
 		knockbackTimer_ -= 1.0f / 60.0f;
@@ -90,7 +118,10 @@ void Enemy::Update() {
 
 	switch (type_) {
 
-	// --- 通常タイプ ---
+		/*
+		// --- 通常タイプ ---
+		*/
+
 	case Type::kNormal: {
 		// 歩行アニメーション (体を揺らす)
 		float param = std::sin(walkTimer_ * (std::numbers::pi_v<float> * 2.0f / kWalkMotionTime)) * (kWalkMotionAngelEnd - kWalkMotionAngelStart) + kWalkMotionAngelStart;
@@ -114,15 +145,19 @@ void Enemy::Update() {
 		worldTransform_.translation_ += info.move;
 
 		// 速度から向きを決める
-		if (velocity_.x > 0.001f)
+		if (velocity_.x > 0.001f) {
 			worldTransform_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
-		else if (velocity_.x < -0.001f)
+		} else if (velocity_.x < -0.001f) {
 			worldTransform_.rotation_.y = std::numbers::pi_v<float> * 3.0f / 2.0f;
+		}
 
 		break;
 	}
 
-	// --- 追尾タイプ ---
+		/*
+		// --- 追尾タイプ ---
+		*/
+
 	case Type::kHoming: {
 		// 常にプレイヤーの方向を見るなどの処理も入れられる
 		worldTransform_.rotation_.x = 0.0f; // 傾きなし
@@ -153,15 +188,19 @@ void Enemy::Update() {
 		worldTransform_.translation_ += info.move;
 
 		// 向き
-		if (velocity_.x > 0.001f)
+		if (velocity_.x > 0.001f) {
 			worldTransform_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
-		else if (velocity_.x < -0.001f)
+		} else if (velocity_.x < -0.001f) {
 			worldTransform_.rotation_.y = std::numbers::pi_v<float> * 3.0f / 2.0f;
+		}
 
 		break;
 	}
 
-	// --- 飛行・支援タイプ ---
+		/*
+		// --- 飛行回復タイプ ---
+		*/
+
 	case Type::kFlyingSupport: {
 		float hoverOffset = std::sin(walkTimer_ * 2.0f) * 0.5f;
 
@@ -173,7 +212,7 @@ void Enemy::Update() {
 			targetPos = healTarget_->GetWorldTransform().translation_;
 			isHealingMode = true;
 		}
-		// 射撃モードまだみ
+		// 射撃モードまだ未実装
 		else if (target_) {
 			targetPos = target_->GetWorldTransform().translation_;
 			isHealingMode = false;
@@ -217,10 +256,12 @@ void Enemy::Update() {
 			// プレイヤーの方を向く
 			if (target_) {
 				float dx = target_->GetWorldTransform().translation_.x - worldTransform_.translation_.x;
-				if (dx > 0)
+				if (dx > 0) {
 					worldTransform_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
-				else
+				} else {
+
 					worldTransform_.rotation_.y = std::numbers::pi_v<float> * 3.0f / 2.0f;
+				}
 			}
 		}
 		break;
@@ -262,10 +303,15 @@ COMMON_UPDATE:
 	worldTransform_.TransferMatrix();
 }
 
+// ==========================================================================
+// なんちゃってAIの処理
+// ==========================================================================
+
 // 仲間(敵から見て)の回復処理
 void Enemy::HealNearbyEnemies(std::list<Enemy*>& enemies) {
-	if (IsDead())
+	if (IsDead()) {
 		return;
+	}
 
 	// 傷ついている仲間を探す
 	float minDist = FLT_MAX;
@@ -273,8 +319,9 @@ void Enemy::HealNearbyEnemies(std::list<Enemy*>& enemies) {
 
 	for (Enemy* other : enemies) {
 		// 自分自身や死んでる敵は無視
-		if (other == this || other->IsDead())
+		if (other == this || other->IsDead()) {
 			continue;
+		}
 
 		// HPが減っているかチェック
 		if (other->hp_ < other->maxHp_) {
@@ -304,17 +351,28 @@ void Enemy::HealNearbyEnemies(std::list<Enemy*>& enemies) {
 	}
 }
 
+// ==========================================================================
+// 描画処理
+// ==========================================================================
+
 void Enemy::Draw() {
 	if (model_ && camera_) {
 		model_->Draw(worldTransform_, *camera_);
 		if (hp_ > 0) {
-			if (modelHpBar_)
+			if (modelHpBar_) {
 				modelHpBar_->Draw(worldTransformHpBar_, *camera_);
-			if (modelHp_)
+			}
+			if (modelHp_) {
+
 				modelHp_->Draw(worldTransformHp_, *camera_);
+			}
 		}
 	}
 }
+
+// ==========================================================================
+// 状態管理
+// ==========================================================================
 
 void Enemy::OnCollision(const Player* player) { (void)player; }
 
@@ -327,6 +385,10 @@ AABB Enemy::GetAABB() {
 
 	return aabb;
 }
+
+// ==========================================================================
+// 衝突判定系
+// ==========================================================================
 
 void Enemy::CollisionMapCheck(CollisionInfo& info) {
 	CheckMapCollisionDown(info);
@@ -504,22 +566,27 @@ void Enemy::SlowDown(float duration) {
 	}
 }
 
+// 発射準備ができているか
 bool Enemy::IsReadyToFire() {
 	// 飛行タイプ以外は撃たない
-	if (type_ != Type::kFlyingSupport)
+	if (type_ != Type::kFlyingSupport) {
 		return false;
+	}
 
 	// タイマーが0以下なら発射OK
 	if (shotTimer_ <= 0.0f) {
 		shotTimer_ = kFireInterval; // 次回のために時間をセット
 		return true;
 	}
+
 	return false;
 }
 
+// ノックバック処理
 void Enemy::Knockback(const Vector3& dir) {
-	if (knockbackTimer_ > 0.0f)
+	if (knockbackTimer_ > 0.0f) {
 		return;
+	}
 
 	float knockbackSpeed = 0.1f;
 	float jumpPower = 0.15f;
@@ -530,4 +597,5 @@ void Enemy::Knockback(const Vector3& dir) {
 	knockbackTimer_ = 0.5f; // 0.5秒間吹っ飛ぶ
 }
 
+// ヒットストップ処理
 void Enemy::ApplyHitStop(float duration) { hitStopTimer_ = duration; }

@@ -44,7 +44,7 @@ private:
 	*/
 
 	// カメラ
-	Camera camera_;
+	KamataEngine::Camera camera_;
 	
 	/*
 	// --- 追尾対象 ---

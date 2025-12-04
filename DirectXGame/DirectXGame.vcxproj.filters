@@ -37,9 +37,6 @@
     <ClCompile Include="TitleScene.cpp">
       <Filter>Scene\Title</Filter>
     </ClCompile>
-    <ClCompile Include="HitEffect.cpp">
-      <Filter>Effects\HitEffect</Filter>
-    </ClCompile>
     <ClCompile Include="Boss.cpp">
       <Filter>Boss</Filter>
     </ClCompile>
@@ -90,9 +87,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="HitEffect.h">
-      <Filter>Effects\HitEffect</Filter>
-    </ClInclude>
     <ClInclude Include="Boss.h">
       <Filter>Boss</Filter>
     </ClInclude>
@@ -240,9 +234,6 @@
     </Filter>
     <Filter Include="Effects\Particle\Slash">
       <UniqueIdentifier>{2bb38e70-ac65-4dd9-b55c-1a3247bc5fde}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Effects\HitEffect">
-      <UniqueIdentifier>{526e71a5-02fd-48cf-ba83-45afa1a39167}</UniqueIdentifier>
     </Filter>
     <Filter Include="Effects\ComboRank">
       <UniqueIdentifier>{270e1a4f-46e8-450f-90e6-664f9adb865a}</UniqueIdentifier>

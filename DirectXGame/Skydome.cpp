@@ -1,5 +1,7 @@
 #include "Skydome.h"
 
+using namespace KamataEngine;
+
 void Skydome::Initialize() {
 
 }

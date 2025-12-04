@@ -1,8 +1,6 @@
 #pragma once
 #include "KamataEngine.h"
 
-using namespace KamataEngine;
-
 struct AABB {
 	KamataEngine::Vector3 min; // 最小座標
 	KamataEngine::Vector3 max; // 最大座標
@@ -10,4 +8,4 @@ struct AABB {
 
 float EaseInOut(float x1, float x2, float t);
 
-Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotation, const Vector3& translation);
+KamataEngine::Matrix4x4 MakeAffineMatrix(const KamataEngine::Vector3& scale, const KamataEngine::Vector3& rotation, const KamataEngine::Vector3& translation);

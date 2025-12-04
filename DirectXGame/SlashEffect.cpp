@@ -2,20 +2,34 @@
 #include <cstdlib>
 #include <numbers>
 
+using namespace KamataEngine;
+
 SlashEffect::~SlashEffect() {}
+
+// ==========================================================================
+// 初期化
+// ==========================================================================
 
 void SlashEffect::Initialize(Model* model, Camera* camera, const Vector3& pos) {
 	model_ = model;
 	camera_ = camera;
+
 	transform_.Initialize();
 	transform_.translation_ = pos;
+	
 	// 少し小さめに開始
 	transform_.scale_ = {0.5f, 0.5f, 0.5f};
+	
 	alive_ = true;
 	lifetime_ = maxLifetime_;
+	
 	objectColor_.Initialize();
 	objectColor_.SetColor(color_);
 }
+
+// ==========================================================================
+// 回転制御
+// ==========================================================================
 
 void SlashEffect::SetRandomRotation() {
 	float kPi = std::numbers::pi_v<float>;
@@ -42,6 +56,10 @@ void SlashEffect::SetRotation(float playerRotationY) {
 	}
 }
 
+// ==========================================================================
+// 更新処理
+// ==========================================================================
+
 void SlashEffect::Update() {
 	if (!alive_) {
 		return;
@@ -67,6 +85,10 @@ void SlashEffect::Update() {
 	transform_.matWorld_ = MakeAffineMatrix(transform_.scale_, transform_.rotation_, transform_.translation_);
 	transform_.TransferMatrix();
 }
+
+// ==========================================================================
+// 描画処理
+// ==========================================================================
 
 void SlashEffect::Draw() {
 	if (alive_ && model_ && camera_) {
