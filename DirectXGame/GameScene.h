@@ -44,7 +44,7 @@ private:
 
 		static inline const KamataEngine::Vector3 kHudPos = {-3.5f, 3.8f, 0.0f};
 		static inline const KamataEngine::Vector3 kHudScale = {1.2f, 0.2f, 0.1f};
-		static inline const KamataEngine::Vector3 kComboPos = {1.0f, 3.5f, 0.0f};
+		static inline const KamataEngine::Vector3 kComboPos = {5.0f, 3.5f, 0.0f};
 		
 		/*
 		// --- プレイヤー設定 ---
