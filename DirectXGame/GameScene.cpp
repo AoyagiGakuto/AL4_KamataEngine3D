@@ -455,6 +455,27 @@ void GameScene::UpdateEnemies() {
 		}
 
 		enemy->Update();
+		
+		if (enemy->IsReadyToFire()) {
+			// 敵の位置から
+			Vector3 startPos = enemy->GetWorldTransform().translation_;
+			// プレイヤーの位置へ
+			Vector3 targetPos = player_->GetWorldTransform().translation_;
+
+			// 少し高さを調整
+			targetPos.y += 0.5f;
+
+			Vector3 dir = targetPos - startPos;
+			dir = Normalize(dir);
+
+			// 弾を生成
+			auto newBullet = std::make_unique<Bullet>();
+			newBullet->Initialize(modelBullet_, camera_, startPos, dir);
+			newBullet->SetType(Bullet::Type::kEnemy);
+
+			// リストに追加
+			bullets_.push_back(std::move(newBullet));
+		}
 	}
 
 	// 回復行動
@@ -477,37 +498,58 @@ void GameScene::CheckCollisions() {
 
 	for (auto it = bullets_.begin(); it != bullets_.end();) {
 		bool bulletRemoved = false;
-		AABB aabbB = (*it)->GetAABB();
+		// 敵の弾の場合
+		if ((*it)->GetType() == Bullet::Type::kEnemy) {
+			AABB aabbB = (*it)->GetAABB();
+			AABB aabbP = player_->GetAABB();
 
-		// 敵との判定
-		auto enemyIt = enemies_.begin();
-		while (enemyIt != enemies_.end()) {
-			Enemy* enemy = *enemyIt;
-			AABB aabbE = enemy->GetAABB();
+			// プレイヤーとのAABB当たり判定
 			bool isHit =
-			    (aabbB.min.x < aabbE.max.x && aabbB.max.x > aabbE.min.x) && (aabbB.min.y < aabbE.max.y && aabbB.max.y > aabbE.min.y) && (aabbB.min.z < aabbE.max.z && aabbB.max.z > aabbE.min.z);
+			    (aabbB.min.x < aabbP.max.x && aabbB.max.x > aabbP.min.x) && (aabbB.min.y < aabbP.max.y && aabbB.max.y > aabbP.min.y) && (aabbB.min.z < aabbP.max.z && aabbB.max.z > aabbP.min.z);
 
 			if (isHit) {
-				// 通常弾ダメージ
-				enemy->TakeDamage(GameParam::kDamageNormal);
-				comboRank_.AddHit(5.0f); // 弾ヒットの点数
+				// プレイヤーにダメージ
+				player_->TakeDamage(GameParam::kDamageNormal);
+				comboRank_.OnPlayerDamaged();
 
-				if (enemy->IsDead()) {
-					score_++;
-					comboRank_.OnEnemyKilled(10.0f);
-					deathParticle_.Spawn(enemy->GetWorldTransform().translation_);
+				// 弾を消す
+				(*it)->Kill();
+				bulletRemoved = true;
+			}
+		}
+		// プレイヤーの弾の場合
+		else {
+			AABB aabbB = (*it)->GetAABB();
 
-					delete enemy;
-					enemyIt = enemies_.erase(enemyIt);
+			// 既存の敵との判定ループ
+			auto enemyIt = enemies_.begin();
+			while (enemyIt != enemies_.end()) {
+				Enemy* enemy = *enemyIt;
+				AABB aabbE = enemy->GetAABB();
+				bool isHit =
+				    (aabbB.min.x < aabbE.max.x && aabbB.max.x > aabbE.min.x) && (aabbB.min.y < aabbE.max.y && aabbB.max.y > aabbE.min.y) && (aabbB.min.z < aabbE.max.z && aabbB.max.z > aabbE.min.z);
+
+				if (isHit) {
+					enemy->TakeDamage(GameParam::kDamageNormal);
+					comboRank_.AddHit(5.0f);
+
+					if (enemy->IsDead()) {
+						score_++;
+						comboRank_.OnEnemyKilled(10.0f);
+						deathParticle_.Spawn(enemy->GetWorldTransform().translation_);
+
+						delete enemy;
+						enemyIt = enemies_.erase(enemyIt);
+					} else {
+						++enemyIt;
+					}
+
+					(*it)->Kill();
+					bulletRemoved = true;
+					break;
 				} else {
 					++enemyIt;
 				}
-
-				(*it)->Kill();
-				bulletRemoved = true;
-				break;
-			} else {
-				++enemyIt;
 			}
 		}
 

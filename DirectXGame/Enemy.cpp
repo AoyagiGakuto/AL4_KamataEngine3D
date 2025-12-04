@@ -75,6 +75,10 @@ void Enemy::Update() {
 		return;
 	}
 
+	if (shotTimer_ > 0.0f) {
+		shotTimer_ -= 1.0f / 60.0f;
+	}
+
 	/*
 	// --- スロー処理 ---
 	*/
