@@ -2,8 +2,6 @@
 #include "KamataEngine.h"
 #include <array>
 
-// とりあえずで作ってみたものなのでまだ画面には描画してないです
-
 class ComboRank {
 public:
 
@@ -14,7 +12,7 @@ public:
 	~ComboRank();
 
 	// 初期化
-	void Initialize(KamataEngine::Camera* uiCamera, const KamataEngine::Vector3& pos);
+	void Initialize(KamataEngine::Camera* uiCamera, const KamataEngine::Vector3& pos, KamataEngine::Model* modelBar, KamataEngine::Model* modelGauge);
 
 	// 更新
 	void Update(float deltaTime);
@@ -67,10 +65,19 @@ private:
 	// UIのカメラ
 	KamataEngine::Camera* uiCamera_ = nullptr;
 
+	KamataEngine::Model* modelBar_ = nullptr;   // 枠
+	KamataEngine::Model* modelGauge_ = nullptr; // 中身
+	KamataEngine::WorldTransform wtBar_;
+	KamataEngine::WorldTransform wtGauge_;
+
 	// パラメータ
 	static inline const float kMaxPoint = 100.0f;
 	// 開始までの猶予
 	static inline const float kStartDecayTime = 0.8f;
 	// 1秒あたり減る量
 	static inline const float kDecaySpeed = 15.0f;
+
+	// ゲージの表示調整
+	static inline const KamataEngine::Vector3 kGaugeScale = {0.5f, 0.1f, 0.1f}; // 少し小さめに
+	static inline const float kGaugeOffsetY = -0.8f;                            // ランク文字の下に配置
 };

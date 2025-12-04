@@ -62,7 +62,10 @@ void GameScene::Initialize() {
 	worldTransformHudHp_.Initialize();
 
 	// UI位置
-	comboRank_.Initialize(uiCamera_, GameParam::kComboPos);
+	comboRank_.Initialize(uiCamera_, GameParam::kComboPos, modelHpBar_, modelHp_);
+
+	worldTransformHudHpBar_.translation_ = GameParam::kHudPos;
+	worldTransformHudHp_.translation_ = GameParam::kHudPos;
 
 	worldTransformHudHpBar_.translation_ = GameParam::kHudPos;
 	worldTransformHudHp_.translation_ = GameParam::kHudPos;
