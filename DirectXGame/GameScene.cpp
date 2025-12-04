@@ -67,9 +67,6 @@ void GameScene::Initialize() {
 	worldTransformHudHpBar_.translation_ = GameParam::kHudPos;
 	worldTransformHudHp_.translation_ = GameParam::kHudPos;
 
-	worldTransformHudHpBar_.translation_ = GameParam::kHudPos;
-	worldTransformHudHp_.translation_ = GameParam::kHudPos;
-
 	// UIスケール
 	worldTransformHudHpBar_.scale_ = GameParam::kHudScale;
 	worldTransformHudHp_.scale_ = GameParam::kHudScale;
