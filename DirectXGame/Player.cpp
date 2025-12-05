@@ -228,7 +228,7 @@ void Player::InputMove() {
 	}
 
 	// 滑空
-	if (!OnGround_ && velocity_.y <= 0.0f && Input::GetInstance()->PushKey(DIK_SPACE)) {
+	if (!OnGround_ && velocity_.y <= 0.0f && Input::GetInstance()->PushKey(DIK_W)) {
 		isGliding_ = true;
 	} else {
 		isGliding_ = false;
