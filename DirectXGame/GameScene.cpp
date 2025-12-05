@@ -455,7 +455,7 @@ void GameScene::UpdateEnemies() {
 		}
 
 		enemy->Update();
-		
+
 		if (enemy->IsReadyToFire()) {
 			// 敵の位置から
 			Vector3 startPos = enemy->GetWorldTransform().translation_;
@@ -527,7 +527,7 @@ void GameScene::CheckCollisions() {
 				Enemy* enemy = *enemyIt;
 				AABB aabbE = enemy->GetAABB();
 				bool isHit =
-				    (aabbB.min.x < aabbE.max.x && aabbB.max.x > aabbE.min.x) && (aabbB.min.y < aabbE.max.y && aabbB.max.y > aabbE.min.y) && (aabbB.min.z < aabbE.max.z && aabbB.max.z > aabbE.min.z);
+				    (aabbB.min.x < aabbE.max.x && aabbB.max.x > aabbE.min.x) && (aabbB.min.y < aabbE.max.y && aabbB.max.y > aabbE.min.y) && (aabbB.min.z < aabbE.max.z && aabbB.max.z > aabbB.min.z);
 
 				if (isHit) {
 					enemy->TakeDamage(GameParam::kDamageNormal);
@@ -768,6 +768,7 @@ void GameScene::UpdateSpecialMove(float deltaTime) {
 
 				if (e->IsDead()) {
 					score_++;
+					comboRank_.OnEnemyKilled(GameParam::kComboPointKill);
 					deathParticle_.Spawn(enemyPos);
 
 					delete e;
@@ -793,6 +794,7 @@ void GameScene::UpdateSpecialMove(float deltaTime) {
 				vfx->Initialize(modelZangeki_, camera_, pos);
 				vfx->SetRandomRotation();
 				SlashEffects_.push_back(std::move(vfx));
+				comboRank_.AddHit(GameParam::kComboPointHit);
 			}
 		}
 
