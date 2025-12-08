@@ -39,7 +39,7 @@ public:
 	void SlowDown(float duration);
 	// ノックバック
 	void Knockback(const KamataEngine::Vector3& dir);
-	// ヒットストップ（一時停止）
+	// ヒットストップ
 	void ApplyHitStop(float duration);
 
 	/*
