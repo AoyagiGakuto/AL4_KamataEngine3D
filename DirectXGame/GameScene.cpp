@@ -72,7 +72,7 @@ void GameScene::Initialize() {
 	worldTransformHudHp_.scale_ = GameParam::kHudScale;
 
 	// ブロック生成
-	GenerateBlooks();
+	GenerateBlocks();
 
 	// プレイヤー初期位置
 	Vector3 playerPosition = mapChipField_->GetMapPositionTypeByIndex(25, 18);
@@ -134,7 +134,7 @@ void GameScene::Initialize() {
 // ブロック生成
 // ==========================================================================
 
-void GameScene::GenerateBlooks() {
+void GameScene::GenerateBlocks() {
 	uint32_t kNumBlockVertical = mapChipField_->GetNumBlockVertical();
 	uint32_t kNumBlockHorizontal = mapChipField_->GetNumBlockHorizontal();
 
@@ -195,11 +195,11 @@ void GameScene::Update() {
 
 	deathParticle_.Update();
 
-	for (auto& vfx : SlashEffects_) {
+	for (auto& vfx : slashEffects_) {
 		vfx->Update();
 	}
 
-	SlashEffects_.erase(std::remove_if(SlashEffects_.begin(), SlashEffects_.end(), [](const std::unique_ptr<SlashEffect>& v) { return !v->IsAlive(); }), SlashEffects_.end());
+	slashEffects_.erase(std::remove_if(slashEffects_.begin(), slashEffects_.end(), [](const std::unique_ptr<SlashEffect>& v) { return !v->IsAlive(); }), slashEffects_.end());
 
 	UpdateHud();
 	UpdateSceneFlow();
@@ -362,7 +362,7 @@ void GameScene::UpdatePlayerAction() {
 					float randY = ((float)(rand() % 1000) / 999.0f - 0.5f) * kEffectSpread;
 					vfx->Initialize(modelZangeki_, camera_, enemyPos + Vector3{randX, randY, 0.0f});
 					vfx->SetRotation(player_->GetWorldTransform().rotation_.y);
-					SlashEffects_.push_back(std::move(vfx));
+					slashEffects_.push_back(std::move(vfx));
 
 					// 撃破処理
 					if (target->IsDead()) {
@@ -405,7 +405,7 @@ void GameScene::UpdatePlayerAction() {
 				float randY = ((float)(rand() % 1000) / 999.0f - 0.5f) * kEffectSpread;
 				vfx->Initialize(modelZangeki_, camera_, enemyPos + Vector3{randX, randY, 0.0f});
 				vfx->SetRandomRotation();
-				SlashEffects_.push_back(std::move(vfx));
+				slashEffects_.push_back(std::move(vfx));
 			}
 
 			// 撃破処理
@@ -793,7 +793,7 @@ void GameScene::UpdateSpecialMove(float deltaTime) {
 				auto vfx = std::make_unique<SlashEffect>();
 				vfx->Initialize(modelZangeki_, camera_, pos);
 				vfx->SetRandomRotation();
-				SlashEffects_.push_back(std::move(vfx));
+				slashEffects_.push_back(std::move(vfx));
 				comboRank_.AddHit(GameParam::kComboPointHit);
 			}
 		}
@@ -889,7 +889,7 @@ void GameScene::Draw() {
 
 	deathParticle_.Draw();
 
-	for (const auto& vfx : SlashEffects_) {
+	for (const auto& vfx : slashEffects_) {
 		vfx->Draw();
 	}
 

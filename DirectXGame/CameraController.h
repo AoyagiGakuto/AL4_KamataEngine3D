@@ -27,7 +27,7 @@ public:
 	void SetTarget(Player* target) { target_ = target; };
 	
 	// カメラ移動可能範囲設定
-	void SetMovableArea(const Rect& area) { movebleArea_ = area; }
+	void SetMovableArea(const Rect& area) { movableArea_ = area; }
 
 	// ビュープロジェクション行列の取得
 	const KamataEngine::Camera& GetViewProjection() const { return camera_; }
@@ -62,7 +62,7 @@ private:
 	// カメラの目標座標
 	KamataEngine::Vector3 targetPosition_ = {0, 0, 0};
 	// カメラ移動可能範囲
-	Rect movebleArea_ = {0, 100, 0, 100};
+	Rect movableArea_ = {0, 100, 0, 100};
 	
 	/*
 	// --- 定数パラメータ ---

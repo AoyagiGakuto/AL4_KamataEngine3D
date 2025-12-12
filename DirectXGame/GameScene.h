@@ -114,7 +114,7 @@ private:
 	*/
 
 	// マップブロックの生成
-	void GenerateBlooks();
+	void GenerateBlocks();
 	// マップブロックの更新
 	void UpdateMapBlocks();
 	// プレイヤーの入力攻撃処理
@@ -190,7 +190,7 @@ private:
 	KamataEngine::Model* modelSlowBall_ = nullptr;
 
 	// エフェクト
-	std::vector<std::unique_ptr<SlashEffect>> SlashEffects_;
+	std::vector<std::unique_ptr<SlashEffect>> slashEffects_;
 	KamataEngine::Model* modelZangeki_ = nullptr;
 
 	DeathParticle deathParticle_;
