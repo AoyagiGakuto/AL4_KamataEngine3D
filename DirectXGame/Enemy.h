@@ -44,6 +44,8 @@ public:
 	void SetScale(const KamataEngine::Vector3& scale) { worldTransform_.scale_ = scale; }
 	void SetRotationY(float y) { worldTransform_.rotation_.y = y; }
 	void SetTarget(Player* p) { target_ = p; }
+	float GetHp() const { return (float)hp_; }
+	float GetMaxHp() const { return maxHp_; }
 	bool IsDead() const;
 	bool IsReadyToFire();
 

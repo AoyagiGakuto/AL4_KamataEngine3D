@@ -506,10 +506,17 @@ void FlyingEnemy::PerformUniqueAction(std::list<Enemy*>& enemies) {
 	Enemy* bestCandidate = nullptr;
 
 	for (Enemy* other : enemies) {
+		// 自分自身や死んでいる敵は無視
 		if (other == this || other->IsDead()) {
 			continue;
 		}
 
+		// HPが満タンなら回復しない
+		if (other->GetHp() >= other->GetMaxHp()) {
+			continue;
+		}
+
+		// 距離をチェック
 		float dist = Length(other->GetWorldTransform().translation_ - worldTransform_.translation_);
 		if (dist < minDist) {
 			minDist = dist;
