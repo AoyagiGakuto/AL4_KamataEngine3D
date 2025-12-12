@@ -81,35 +81,35 @@ void GameScene::Initialize() {
 
 	// 敵の数
 	for (int32_t i = 0; i < GameParam::kEnemyCount; ++i) {
-		Enemy* newEnemy = new Enemy();
+        Enemy* newEnemy = nullptr;
 
-		// 敵の基本位置(仮)
-		Vector3 enemyPosition = mapChipField_->GetMapPositionTypeByIndex(30 + i * 3, 18);
+        Vector3 enemyPosition = mapChipField_->GetMapPositionTypeByIndex(30 + i * 3, 18);
 
-		newEnemy->SetTarget(player_);
+        if (i == 0) {
+            // 通常タイプ
+            newEnemy = new NormalEnemy(); 
+            newEnemy->Initialize(modelEnemy_, modelHpBar_, modelHp_, camera_, enemyPosition);
+            newEnemy->SetScale({GameParam::kEnemyScaleNormal, GameParam::kEnemyScaleNormal, GameParam::kEnemyScaleNormal});
+        } else if (i == 1) {
+            // 追尾タイプ
+            newEnemy = new HomingEnemy();
+            newEnemy->Initialize(modelEnemy_, modelHpBar_, modelHp_, camera_, enemyPosition);
+            newEnemy->SetScale({GameParam::kEnemyScaleNormal, GameParam::kEnemyScaleNormal, GameParam::kEnemyScaleNormal});
+        } else {
+            // 飛行支援タイプ
+            enemyPosition.y += GameParam::kFlyingHeightOffset;
+            newEnemy = new FlyingEnemy();
+            newEnemy->Initialize(modelEnemy_, modelHpBar_, modelHp_, camera_, enemyPosition);
+            newEnemy->SetScale({GameParam::kEnemyScaleSmall, GameParam::kEnemyScaleSmall, GameParam::kEnemyScaleSmall});
+        }
 
-		if (i == 0) {
-			// 通常タイプ
-			newEnemy->Initialize(modelEnemy_, modelHpBar_, modelHp_, camera_, enemyPosition, Enemy::Type::kNormal);
-			newEnemy->SetScale({GameParam::kEnemyScaleNormal, GameParam::kEnemyScaleNormal, GameParam::kEnemyScaleNormal});
+        // 共通設定
+        newEnemy->SetTarget(player_);
+        newEnemy->SetMapChipField(mapChipField_);
+        newEnemy->SetRotationY(std::numbers::pi_v<float> * 3.0f / 2.0f);
 
-		} else if (i == 1) {
-			// 追尾タイプ
-			newEnemy->Initialize(modelEnemy_, modelHpBar_, modelHp_, camera_, enemyPosition, Enemy::Type::kHoming);
-			newEnemy->SetScale({GameParam::kEnemyScaleNormal, GameParam::kEnemyScaleNormal, GameParam::kEnemyScaleNormal});
-
-		} else {
-			// 飛行支援タイプ
-			enemyPosition.y += GameParam::kFlyingHeightOffset;
-			newEnemy->Initialize(modelEnemy_, modelHpBar_, modelHp_, camera_, enemyPosition, Enemy::Type::kFlyingSupport);
-			newEnemy->SetScale({GameParam::kEnemyScaleSmall, GameParam::kEnemyScaleSmall, GameParam::kEnemyScaleSmall});
-		}
-
-		newEnemy->SetMapChipField(mapChipField_);
-		newEnemy->SetRotationY(std::numbers::pi_v<float> * 3.0f / 2.0f);
-
-		enemies_.push_back(newEnemy);
-	}
+        enemies_.push_back(newEnemy);
+    }
 
 	// カメラコントローラー
 	cameraController_ = new CameraController();
@@ -456,6 +456,8 @@ void GameScene::UpdateEnemies() {
 
 		enemy->Update();
 
+		enemy->PerformUniqueAction(enemies_);
+
 		if (enemy->IsReadyToFire()) {
 			// 敵の位置から
 			Vector3 startPos = enemy->GetWorldTransform().translation_;
@@ -475,13 +477,6 @@ void GameScene::UpdateEnemies() {
 
 			// リストに追加
 			bullets_.push_back(std::move(newBullet));
-		}
-	}
-
-	// 回復行動
-	for (Enemy* enemy : enemies_) {
-		if (enemy->GetType() == Enemy::Type::kFlyingSupport) {
-			enemy->HealNearbyEnemies(enemies_);
 		}
 	}
 }

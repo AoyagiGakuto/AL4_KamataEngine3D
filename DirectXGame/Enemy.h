@@ -9,17 +9,16 @@
 class MapChipField;
 class Player;
 
+// ==========================================
+// 基底クラス (親)
+// ==========================================
 class Enemy {
 public:
-	enum class Type {
-		kNormal,       // 普通の敵
-		kHoming,       // 追いかけてくる敵
-		kFlyingSupport // 飛行＆回復する敵
-	};
+
+	virtual ~Enemy() = default;
 
 	// 初期化
-	void Initialize(
-	    KamataEngine::Model* model, KamataEngine::Model* modelHpBar, KamataEngine::Model* modelHp, KamataEngine::Camera* camera, const KamataEngine::Vector3& position, Type type = Type::kNormal);
+	virtual void Initialize(KamataEngine::Model* model, KamataEngine::Model* modelHpBar, KamataEngine::Model* modelHp, KamataEngine::Camera* camera, const KamataEngine::Vector3& position);
 
 	// 更新
 	void Update();
@@ -27,12 +26,9 @@ public:
 	// 描画
 	void Draw();
 
-	/*
-	// --- なんちゃってAI ---
-	*/
+	// 固有の行動 (飛行敵の回復など)
+	virtual void PerformUniqueAction(std::list<Enemy*>& enemies) { (void)enemies; }
 
-	// 周囲の敵を回復させる
-	void HealNearbyEnemies(std::list<Enemy*>& enemies);
 	// ダメージを受ける
 	void TakeDamage(int damage);
 	// スロー効果付与
@@ -42,45 +38,26 @@ public:
 	// ヒットストップ
 	void ApplyHitStop(float duration);
 
-	/*
-	// --- ゲッターとセッター ---
-	*/
-
 	AABB GetAABB();
-	Type GetType() const { return type_; }
 	const KamataEngine::WorldTransform& GetWorldTransform() const { return worldTransform_; }
-
-	// マップチップフィールドのセット
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
-	void OnCollision(const Player* player);
-
 	void SetScale(const KamataEngine::Vector3& scale) { worldTransform_.scale_ = scale; }
 	void SetRotationY(float y) { worldTransform_.rotation_.y = y; }
 	void SetTarget(Player* p) { target_ = p; }
-
 	bool IsDead() const;
 	bool IsReadyToFire();
 
-	// 定数パラメータ
-
-	// 敵の移動速度
-	static inline const float kWalkSpeed = 0.01f;
-	// 通常姿勢
-	static inline const float kWalkMotionAngelStart = 0.0f;
-	// 30度
-	static inline const float kWalkMotionAngelEnd = std::numbers::pi_v<float> / 6.0f;
-	// 敵の歩行モーションの時間
-	static inline const float kWalkMotionTime = 2.0f;
 	static inline const float kWidth = 0.8f;
 	static inline const float kHeight = 0.8f;
-	// ぶるぶる防止
 	static inline const float kBlank = 0.01f;
-	// 最大落下速度
-	static inline const float kFallLimit = 0.2f;
-	// 重力
 	static inline const float kGravityAcc = 0.01f;
+	static inline const float kFireInterval = 2.0f;
 
-private:
+protected:
+	// 移動
+	virtual void Move() = 0;
+
+	// 衝突判定系
 	struct CollisionInfo {
 		KamataEngine::Vector3 move{0, 0, 0};
 		bool isOnGround = false;
@@ -93,43 +70,13 @@ private:
 	void CheckMapCollisionDown(CollisionInfo& info);
 	void CheckMapCollisionLeft(CollisionInfo& info);
 	void CheckMapCollisionRight(CollisionInfo& info);
-
+	
 	/*
-	// --- 状態データ ---
-	*/
-
-	// 敵の歩行モーションのタイマー
-	float walkTimer_ = 0.0f;
-	float shotTimer_ = 0.0f;
-	float hitStopTimer_ = 0.0f;
-
-	float maxHp_ = 5.0f;
-	int hp_ = 5;
-	// スロー効果の残り時間
-	float slowTimer_ = 0.0f;
-	float knockbackTimer_ = 0.0f;
-
-	// 自分のタイプ
-	Type type_ = Type::kNormal;
-
-	// AI用パラメータ（追尾と回復）
-	float homingMaxSpeed_ = 0.06f; // 最大速度（横移動）
-	float homingAccel_ = 0.004f;   // 1フレーム加速量
-	float homingStopDist_ = 0.05f; // これ以下の距離で減速・停止
-	float baseHeight_ = 0.0f;      // 飛行時の基準の高さ
-	float healTimer_ = 0.0f;       // 回復スキルのクールダウン
-	Enemy* healTarget_ = nullptr;  // 回復しに行く対象
-
-	// 外部参照
-	MapChipField* mapChipField_ = nullptr;
-	Player* target_ = nullptr;
-
-	/*
-	// --- 描画・変換 ---
+	// --- メンバ変数 ---
 	*/
 
 	KamataEngine::WorldTransform worldTransform_;
-	KamataEngine::WorldTransform worldTransformHpBar_; // 枠用
+	KamataEngine::WorldTransform worldTransformHpBar_;
 	KamataEngine::WorldTransform worldTransformHp_;
 	KamataEngine::Model* model_ = nullptr;
 	KamataEngine::Model* modelHpBar_ = nullptr;
@@ -137,8 +84,73 @@ private:
 	KamataEngine::Camera* camera_ = nullptr;
 	KamataEngine::Vector3 velocity_ = {};
 
-	// 定数
-	static inline const float kFireInterval = 2.0f; // 2秒に1回撃つ
-	static inline const float kHealRange = 5.0f;    // 回復が届く範囲
-	static inline const float kHealCooldown = 3.0f; // 回復の間隔
+	MapChipField* mapChipField_ = nullptr;
+	Player* target_ = nullptr;
+
+	float maxHp_ = 5.0f;
+	int hp_ = 5;
+	float walkTimer_ = 0.0f;
+	float shotTimer_ = 0.0f;
+	float hitStopTimer_ = 0.0f;
+	float slowTimer_ = 0.0f;
+	float knockbackTimer_ = 0.0f;
+	float speedMultiplier_ = 1.0f; // Updateの内の速度倍率
+
+	// 弾のフラグ
+	bool canShoot_ = false;
+};
+
+// ==========================================
+// 通常の敵 (Normal)
+// ==========================================
+class NormalEnemy : public Enemy {
+public:
+	void Initialize(KamataEngine::Model* model, KamataEngine::Model* modelHpBar, KamataEngine::Model* modelHp, KamataEngine::Camera* camera, const KamataEngine::Vector3& position) override;
+
+protected:
+	void Move() override;
+
+private:
+	static inline const float kWalkSpeed = 0.01f;
+	static inline const float kWalkMotionTime = 2.0f;
+	static inline const float kWalkMotionAngelStart = 0.0f;
+	static inline const float kWalkMotionAngelEnd = std::numbers::pi_v<float> / 6.0f;
+};
+
+// ==========================================
+// 追尾する敵
+// ==========================================
+class HomingEnemy : public Enemy {
+public:
+	void Initialize(KamataEngine::Model* model, KamataEngine::Model* modelHpBar, KamataEngine::Model* modelHp, KamataEngine::Camera* camera, const KamataEngine::Vector3& position) override;
+
+protected:
+	void Move() override;
+
+private:
+	float homingMaxSpeed_ = 0.06f;
+	float homingAccel_ = 0.004f;
+	float homingStopDist_ = 0.05f;
+};
+
+// ==========================================
+// 飛行・支援する敵
+// ==========================================
+class FlyingEnemy : public Enemy {
+public:
+	void Initialize(KamataEngine::Model* model, KamataEngine::Model* modelHpBar, KamataEngine::Model* modelHp, KamataEngine::Camera* camera, const KamataEngine::Vector3& position) override;
+
+	// 回復行動
+	void PerformUniqueAction(std::list<Enemy*>& enemies) override;
+
+protected:
+	void Move() override;
+
+private:
+	float baseHeight_ = 0.0f;
+	float healTimer_ = 0.0f;
+	Enemy* healTarget_ = nullptr;
+
+	static inline const float kHealRange = 5.0f;
+	static inline const float kHealCooldown = 3.0f;
 };
