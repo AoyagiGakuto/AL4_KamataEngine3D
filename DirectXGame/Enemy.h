@@ -31,12 +31,27 @@ public:
 
 	// ダメージを受ける
 	void TakeDamage(int damage);
+
 	// スロー効果付与
 	void SlowDown(float duration);
+	
 	// ノックバック
 	void Knockback(const KamataEngine::Vector3& dir);
+	
 	// ヒットストップ
 	void ApplyHitStop(float duration);
+	
+	// 打ち上げ
+	void Launch(float power);
+	
+	// 空中で攻撃を受けた時の浮遊処理
+	void OnAirHit(float time);
+	
+	// 叩きつけ
+	void SlamDown();
+	
+	// 重力を元に戻す
+	void ResetGravity();
 
 	AABB GetAABB();
 	const KamataEngine::WorldTransform& GetWorldTransform() const { return worldTransform_; }
@@ -97,6 +112,9 @@ protected:
 	float slowTimer_ = 0.0f;
 	float knockbackTimer_ = 0.0f;
 	float speedMultiplier_ = 1.0f; // Updateの内の速度倍率
+
+	float gravityScale_ = 1.0f; // 重力倍率
+	float suspendTimer_ = 0.0f;
 
 	// 弾のフラグ
 	bool canShoot_ = false;

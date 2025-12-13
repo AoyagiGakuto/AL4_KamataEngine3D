@@ -344,27 +344,97 @@ void GameScene::UpdatePlayerAction() {
 	if (Input::GetInstance()->TriggerKey(DIK_K)) {
 		if (player_->IsLockedOn()) {
 			Enemy* target = player_->GetTargetEnemy();
+
 			if (target && !target->IsDead()) {
-				// 近接攻撃の射程
+				// 距離チェック
 				float distance = Length(target->GetWorldTransform().translation_ - player_->GetWorldTransform().translation_);
 
-				if (distance <= GameParam::kPlayerMeleeRange) {
-					target->TakeDamage(GameParam::kDamageNormal);
-					target->ApplyHitStop(GameParam::kHitStopDuration);
+				// 攻撃が届く距離
+				if (distance <= GameParam::kPlayerMeleeRange * 1.5f) {
+
+					/*
+					// --- 入力判定 ---
+					*/
+
+					// プレイヤーの向きを取得
+					bool isFacingRight = (player_->GetWorldTransform().rotation_.y < 3.14f);
+
+					// 「後ろ入力」されているか
+					bool isBackInput = false;
+					if (isFacingRight && Input::GetInstance()->PushKey(DIK_A)) {
+						isBackInput = true;
+					}
+
+					if (!isFacingRight && Input::GetInstance()->PushKey(DIK_D)){
+						isBackInput = true;
+					}
+
+					// プレイヤーが空中にいるか
+					bool isPlayerAir = (player_->GetWorldTransform().translation_.y > 2.0f);
+
+					// ================================================
+					// アクション分岐
+					// ================================================
+
+					// 打ち上げ
+					if (!isPlayerAir && isBackInput) {
+						// 敵を打ち上げる
+						target->Launch(0.35f);
+
+						player_->velocity_.y = 0.35f;
+
+						// ダメージ
+						target->TakeDamage(GameParam::kDamageNormal);
+
+						// ヒットストップ
+						hitStopTimer_ = 0.1f;
+
+						// エフェクト生成あとで
+					}
+
+					// 叩きつけ
+					else if (isPlayerAir && isBackInput) {
+						// 敵を叩き落とす
+						target->SlamDown();
+
+						// プレイヤーも急降下
+						player_->velocity_.y = -0.5f;
+
+						// 大ダメージ
+						target->TakeDamage(GameParam::kDamageNormal * 2);
+						hitStopTimer_ = 0.15f; // 重く
+					}
+
+					// 空中コンボ
+					else if (isPlayerAir) {
+						// 敵の重力を切って、空中に留める
+						target->OnAirHit(0.4f);
+
+						player_->velocity_.y = 0.08f;
+						player_->velocity_.x = 0.0f; // 慣性を消す
+
+						// ダメージ
+						target->TakeDamage(GameParam::kDamageNormal);
+						hitStopTimer_ = 0.08f;
+					}
+
+					// 地上通常攻撃
+					else {
+						// 軽くノックバック
+						Vector3 dir = target->GetWorldTransform().translation_ - player_->GetWorldTransform().translation_;
+						dir = Normalize(dir);
+						target->Knockback(dir);
+
+						// 少しだけプレイヤーが踏み込む
+						player_->velocity_.x = dir.x * 0.15f;
+
+						target->TakeDamage(GameParam::kDamageNormal);
+						hitStopTimer_ = 0.08f;
+					}
+
+					// 共通: ヒット処理
 					comboRank_.AddHit(GameParam::kComboPointHit);
 
-					// エフェクト生成
-					const float kEffectSpread = 1.0f;
-					Vector3 enemyPos = target->GetWorldTransform().translation_;
-					enemyPos.y += 0.1f;
-					auto vfx = std::make_unique<SlashEffect>();
-					float randX = ((float)(rand() % 1000) / 999.0f - 0.5f) * kEffectSpread;
-					float randY = ((float)(rand() % 1000) / 999.0f - 0.5f) * kEffectSpread;
-					vfx->Initialize(modelZangeki_, camera_, enemyPos + Vector3{randX, randY, 0.0f});
-					vfx->SetRotation(player_->GetWorldTransform().rotation_.y);
-					slashEffects_.push_back(std::move(vfx));
-
-					// 撃破処理
 					if (target->IsDead()) {
 						score_++;
 						comboRank_.OnEnemyKilled(GameParam::kComboPointKill);
