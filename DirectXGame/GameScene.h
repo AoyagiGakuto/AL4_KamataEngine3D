@@ -201,7 +201,7 @@ private:
 	KamataEngine::WorldTransform worldTransformHudHpBar_;
 	KamataEngine::WorldTransform worldTransformHudHp_;
 	ComboRank comboRank_;
-	int comboIndex_ = 0;      // 今何連撃目か
+	int comboIndex_ = 0;      // 今何連撃目か (0
 	float comboTimer_ = 0.0f; // 次の攻撃までの受付時間
 
 	// スコア

@@ -886,6 +886,8 @@ void GameScene::UpdateSpecialMove(float deltaTime) {
 				// ひっさつ
 				e->TakeDamage(GameParam::kDamageSpecial);
 
+				comboRank_.AddHit(GameParam::kComboPointHit);
+
 				if (e->IsDead()) {
 					score_++;
 					comboRank_.OnEnemyKilled(GameParam::kComboPointKill);
@@ -914,7 +916,6 @@ void GameScene::UpdateSpecialMove(float deltaTime) {
 				vfx->Initialize(modelZangeki_, camera_, pos);
 				vfx->SetRandomRotation();
 				slashEffects_.push_back(std::move(vfx));
-				comboRank_.AddHit(GameParam::kComboPointHit);
 			}
 		}
 
