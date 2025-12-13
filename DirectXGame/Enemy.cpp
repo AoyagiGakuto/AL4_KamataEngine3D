@@ -349,8 +349,9 @@ void Enemy::CheckMapCollisionRight(CollisionInfo& info) {
 
 // 打ち上げ
 void Enemy::Launch(float power) {
-	if (IsDead())
+	if (IsDead()) {
 		return;
+	}
 
 	velocity_.y = power;    // 上に飛ばす
 	knockbackTimer_ = 0.8f; // 操作不能時間を長めに
@@ -360,8 +361,9 @@ void Enemy::Launch(float power) {
 
 // 空中ヒット時の滞空
 void Enemy::OnAirHit(float time) {
-	if (IsDead())
+	if (IsDead()) {
 		return;
+	}
 
 	suspendTimer_ = time;   // 指定時間だけ重力を切る
 	velocity_.y = 0.0f;     // 落下を止める
@@ -371,8 +373,9 @@ void Enemy::OnAirHit(float time) {
 
 // 叩きつけ
 void Enemy::SlamDown() {
-	if (IsDead())
+	if (IsDead()) {
 		return;
+	}
 
 	suspendTimer_ = 0.0f; // 滞空解除
 	gravityScale_ = 2.0f; // 重くする
