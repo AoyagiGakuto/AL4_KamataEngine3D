@@ -40,11 +40,11 @@ void CameraController::Update() {
 	camera_.translation_.x = Lerp(camera_.translation_.x, targetPosition_.x, kInterpolationRate);
 
 	// カメラが移動可能エリアの外に出ないように
-	camera_.translation_.x = max(camera_.translation_.x, movebleArea_.left);
-	camera_.translation_.x = min(camera_.translation_.x, movebleArea_.right);
+	camera_.translation_.x = max(camera_.translation_.x, movableArea_.left);
+	camera_.translation_.x = min(camera_.translation_.x, movableArea_.right);
 	
-	camera_.translation_.y = max(camera_.translation_.y, movebleArea_.bottom);
-	camera_.translation_.y = min(camera_.translation_.y, movebleArea_.top);
+	camera_.translation_.y = max(camera_.translation_.y, movableArea_.bottom);
+	camera_.translation_.y = min(camera_.translation_.y, movableArea_.top);
 
 	// 行列更新
 	camera_.UpdateMatrix();
