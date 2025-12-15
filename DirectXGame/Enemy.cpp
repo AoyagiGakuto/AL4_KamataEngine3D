@@ -64,6 +64,18 @@ void Enemy::Update() {
 
 	walkTimer_ += 1.0f / 60.0f;
 
+	/*
+	// --- 浮遊状態の処理 ---
+	*/
+
+	if (suspendTimer_ > 0.0f) {
+		suspendTimer_ -= 1.0f / 60.0f;
+		gravityScale_ = 0.0f; // タイマー作動中は無重力
+		velocity_.y *= 0.9f;
+	} else {
+		gravityScale_ = 1.0f; // 通常に戻る
+	}
+
 	/* 
 	// --- ノックバック 通常移動 ---
 	*/
@@ -71,8 +83,8 @@ void Enemy::Update() {
 	if (knockbackTimer_ > 0.0f) {
 		knockbackTimer_ -= 1.0f / 60.0f;
 
-		// ノックバック中は操作不能で重力のみかかる
-		velocity_.y -= kGravityAcc;
+		// 重力に倍率をかける
+		velocity_.y -= kGravityAcc * gravityScale_;
 
 		CollisionInfo info;
 		info.move = velocity_;
@@ -333,6 +345,49 @@ void Enemy::CheckMapCollisionRight(CollisionInfo& info) {
 		info.isHitWall = true;
 	}
 }
+
+
+// 打ち上げ
+void Enemy::Launch(float power) {
+	if (IsDead()) {
+		return;
+	}
+
+	velocity_.y = power;    // 上に飛ばす
+	knockbackTimer_ = 0.8f; // 操作不能時間を長めに
+	suspendTimer_ = 0.0f;   // 即座には止めない
+	gravityScale_ = 1.0f;   // 上昇中は重力あり
+}
+
+// 空中ヒット時の滞空
+void Enemy::OnAirHit(float time) {
+	if (IsDead()) {
+		return;
+	}
+
+	suspendTimer_ = time;   // 指定時間だけ重力を切る
+	velocity_.y = 0.0f;     // 落下を止める
+	velocity_.x *= 0.2f;    // 横移動も減速させる
+	knockbackTimer_ = 0.5f; // 操作不能
+}
+
+// 叩きつけ
+void Enemy::SlamDown() {
+	if (IsDead()) {
+		return;
+	}
+
+	suspendTimer_ = 0.0f; // 滞空解除
+	gravityScale_ = 2.0f; // 重くする
+	velocity_.y = -0.5f;  // 強制落下
+	knockbackTimer_ = 0.5f;
+}
+
+void Enemy::ResetGravity() {
+	gravityScale_ = 1.0f;
+	suspendTimer_ = 0.0f;
+}
+
 
 // ==========================================================================
 // 通常タイプ

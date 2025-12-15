@@ -28,7 +28,7 @@ void GameOverScene::Initialize() {
 	skyDomeWT_.translation_ = {0.0f, 0.0f, 0.0f};
 	skyDomeWT_.TransferMatrix();
 
-	// PressSpace（点滅）
+	// 点滅
 	pressSpaceModel_ = Model::CreateFromOBJ("PressSpace");
 	pressSpaceTransform_.Initialize();
 	pressSpaceTransform_.translation_ = {0.0f, -3.0f, 6.0f};
@@ -101,14 +101,21 @@ void GameOverScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 	Model::PreDraw(dxCommon->GetCommandList());
 
-	if (skyDomeModel_)
+	if (skyDomeModel_) {
 		skyDomeModel_->Draw(skyDomeWT_, *camera_);
-	if (backgroundModel_)
+	}
+
+	if (backgroundModel_) {
 		backgroundModel_->Draw(backgroundTransform_, *camera_);
-	if (textModel_)
+	}
+
+	if (textModel_) {
 		textModel_->Draw(textTransform_, *camera_);
-	if (pressSpaceModel_ && blinkVisible_)
+	}
+
+	if (pressSpaceModel_ && blinkVisible_) {
 		pressSpaceModel_->Draw(pressSpaceTransform_, *camera_);
+	}
 
 	Model::PostDraw();
 	if (fade_) {

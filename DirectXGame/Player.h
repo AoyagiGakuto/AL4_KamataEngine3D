@@ -63,7 +63,7 @@ public:
 	void CheckMapCollisionRight(CollisionMapInfo& Info);
 
 	/*
-	// --- ゲッター・セッター・その他 ---
+	// --- その他 ---
 	*/
 
 	// 位置を瞬間移動させる
@@ -109,8 +109,10 @@ public:
 	// 死亡フラグ（publicアクセス用）
 	bool isDead_ = false;
 
+	KamataEngine::Vector3 velocity_ = {};
+
 private:
-	// ワールド座標取得（中心補正あり）
+	// ワールド座標取得
 	KamataEngine::Vector3 GetWorldPosition();
 
 	/*
@@ -125,7 +127,6 @@ private:
 	// --- 移動・物理 ---
 	*/
 
-	KamataEngine::Vector3 velocity_ = {};
 	float kAcceleration = 0.1f;
 	bool OnGround_ = true;
 	int jumpCount_ = 0;

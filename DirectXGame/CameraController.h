@@ -32,6 +32,8 @@ public:
 	// ビュープロジェクション行列の取得
 	const KamataEngine::Camera& GetViewProjection() const { return camera_; }
 	
+	void Shake(float magnitude, float duration);
+
 	// ビュー行列
 	KamataEngine::Matrix4x4 matView_;
 	// プロジェクション行列
@@ -74,5 +76,8 @@ private:
 	static inline const float kVelocityBias = 30.0f;
 	// ターゲットが画面端に寄りすぎないための余白
 	static inline const Rect targetMargin = {6.0f, 100 - 12.0f, 5.0f, 5.0f};
+
+	float shakeTimer_ = 0.0f;
+	float shakeMagnitude_ = 0.0f;
 };
 

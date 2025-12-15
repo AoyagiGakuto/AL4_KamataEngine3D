@@ -39,6 +39,19 @@ void CameraController::Update() {
 	// 座標補間によりゆったり追従
 	camera_.translation_.x = Lerp(camera_.translation_.x, targetPosition_.x, kInterpolationRate);
 
+	// シェイク加算
+	if (shakeTimer_ > 0.0f) {
+		shakeTimer_ -= 1.0f / 60.0f;
+
+		// ランダムにずらす
+		float randX = ((float)rand() / RAND_MAX - 0.5f) * shakeMagnitude_;
+		float randY = ((float)rand() / RAND_MAX - 0.5f) * shakeMagnitude_;
+
+		// カメラの目標位置（または実際の座標）に足す
+		camera_.translation_.x += randX;
+		camera_.translation_.y += randY;
+	}
+
 	// カメラが移動可能エリアの外に出ないように
 	camera_.translation_.x = max(camera_.translation_.x, movableArea_.left);
 	camera_.translation_.x = min(camera_.translation_.x, movableArea_.right);
@@ -60,4 +73,13 @@ void CameraController::Reset() {
 	
 	// 直接座標設定
 	camera_.translation_ = targetWorldTransform.translation_ + targetOffset_;
+}
+
+// ==========================================================================
+// シェイク処理
+// ==========================================================================
+
+void CameraController::Shake(float magnitude, float duration) {
+	shakeMagnitude_ = magnitude;
+	shakeTimer_ = duration;
 }

@@ -32,7 +32,7 @@ void TitleScene::Initialize() {
 	camera_ = new Camera();
 	camera_->Initialize();
 
-	// フェード（シーン内）
+	// フェード
 	fade_ = new Fade();
 	fade_->Initialize();
 	phase_ = ScenePhase::FadeIn;
