@@ -28,7 +28,7 @@ void GameOverScene::Initialize() {
 	skyDomeWT_.translation_ = {0.0f, 0.0f, 0.0f};
 	skyDomeWT_.TransferMatrix();
 
-	// PressSpace（点滅）
+	// 点滅
 	pressSpaceModel_ = Model::CreateFromOBJ("PressSpace");
 	pressSpaceTransform_.Initialize();
 	pressSpaceTransform_.translation_ = {0.0f, -3.0f, 6.0f};

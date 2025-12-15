@@ -63,7 +63,7 @@ public:
 	void CheckMapCollisionRight(CollisionMapInfo& Info);
 
 	/*
-	// --- ゲッター・セッター・その他 ---
+	// --- その他 ---
 	*/
 
 	// 位置を瞬間移動させる
@@ -112,7 +112,7 @@ public:
 	KamataEngine::Vector3 velocity_ = {};
 
 private:
-	// ワールド座標取得（中心補正あり）
+	// ワールド座標取得
 	KamataEngine::Vector3 GetWorldPosition();
 
 	/*

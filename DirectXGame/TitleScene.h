@@ -29,12 +29,12 @@ private:
 	// 上下揺れ
 	float logoMoveTimer_ = 0.0f;
 
-	// プレイヤー表示（オブジェとして）
+	// プレイヤー表示
 	KamataEngine::Model* playerModel_ = nullptr;
 	KamataEngine::WorldTransform playerTransform_;
 
 	KamataEngine::Camera* camera_ = nullptr;
 
-	// フェード（シーン内で管理）
+	// フェード
 	Fade* fade_ = nullptr;
 };

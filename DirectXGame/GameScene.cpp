@@ -367,7 +367,7 @@ void GameScene::UpdatePlayerAction() {
 					// プレイヤーの向きを取得
 					bool isFacingRight = (player_->GetWorldTransform().rotation_.y < 3.14f);
 
-					// 「後ろ入力」されているか
+					// 後ろ入力されているか
 					bool isBackInput = false;
 					if (isFacingRight && Input::GetInstance()->PushKey(DIK_A)) {
 						isBackInput = true;
