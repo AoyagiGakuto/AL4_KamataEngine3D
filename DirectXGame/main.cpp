@@ -76,8 +76,36 @@ void ChangeScene() {
 		break;
 	case Scene::kGame:
 		if (gameScene->IsFinished()) {
+			// クリア判定を確認
+			bool isClear = gameScene->IsClear();
+
 			delete gameScene;
 			gameScene = nullptr;
+
+			if (isClear) {
+				scene = Scene::kClear;
+				gameClearScene = new GameClearScene();
+				gameClearScene->Initialize();
+			} else {
+				scene = Scene::kOver;
+				gameOverScene = new GameOverScene();
+				gameOverScene->Initialize();
+			}
+		}
+		break;
+	case Scene::kClear:
+		if (gameClearScene->IsFinished()) {
+			delete gameClearScene;
+			gameClearScene = nullptr;
+			scene = Scene::kTitle;
+			titleScene = new TitleScene();
+			titleScene->Initialize();
+		}
+		break;
+	case Scene::kOver:
+		if (gameOverScene->IsFinished()) {
+			delete gameOverScene;
+			gameOverScene = nullptr;
 			scene = Scene::kTitle;
 			titleScene = new TitleScene();
 			titleScene->Initialize();

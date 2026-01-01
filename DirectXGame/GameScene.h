@@ -29,15 +29,16 @@ public:
 
 	// シーン終了確認
 	bool IsFinished() const { return finished_; }
+	// ゲームクリアかどうか
+	bool IsClear() const { return isClear_; }
 
 private:
-
 	/*
 	// --- 定数パラメータ定義 ---
 	*/
 
 	struct GameParam {
-		
+
 		/*
 		// --- UI配置 ---
 		*/
@@ -45,12 +46,12 @@ private:
 		static inline const KamataEngine::Vector3 kHudPos = {-3.5f, 3.8f, 0.0f};
 		static inline const KamataEngine::Vector3 kHudScale = {1.2f, 0.2f, 0.1f};
 		static inline const KamataEngine::Vector3 kComboPos = {5.0f, 3.5f, 0.0f};
-		
+
 		/*
 		// --- プレイヤー設定 ---
 		*/
 
-		 // 近接攻撃の届く距離
+		// 近接攻撃の届く距離
 		static inline const float kPlayerMeleeRange = 3.5f;
 		// チャージ攻撃のヒット数
 		static inline const int kChargeAttackHitCount = 5;
@@ -60,22 +61,22 @@ private:
 		// --- 敵設定 ---
 		*/
 
-		// 初期配置数
-		static inline const int kEnemyCount = 3;
+		// 初期配置数 (最初は0にしてスポナーに任せる)
+		static inline const int kEnemyCount = 0;
 		// 通常敵サイズ
 		static inline const float kEnemyScaleNormal = 0.4f;
 		// 飛行敵サイズ
 		static inline const float kEnemyScaleSmall = 0.3f;
 		// 飛行敵の高さ補正
-		static inline const float kFlyingHeightOffset = 5.0f; 
-		
+		static inline const float kFlyingHeightOffset = 5.0f;
+
 		/*
 		// --- 戦闘とスコア ---
 		*/
 
 		// 通常ダメージ
 		static inline const int kDamageNormal = 1;
-		// 必殺技ダメージ 修正必
+		// 必殺技ダメージ
 		static inline const int kDamageSpecial = 9999;
 		// ヒット時加点
 		static inline const float kComboPointHit = 8.0f;
@@ -107,6 +108,15 @@ private:
 		static inline const float kSpecialHitInterval = 0.06f;
 		// 最後の演出の数
 		static inline const int kSpecialFinaleSlashCount = 200;
+
+		/*
+		// --- サバイバル設定 (NEW) ---
+		*/
+
+		// 生き残る時間（秒）
+		static inline const float kSurvivalTimeLimit = 30.0f;
+		// 敵が湧く間隔（秒）
+		static inline const float kEnemySpawnInterval = 3.0f;
 	};
 
 	/*
@@ -123,6 +133,8 @@ private:
 	void UpdateProjectiles();
 	// 敵の更新と回復行動
 	void UpdateEnemies();
+	// 敵のスポーン管理 (NEW)
+	void UpdateEnemySpawn();
 	// 弾などの当たり判定
 	void CheckCollisions();
 	// プレイヤーと敵の衝突判定
@@ -150,7 +162,12 @@ private:
 	// シーン状態
 	ScenePhase phase_ = ScenePhase::FadeIn;
 	bool finished_ = false;
+	bool isClear_ = false; // クリア判定 (NEW)
 	Fade* fade_ = nullptr;
+
+	// サバイバル用タイマー (NEW)
+	float survivalTimer_ = 0.0f;
+	float enemySpawnTimer_ = 0.0f;
 
 	// 特殊攻撃用パラメータ
 	SpecialState specialState_ = SpecialState::None;
