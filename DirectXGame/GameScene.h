@@ -225,5 +225,9 @@ private:
 	int score_ = 0;
 	std::array<KamataEngine::Model*, 10> modelNumbers_{};
 
+	// タイマー表示
+	std::array<KamataEngine::WorldTransform, 3> timerWTs_;
+	void DrawTimer(); // タイマー描画関数
+
 	float hitStopTimer_ = 0.0f;
 };

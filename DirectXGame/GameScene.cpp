@@ -106,6 +106,14 @@ void GameScene::Initialize() {
 	enemySpawnTimer_ = 0.0f; // すぐに湧くように
 	isClear_ = false;
 
+	// タイマー用ワールド変換の初期化
+	for (auto& wt : timerWTs_) {
+		wt.Initialize();
+		wt.rotation_.y = std::numbers::pi_v<float>;
+		// 少し大きめに表示
+		wt.scale_ = {2.0f, 2.0f, 2.0f};
+	}
+
 	srand((unsigned int)time(NULL));
 }
 
@@ -825,6 +833,47 @@ void GameScene::PerformSpecialDash(float deltaTime) {
 }
 
 // ==========================================================================
+// タイマー描画
+// ==========================================================================
+void GameScene::DrawTimer() {
+	// 残り時間を整数にする (負にならないように0で止める)
+	int timeValue = (std::max)(0, (int)survivalTimer_);
+
+	// 文字列に変換 ("30" とか "9" とか)
+	std::string timeStr = std::to_string(timeValue);
+
+	// 文字の幅（調整用）
+	float charWidth = 1.5f;
+	// 画面中央に表示するための開始位置計算
+	float totalWidth = (timeStr.length() - 1) * charWidth;
+	float startX = -totalWidth * 0.5f;
+
+	// 高さ（画面の少し上の方）
+	float posY = 2.0f;
+
+	for (size_t i = 0; i < timeStr.length(); ++i) {
+		// 文字から数字を取り出す ('0'～'9' -> 0～9)
+		int digit = timeStr[i] - '0';
+
+		// 範囲外チェック
+		if (digit < 0 || digit > 9)
+			continue;
+
+		// 桁ごとの座標計算
+		if (i < timerWTs_.size()) {
+			timerWTs_[i].translation_ = {startX + i * charWidth, posY, 0.0f};
+
+			// 行列更新
+			timerWTs_[i].matWorld_ = MakeAffineMatrix(timerWTs_[i].scale_, timerWTs_[i].rotation_, timerWTs_[i].translation_);
+			timerWTs_[i].TransferMatrix();
+
+			// 描画 (UI用のカメラを使う)
+			modelNumbers_[digit]->Draw(timerWTs_[i], *uiCamera_);
+		}
+	}
+}
+
+// ==========================================================================
 // 描画処理
 // ==========================================================================
 void GameScene::Draw() {
@@ -856,6 +905,7 @@ void GameScene::Draw() {
 	modelHp_->Draw(worldTransformHudHp_, *uiCamera_);
 	modelHpBar_->Draw(worldTransformHudHpBar_, *uiCamera_);
 	comboRank_.Draw();
+	DrawTimer();
 	Model::PostDraw();
 	if (fade_) {
 		fade_->Draw();
