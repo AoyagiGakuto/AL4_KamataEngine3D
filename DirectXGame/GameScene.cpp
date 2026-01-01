@@ -72,8 +72,7 @@ void GameScene::Initialize() {
 	player_->Initialize(modelPlayer_, camera_, playerPosition);
 	player_->SetMapChipField(mapChipField_);
 
-	// 敵の初期配置 (固定配置は減らすかなくして、ランダムスポーンのみにする)
-	// ここでは例として最初の1体だけ出しておく
+	// 敵の初期配置
 	/*
 	Enemy* firstEnemy = new NormalEnemy();
 	Vector3 enemyPos = mapChipField_->GetMapPositionTypeByIndex(30, 18);
@@ -154,7 +153,7 @@ void GameScene::Update() {
 		// 時間経過でクリア
 		if (survivalTimer_ <= 0.0f) {
 			isClear_ = true;
-			// 敵を全消去してフェードアウト開始してもよい
+			// 敵を全消去してフェードアウト開始
 			phase_ = ScenePhase::FadeOut;
 			fade_->Start(Fade::Status::FadeOut, 1.0f);
 		}
@@ -214,7 +213,7 @@ void GameScene::Update() {
 }
 
 // ==========================================================================
-// 敵スポーン処理 (NEW)
+// 敵スポーン処理
 // ==========================================================================
 void GameScene::UpdateEnemySpawn() {
 	if (isClear_ || player_->IsDead()) {
@@ -229,14 +228,14 @@ void GameScene::UpdateEnemySpawn() {
 		// ステージの幅（ブロック数）
 		uint32_t mapWidth = mapChipField_->GetNumBlockHorizontal();
 
-		// ランダムなX座標 (端っこすぎると埋まるのでマージンをとる)
+		// ランダムなX座標
 		uint32_t randomX = rand() % (mapWidth - 10) + 5;
-		// 高さ (空から降らせる)
+		// 高さ
 		uint32_t spawnY = 15;
 
 		Vector3 spawnPos = mapChipField_->GetMapPositionTypeByIndex(randomX, spawnY);
 
-		// 敵の種類をランダムに決定 (0:Normal, 1:Homing, 2:Flying)
+		// 敵の種類をランダムに決定 (0ふつう, 1ついてくる敵, 2飛んでる敵)
 		int enemyType = rand() % 3;
 		Enemy* newEnemy = nullptr;
 
@@ -292,9 +291,6 @@ void GameScene::UpdateMapBlocks() {
 // 入力処理の更新
 // ==========================================================================
 void GameScene::UpdatePlayerAction() {
-	// (省略せずそのまま記述、または既存コードと同じ)
-	// 長くなるので既存のInput処理は変更がないため省略しますが、
-	// ファイル上書き時は元のUpdatePlayerActionの中身をそのまま使ってください。
 
 	/* --- 通常弾発射 --- */
 	if (Input::GetInstance()->TriggerKey(DIK_H)) {
@@ -542,7 +538,6 @@ void GameScene::UpdateEnemies() {
 // 当たり判定処理
 // ==========================================================================
 void GameScene::CheckCollisions() {
-	// (省略) 既存のCheckCollisionsと同じ内容
 	/* ---通常弾と敵--- */
 	for (auto it = bullets_.begin(); it != bullets_.end();) {
 		bool bulletRemoved = false;
@@ -676,7 +671,6 @@ void GameScene::UpdateSceneFlow() {
 			isClear_ = false;
 			fade_->Start(Fade::Status::FadeOut, 1.0f);
 		}
-		// Clear時はUpdate内で判定済みでFadeOutへ移行している
 		break;
 
 	case ScenePhase::FadeOut:
@@ -692,7 +686,6 @@ void GameScene::UpdateSceneFlow() {
 // プレイヤーと敵の衝突判定
 // ==========================================================================
 void GameScene::CheckAllCollisions() {
-	// (省略) 既存のCheckAllCollisionsと同じ
 	if (player_->IsDead())
 		return;
 	AABB aabb1 = player_->GetAABB();
@@ -723,7 +716,6 @@ void GameScene::CheckAllCollisions() {
 // 特殊攻撃の更新
 // ==========================================================================
 void GameScene::UpdateSpecialMove(float deltaTime) {
-	// (省略) 既存のUpdateSpecialMoveと同じ
 	if (specialState_ == SpecialState::None) {
 		if (!player_->IsDead() && Input::GetInstance()->TriggerKey(DIK_R)) {
 			specialState_ = SpecialState::Charge;
@@ -793,7 +785,6 @@ void GameScene::UpdateSpecialMove(float deltaTime) {
 // 必殺技の時のダッシュの実装
 // ==========================================================================
 void GameScene::PerformSpecialDash(float deltaTime) {
-	// (省略) 既存のPerformSpecialDashと同じ
 	specialTimer_ -= deltaTime;
 	specialHitInterval_ -= deltaTime;
 	if (specialHitInterval_ <= 0.0f) {
@@ -839,7 +830,7 @@ void GameScene::DrawTimer() {
 	// 残り時間を整数にする (負にならないように0で止める)
 	int timeValue = (std::max)(0, (int)survivalTimer_);
 
-	// 文字列に変換 ("30" とか "9" とか)
+	// 文字列に変換
 	std::string timeStr = std::to_string(timeValue);
 
 	// 文字の幅（調整用）
@@ -877,7 +868,6 @@ void GameScene::DrawTimer() {
 // 描画処理
 // ==========================================================================
 void GameScene::Draw() {
-	// (省略) 既存のDrawと同じ
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 	Model::PreDraw(dxCommon->GetCommandList());
 	for (auto& line : worldTransformBlocks_) {
@@ -916,7 +906,6 @@ void GameScene::Draw() {
 // 解放処理
 // ==========================================================================
 GameScene::~GameScene() {
-	// (省略) 既存のデストラクタと同じ
 	delete modelPlayer_;
 	delete modelEnemy_;
 	delete modelDeathParticle_;
