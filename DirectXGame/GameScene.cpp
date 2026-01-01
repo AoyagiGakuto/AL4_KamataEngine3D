@@ -109,7 +109,7 @@ void GameScene::Initialize() {
 	// タイマー用ワールド変換の初期化
 	for (auto& wt : timerWTs_) {
 		wt.Initialize();
-		wt.rotation_.y = std::numbers::pi_v<float>;
+		wt.rotation_.y = std::numbers::pi_v<float> / -2.0f;
 		// 少し大きめに表示
 		wt.scale_ = {2.0f, 2.0f, 2.0f};
 	}

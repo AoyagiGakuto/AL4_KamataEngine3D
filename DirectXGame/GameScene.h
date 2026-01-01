@@ -61,7 +61,7 @@ private:
 		// --- 敵設定 ---
 		*/
 
-		// 初期配置数 (最初は0にしてスポナーに任せる)
+		// 初期配置数
 		static inline const int kEnemyCount = 0;
 		// 通常敵サイズ
 		static inline const float kEnemyScaleNormal = 0.4f;
@@ -110,12 +110,12 @@ private:
 		static inline const int kSpecialFinaleSlashCount = 200;
 
 		/*
-		// --- サバイバル設定 (NEW) ---
+		// --- サバイバル設定 ---
 		*/
 
-		// 生き残る時間（秒）
+		// 生き残る時間
 		static inline const float kSurvivalTimeLimit = 30.0f;
-		// 敵が湧く間隔（秒）
+		// 敵が湧く間隔
 		static inline const float kEnemySpawnInterval = 3.0f;
 	};
 
@@ -162,10 +162,10 @@ private:
 	// シーン状態
 	ScenePhase phase_ = ScenePhase::FadeIn;
 	bool finished_ = false;
-	bool isClear_ = false; // クリア判定 (NEW)
+	bool isClear_ = false;
 	Fade* fade_ = nullptr;
 
-	// サバイバル用タイマー (NEW)
+	// サバイバル用タイマー
 	float survivalTimer_ = 0.0f;
 	float enemySpawnTimer_ = 0.0f;
 
@@ -218,8 +218,10 @@ private:
 	KamataEngine::WorldTransform worldTransformHudHpBar_;
 	KamataEngine::WorldTransform worldTransformHudHp_;
 	ComboRank comboRank_;
-	int comboIndex_ = 0;      // 今何連撃目か
-	float comboTimer_ = 0.0f; // 次の攻撃までの受付時間
+	// 今何連撃目か
+	int comboIndex_ = 0;
+	// 次の攻撃までの受付時間
+	float comboTimer_ = 0.0f;
 
 	// スコア
 	int score_ = 0;
@@ -227,7 +229,8 @@ private:
 
 	// タイマー表示
 	std::array<KamataEngine::WorldTransform, 3> timerWTs_;
-	void DrawTimer(); // タイマー描画関数
+	// タイマー描画関数
+	void DrawTimer();
 
 	float hitStopTimer_ = 0.0f;
 };
