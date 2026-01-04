@@ -33,6 +33,14 @@ private:
 	KamataEngine::Model* playerModel_ = nullptr;
 	KamataEngine::WorldTransform playerTransform_;
 
+	// 天球
+	KamataEngine::Model* skyDomeModel_ = nullptr;
+	KamataEngine::WorldTransform skyDomeWT_;
+
+	// 文字
+	KamataEngine::Model* pressSpaceModel_ = nullptr;
+	KamataEngine::WorldTransform pressSpaceWT_;
+
 	KamataEngine::Camera* camera_ = nullptr;
 
 	// フェード

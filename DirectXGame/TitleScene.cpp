@@ -9,6 +9,8 @@ TitleScene::TitleScene() {}
 TitleScene::~TitleScene() {
 	delete titleFontModel_;
 	delete playerModel_;
+	delete skyDomeModel_;
+	delete pressSpaceModel_;
 	delete camera_;
 	delete fade_;
 }
@@ -27,6 +29,19 @@ void TitleScene::Initialize() {
 	playerTransform_.translation_ = {0.0f, -2.0f, 0.0f};
 	playerTransform_.scale_ = {10.0f, 10.0f, 10.0f};
 	playerTransform_.rotation_ = {0.0f, 3.14f, 0.0f};
+
+	// 天球
+	skyDomeModel_ = Model::CreateFromOBJ("SkyDome", true);
+	skyDomeWT_.Initialize();
+	skyDomeWT_.scale_ = {50.0f, 50.0f, 50.0f};
+	skyDomeWT_.matWorld_ = MakeAffineMatrix(skyDomeWT_.scale_, skyDomeWT_.rotation_, skyDomeWT_.translation_);
+	skyDomeWT_.TransferMatrix();
+
+	// PressSpace
+	pressSpaceModel_ = Model::CreateFromOBJ("PressSpace");
+	pressSpaceWT_.Initialize();
+	pressSpaceWT_.translation_ = {0.0f, -14.0f, 0.0f};
+	pressSpaceWT_.scale_ = {5.0f, 5.0f, 5.0f};
 
 	// カメラ
 	camera_ = new Camera();
@@ -89,14 +104,24 @@ void TitleScene::Update() {
 	titleTransform_.TransferMatrix();
 	playerTransform_.matWorld_ = MakeAffineMatrix(playerTransform_.scale_, playerTransform_.rotation_, playerTransform_.translation_);
 	playerTransform_.TransferMatrix();
+	pressSpaceWT_.matWorld_ = MakeAffineMatrix(pressSpaceWT_.scale_, pressSpaceWT_.rotation_, pressSpaceWT_.translation_);
+	pressSpaceWT_.TransferMatrix();
 }
 
 void TitleScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 	Model::PreDraw(dxCommon->GetCommandList());
 
+	if (skyDomeModel_) {
+		skyDomeModel_->Draw(skyDomeWT_, *camera_);
+	}
+
 	titleFontModel_->Draw(titleTransform_, *camera_);
 	playerModel_->Draw(playerTransform_, *camera_);
+
+	if (pressSpaceModel_ && blinkVisible_) {
+		pressSpaceModel_->Draw(pressSpaceWT_, *camera_);
+	}
 
 	Model::PostDraw();
 
