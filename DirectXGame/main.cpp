@@ -1,8 +1,8 @@
+#include "GameClearScene.h"
+#include "GameOverScene.h"
 #include "GameScene.h"
 #include "KamataEngine.h"
 #include "TitleScene.h"
-#include "GameClearScene.h"
-#include "GameOverScene.h"
 
 using namespace KamataEngine;
 
@@ -26,7 +26,6 @@ enum class Scene {
 	kBoss,
 };
 
-
 Scene scene = Scene::kUnknown;
 
 // ==========================================================================
@@ -40,6 +39,14 @@ void UpdateScene() {
 		break;
 	case Scene::kGame:
 		gameScene->Update();
+		break;
+	case Scene::kClear:
+		if (gameClearScene)
+			gameClearScene->Update();
+		break;
+	case Scene::kOver:
+		if (gameOverScene)
+			gameOverScene->Update();
 		break;
 	}
 }
@@ -55,6 +62,14 @@ void DrawScene() {
 		break;
 	case Scene::kGame:
 		gameScene->Draw();
+		break;
+	case Scene::kClear:
+		if (gameClearScene)
+			gameClearScene->Draw();
+		break;
+	case Scene::kOver:
+		if (gameOverScene)
+			gameOverScene->Draw();
 		break;
 	}
 }
