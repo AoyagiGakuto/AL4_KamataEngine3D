@@ -56,8 +56,8 @@ void GameScene::Initialize() {
 	uiCamera_->TransferMatrix();
 
 	tutorialWT_.Initialize();
-	tutorialWT_.translation_ = {0.0f, -1.0f, 0.0f};
-	tutorialWT_.scale_ = {0.5f, 0.5f, 0.5f};
+	tutorialWT_.translation_ = {0.0f, -0.6f, -2.0f};
+	tutorialWT_.scale_ = {0.4f, 0.4f, 0.4f};
 	
 	tKeyWT_.Initialize();
 	tKeyWT_.scale_ = {0.5f, 0.5f, 0.5f};
