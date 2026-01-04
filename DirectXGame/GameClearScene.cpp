@@ -12,13 +12,7 @@ void GameClearScene::Initialize() {
 	textTransform_.translation_ = {0.0f, 2.0f, 0.0f};
 	textTransform_.scale_ = {2.0f, 2.0f, 2.0f};
 
-	// 背景と天球
-	backgroundModel_ = Model::CreateFromOBJ("background");
-	backgroundTransform_.Initialize();
-	backgroundTransform_.translation_ = {0.0f, 0.0f, 10.0f};
-	backgroundTransform_.scale_ = {100.0f, 100.0f, 1.0f};
-
-	skyDomeModel_ = Model::CreateFromOBJ("tenkixyuu", true);
+	skyDomeModel_ = Model::CreateFromOBJ("SkyDome", true);
 	skyDomeWT_.Initialize();
 	skyDomeWT_.scale_ = {50.0f, 50.0f, 50.0f};
 
@@ -87,7 +81,6 @@ void GameClearScene::Draw() {
 
 GameClearScene::~GameClearScene() {
 	delete textModel_;
-	delete backgroundModel_;
 	delete skyDomeModel_;
 	delete pressSpaceModel_;
 	delete camera_;

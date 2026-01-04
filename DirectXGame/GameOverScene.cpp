@@ -11,7 +11,7 @@ void GameOverScene::Initialize() {
 	textTransform_.translation_ = {0.0f, 2.0f, 0.0f};
 	textTransform_.scale_ = {2.0f, 2.0f, 2.0f};
 
-	skyDomeModel_ = Model::CreateFromOBJ("tenkixyuu", true);
+	skyDomeModel_ = Model::CreateFromOBJ("SkyDome", true);
 	skyDomeWT_.Initialize();
 	skyDomeWT_.scale_ = {50.0f, 50.0f, 50.0f};
 
