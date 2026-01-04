@@ -18,7 +18,7 @@ void GameScene::Initialize() {
 	modelCube_ = Model::CreateFromOBJ("block");
 	modelSkyDome_ = Model::CreateFromOBJ("SkyDome", true);
 	modelPlayer_ = Model::CreateFromOBJ("player");
-	modelEnemy_ = Model::CreateFromOBJ("Ninja");
+	modelEnemy_ = Model::CreateFromOBJ("enemyMonster");
 	modelDeathParticle_ = Model::CreateFromOBJ("deathParticle");
 	modelBullet_ = Model::CreateFromOBJ("bullet");
 	modelSlowBall_ = Model::CreateFromOBJ("bullet");
