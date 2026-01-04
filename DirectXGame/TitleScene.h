@@ -42,6 +42,14 @@ private:
 	KamataEngine::Model* pressSpaceModel_ = nullptr;
 	KamataEngine::WorldTransform pressSpaceWT_;
 	KamataEngine::ObjectColor pressSpaceColor_;
+	KamataEngine::Model* tKeyModel_ = nullptr;
+	KamataEngine::WorldTransform tKeyWT_;
+	KamataEngine::ObjectColor tKeyColor_;
+
+	// チュートリアル表示
+	KamataEngine::Model* tutorialModel_ = nullptr;
+	KamataEngine::WorldTransform tutorialWT_;
+	bool isTutorialMode_ = false;
 
 	KamataEngine::Camera* camera_ = nullptr;
 
