@@ -116,7 +116,7 @@ private:
 		// 生き残る時間
 		static inline const float kSurvivalTimeLimit = 30.0f;
 		// 敵が湧く間隔
-		static inline const float kEnemySpawnInterval = 3.0f;
+		static inline const float kEnemySpawnInterval = 2.0f;
 	};
 
 	/*

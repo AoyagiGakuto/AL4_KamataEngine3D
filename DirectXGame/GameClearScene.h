@@ -2,8 +2,6 @@
 #include "Fade.h"
 #include "KamataEngine.h"
 
-// 未実装です
-
 class GameClearScene {
 public:
 	GameClearScene() = default;
@@ -20,9 +18,10 @@ private:
 
 	bool finished_ = false;
 
-	// 「GAME CLEAR」文字
+	// GAME CLEAR文字
 	KamataEngine::Model* textModel_ = nullptr;
 	KamataEngine::WorldTransform textTransform_;
+	KamataEngine::ObjectColor textColor_;
 
 	// 背景OBJ
 	KamataEngine::Model* backgroundModel_ = nullptr;
@@ -31,9 +30,10 @@ private:
 	KamataEngine::Model* skyDomeModel_ = nullptr;
 	KamataEngine::WorldTransform skyDomeWT_;
 
-	// 「PressSpace」OBJ
+	// PressSpaceOBJ
 	KamataEngine::Model* pressSpaceModel_ = nullptr;
 	KamataEngine::WorldTransform pressSpaceTransform_;
+	KamataEngine::ObjectColor pressSpaceColor_;
 	float blinkTimer_ = 0.0f;
 	bool blinkVisible_ = true;
 

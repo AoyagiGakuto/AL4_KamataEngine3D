@@ -40,6 +40,8 @@ void TitleScene::Initialize() {
 	pressSpaceWT_.Initialize();
 	pressSpaceWT_.translation_ = {0.0f, -14.0f, 0.0f};
 	pressSpaceWT_.scale_ = {5.0f, 5.0f, 5.0f};
+	pressSpaceColor_.Initialize();
+	pressSpaceColor_.SetColor({0.0f, 0.0f, 0.0f, 1.0f});
 
 	// カメラ
 	camera_ = new Camera();
@@ -118,7 +120,7 @@ void TitleScene::Draw() {
 	playerModel_->Draw(playerTransform_, *camera_);
 
 	if (pressSpaceModel_ && blinkVisible_) {
-		pressSpaceModel_->Draw(pressSpaceWT_, *camera_);
+		pressSpaceModel_->Draw(pressSpaceWT_, *camera_, &pressSpaceColor_);
 	}
 
 	Model::PostDraw();

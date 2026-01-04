@@ -40,6 +40,7 @@ private:
 	// 文字
 	KamataEngine::Model* pressSpaceModel_ = nullptr;
 	KamataEngine::WorldTransform pressSpaceWT_;
+	KamataEngine::ObjectColor pressSpaceColor_;
 
 	KamataEngine::Camera* camera_ = nullptr;
 
