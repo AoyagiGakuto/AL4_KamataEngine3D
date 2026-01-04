@@ -20,6 +20,7 @@ void GameScene::Initialize() {
 	modelPlayer_ = Model::CreateFromOBJ("player");
 	modelEnemy_ = Model::CreateFromOBJ("enemyMonster");
 	modelDeathParticle_ = Model::CreateFromOBJ("deathParticle");
+	modelChargeParticle_ = Model::CreateFromOBJ("chargeParticle");
 	modelBullet_ = Model::CreateFromOBJ("bullet");
 	modelSlowBall_ = Model::CreateFromOBJ("bullet");
 	modelZangeki_ = Model::CreateFromOBJ("zangeki");
@@ -761,7 +762,6 @@ void GameScene::UpdateSpecialMove(float deltaTime) {
 
 				chargeParticles_.push_back(std::move(p));
 			}
-
 		}
 		if (specialTimer_ <= 0.0f) {
 			specialState_ = SpecialState::Dash;
@@ -834,16 +834,6 @@ void GameScene::UpdateChargeParticles() {
 		} else {
 			++it;
 		}
-	}
-}
-
-void GameScene::DrawChargeParticles() {
- 	if (!modelDeathParticle_) {
- 		return;
- 	}
-
-	for (const auto& p : chargeParticles_) {
-		modelDeathParticle_->Draw(p->transform, *camera_);
 	}
 }
 
@@ -959,7 +949,10 @@ void GameScene::Draw() {
 	}
 
 	deathParticle_.Draw();
-	DrawChargeParticles();
+
+	for (const auto& p : chargeParticles_) {
+		modelChargeParticle_->Draw(p->transform, *camera_);
+	}
 
 	for (const auto& vfx : slashEffects_) {
 		vfx->Draw();
@@ -981,6 +974,7 @@ GameScene::~GameScene() {
 	delete modelPlayer_;
 	delete modelEnemy_;
 	delete modelDeathParticle_;
+	delete modelChargeParticle_;
 	delete modelBullet_;
 	delete modelSlowBall_;
 	delete modelZangeki_;

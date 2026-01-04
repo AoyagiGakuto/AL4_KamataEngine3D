@@ -223,6 +223,7 @@ private:
 	std::vector<std::unique_ptr<SlashEffect>> slashEffects_;
 	KamataEngine::Model* modelZangeki_ = nullptr;
 
+	KamataEngine::Model* modelChargeParticle_ = nullptr;
 	DeathParticle deathParticle_;
 	KamataEngine::Model* modelDeathParticle_ = nullptr;
 	float particleCooldown_ = 0.0f;
