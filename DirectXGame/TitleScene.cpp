@@ -22,6 +22,8 @@ void TitleScene::Initialize() {
 	titleTransform_.Initialize();
 	titleTransform_.translation_ = {0.0f, 1.0f, 0.0f};
 	titleTransform_.scale_ = {2.0f, 2.0f, 2.0f};
+	titleColor_.Initialize();
+	titleColor_.SetColor({0.0f, 0.0f, 0.0f, 1.0f});
 
 	// 画面下にプレイヤーモデルを置いて装飾
 	playerModel_ = Model::CreateFromOBJ("player");
@@ -116,7 +118,7 @@ void TitleScene::Draw() {
 		skyDomeModel_->Draw(skyDomeWT_, *camera_);
 	}
 
-	titleFontModel_->Draw(titleTransform_, *camera_);
+	titleFontModel_->Draw(titleTransform_, *camera_, &titleColor_);
 	playerModel_->Draw(playerTransform_, *camera_);
 
 	if (pressSpaceModel_ && blinkVisible_) {

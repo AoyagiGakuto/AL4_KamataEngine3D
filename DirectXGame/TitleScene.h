@@ -23,6 +23,7 @@ private:
 	// タイトルロゴ
 	KamataEngine::Model* titleFontModel_ = nullptr;
 	KamataEngine::WorldTransform titleTransform_;
+	KamataEngine::ObjectColor titleColor_;
 	float blinkTimer_ = 0.0f;
 	bool blinkVisible_ = true;
 

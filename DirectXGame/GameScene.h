@@ -110,7 +110,7 @@ private:
 		static inline const int kSpecialFinaleSlashCount = 200;
 
 		/*
-		// --- サバイバル設定 ---
+		// --- 設定 ---
 		*/
 
 		// 生き残る時間
