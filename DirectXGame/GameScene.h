@@ -114,7 +114,7 @@ private:
 		*/
 
 		// 生き残る時間
-		static inline const float kSurvivalTimeLimit = 30.0f;
+		static inline const float kSurvivalTimeLimit = 60.0f;
 		// 敵が湧く間隔
 		static inline const float kEnemySpawnInterval = 2.0f;
 	};
@@ -147,12 +147,22 @@ private:
 	void UpdateSpecialMove(float deltaTime);
 	// 特殊攻撃中のダッシュ処理
 	void PerformSpecialDash(float deltaTime);
+	// チャージ演出
+	void UpdateChargeParticles();
+	void DrawChargeParticles();
 
 	enum class SpecialState {
 		None,
 		Charge, // プレイヤーだけ止まってチャージ
 		Dash,   // 走る
 		Finish  // 画面全体の斬撃演出
+	};
+
+	// チャージ演出用
+	struct ChargeParticle {
+		KamataEngine::WorldTransform transform;
+		KamataEngine::Vector3 velocity;
+		float lifeTimer = 0.0f;
 	};
 
 	/*
@@ -174,6 +184,9 @@ private:
 	float specialTimer_ = 0.0f;
 	float specialHitInterval_ = 0.0f;
 	bool specialFinalSlashesSpawned_ = false;
+	bool hasUsedSpecial_ = false;
+
+	std::vector<std::unique_ptr<ChargeParticle>> chargeParticles_;
 
 	// カメラ
 	KamataEngine::Camera* camera_ = nullptr;

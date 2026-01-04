@@ -94,6 +94,9 @@ void GameScene::Initialize() {
 
 	deathParticle_.Initialize(modelDeathParticle_, camera_);
 
+	hasUsedSpecial_ = false;
+	chargeParticles_.clear();
+
 	particleCooldown_ = 0.0f;
 	score_ = 0;
 	fade_ = new Fade();
@@ -201,6 +204,8 @@ void GameScene::Update() {
 	CheckCollisions();
 
 	deathParticle_.Update();
+
+	UpdateChargeParticles();
 
 	for (auto& vfx : slashEffects_) {
 		vfx->Update();
@@ -600,7 +605,7 @@ void GameScene::CheckCollisions() {
 		for (Enemy* enemy : enemies_) {
 			AABB aabbE = enemy->GetAABB();
 			bool isHit =
-			    (aabbB.min.x < aabbE.max.x && aabbB.max.x > aabbE.min.x) && (aabbB.min.y < aabbE.max.y && aabbB.max.y > aabbE.min.y) && (aabbB.min.z < aabbE.max.z && aabbB.max.z > aabbE.min.z);
+			    (aabbB.min.x < aabbE.max.x && aabbB.max.x > aabbE.min.x) && (aabbB.min.y < aabbE.max.y && aabbB.max.y > aabbE.min.y) && (aabbB.min.z < aabbE.max.z && aabbB.max.z > aabbB.min.z);
 			if (isHit) {
 				enemy->SlowDown(GameParam::kSlowDuration);
 				(*it)->Kill();
@@ -717,7 +722,8 @@ void GameScene::CheckAllCollisions() {
 // ==========================================================================
 void GameScene::UpdateSpecialMove(float deltaTime) {
 	if (specialState_ == SpecialState::None) {
-		if (!player_->IsDead() && Input::GetInstance()->TriggerKey(DIK_R)) {
+		if (!hasUsedSpecial_ && !player_->IsDead() && Input::GetInstance()->TriggerKey(DIK_R)) {
+			hasUsedSpecial_ = true;
 			specialState_ = SpecialState::Charge;
 			specialTimer_ = GameParam::kSpecialChargeTime;
 			specialFinalSlashesSpawned_ = false;
@@ -728,6 +734,35 @@ void GameScene::UpdateSpecialMove(float deltaTime) {
 		break;
 	case SpecialState::Charge:
 		specialTimer_ -= deltaTime;
+		if (specialTimer_ > 0.0f) {
+			for (int i = 0; i < 2; i++) {
+				auto p = std::make_unique<ChargeParticle>();
+				p->transform.Initialize();
+
+				Vector3 center = player_->GetWorldTransform().translation_;
+
+				// ランダム
+				Vector3 offset;
+				offset.x = (rand() % 200 - 100) / 100.0f;
+				offset.y = (rand() % 200 - 100) / 100.0f;
+				offset.z = (rand() % 200 - 100) / 100.0f;
+				if (Length(offset) != 0.0f) {
+					offset = Normalize(offset) * 5.0f;
+				}
+
+				p->transform.translation_ = center + offset;
+				p->transform.scale_ = {0.5f, 0.5f, 0.5f}; // 少し小さめ
+
+				// 中心（プレイヤー）に向かって吸い込まれる速度
+				Vector3 dir = center - p->transform.translation_;
+				p->velocity = Normalize(dir) * 0.2f; // 吸い込みスピード
+
+				p->lifeTimer = 60.0f;
+
+				chargeParticles_.push_back(std::move(p));
+			}
+
+		}
 		if (specialTimer_ <= 0.0f) {
 			specialState_ = SpecialState::Dash;
 			specialTimer_ = GameParam::kSpecialDashTime;
@@ -775,9 +810,40 @@ void GameScene::UpdateSpecialMove(float deltaTime) {
 				slashEffects_.push_back(std::move(vfx));
 			}
 		}
-		if (specialTimer_ <= 0.0f)
+		if (specialTimer_ <= 0.0f) {
 			specialState_ = SpecialState::None;
+		}
 		break;
+	}
+}
+
+void GameScene::UpdateChargeParticles() {
+	auto it = chargeParticles_.begin();
+	while (it != chargeParticles_.end()) {
+		ChargeParticle* cp = it->get();
+		cp->transform.translation_ += cp->velocity;
+		cp->lifeTimer -= 1.0f;
+		cp->transform.matWorld_ = MakeAffineMatrix(cp->transform.scale_, cp->transform.rotation_, cp->transform.translation_);
+		cp->transform.TransferMatrix();
+
+		Vector3 playerPos = player_->GetWorldTransform().translation_;
+		float dist = Length(cp->transform.translation_ - playerPos);
+
+		if (dist < 0.5f || cp->lifeTimer <= 0.0f) {
+			it = chargeParticles_.erase(it);
+		} else {
+			++it;
+		}
+	}
+}
+
+void GameScene::DrawChargeParticles() {
+ 	if (!modelDeathParticle_) {
+ 		return;
+ 	}
+
+	for (const auto& p : chargeParticles_) {
+		modelDeathParticle_->Draw(p->transform, *camera_);
 	}
 }
 
@@ -877,18 +943,24 @@ void GameScene::Draw() {
 			modelCube_->Draw(*block, *camera_);
 		}
 	}
+
 	modelSkyDome_->Draw(worldTransform_, *camera_);
 	player_->Draw();
 	for (Enemy* enemy : enemies_) {
 		enemy->Draw();
 	}
+
 	for (const auto& b : bullets_) {
 		b->Draw();
 	}
+
 	for (const auto& sb : slowBalls_) {
 		sb->Draw();
 	}
+
 	deathParticle_.Draw();
+	DrawChargeParticles();
+
 	for (const auto& vfx : slashEffects_) {
 		vfx->Draw();
 	}
