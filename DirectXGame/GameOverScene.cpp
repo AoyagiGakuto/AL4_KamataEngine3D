@@ -10,6 +10,8 @@ void GameOverScene::Initialize() {
 	textTransform_.Initialize();
 	textTransform_.translation_ = {0.0f, 2.0f, 0.0f};
 	textTransform_.scale_ = {10.0f, 10.0f, 10.0f};
+	textColor_.Initialize();
+	textColor_.SetColor({0.0f, 0.0f, 0.0f, 1.0f});
 
 	skyDomeModel_ = Model::CreateFromOBJ("SkyDome", true);
 	skyDomeWT_.Initialize();
@@ -19,6 +21,8 @@ void GameOverScene::Initialize() {
 	pressSpaceTransform_.Initialize();
 	pressSpaceTransform_.translation_ = {0.0f, -4.0f, 0.0f};
 	pressSpaceTransform_.scale_ = {5.0f, 5.0f, 5.0f};
+	pressSpaceColor_.Initialize();
+	pressSpaceColor_.SetColor({0.0f, 0.0f, 0.0f, 1.0f});
 
 	camera_ = new Camera();
 	camera_->Initialize();
@@ -71,12 +75,15 @@ void GameOverScene::Draw() {
 	if (skyDomeModel_) {
 		skyDomeModel_->Draw(skyDomeWT_, *camera_);
 	}
+
 	if (textModel_) {
-		textModel_->Draw(textTransform_, *camera_);
+		textModel_->Draw(textTransform_, *camera_, &textColor_);
 	}
+
 	if (pressSpaceModel_ && blinkVisible_) {
-		pressSpaceModel_->Draw(pressSpaceTransform_, *camera_);
+		pressSpaceModel_->Draw(pressSpaceTransform_, *camera_, &pressSpaceColor_);
 	}
+
 	Model::PostDraw();
 	if (fade_) {
 		fade_->Draw();
