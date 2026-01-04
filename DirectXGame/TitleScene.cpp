@@ -34,8 +34,6 @@ void TitleScene::Initialize() {
 	skyDomeModel_ = Model::CreateFromOBJ("SkyDome", true);
 	skyDomeWT_.Initialize();
 	skyDomeWT_.scale_ = {50.0f, 50.0f, 50.0f};
-	skyDomeWT_.matWorld_ = MakeAffineMatrix(skyDomeWT_.scale_, skyDomeWT_.rotation_, skyDomeWT_.translation_);
-	skyDomeWT_.TransferMatrix();
 
 	// PressSpace
 	pressSpaceModel_ = Model::CreateFromOBJ("PressSpace");
