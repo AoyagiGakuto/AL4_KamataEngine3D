@@ -37,9 +37,6 @@
     <ClCompile Include="TitleScene.cpp">
       <Filter>Scene\Title</Filter>
     </ClCompile>
-    <ClCompile Include="Boss.cpp">
-      <Filter>Boss</Filter>
-    </ClCompile>
     <ClCompile Include="Bullet.cpp">
       <Filter>Bullet</Filter>
     </ClCompile>
@@ -70,9 +67,6 @@
     <ClCompile Include="Player.cpp">
       <Filter>Player</Filter>
     </ClCompile>
-    <ClCompile Include="BossScene.cpp">
-      <Filter>Scene\Boss</Filter>
-    </ClCompile>
     <ClCompile Include="GameScene.cpp">
       <Filter>Scene\Game</Filter>
     </ClCompile>
@@ -87,9 +81,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Boss.h">
-      <Filter>Boss</Filter>
-    </ClInclude>
     <ClInclude Include="Bullet.h">
       <Filter>Bullet</Filter>
     </ClInclude>
@@ -119,9 +110,6 @@
     </ClInclude>
     <ClInclude Include="Player.h">
       <Filter>Player</Filter>
-    </ClInclude>
-    <ClInclude Include="BossScene.h">
-      <Filter>Scene\Boss</Filter>
     </ClInclude>
     <ClInclude Include="GameScene.h">
       <Filter>Scene\Game</Filter>
@@ -160,9 +148,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="Boss">
-      <UniqueIdentifier>{33284195-83c9-4ab6-820b-d0cd845ddeb3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Bullet">
       <UniqueIdentifier>{dccdf656-4939-48e8-8cd4-ea5f11e85386}</UniqueIdentifier>
     </Filter>
@@ -183,9 +168,6 @@
     </Filter>
     <Filter Include="Scene\GameOver">
       <UniqueIdentifier>{356c07a0-efdb-4d1f-bbad-7f857ed6d7b0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Scene\Boss">
-      <UniqueIdentifier>{fe74e03f-3469-480e-8943-b5810ce49b35}</UniqueIdentifier>
     </Filter>
     <Filter Include="Effects">
       <UniqueIdentifier>{f7587923-0842-4a94-a593-ac2b77acfc4e}</UniqueIdentifier>
