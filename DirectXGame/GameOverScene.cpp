@@ -35,8 +35,9 @@ void GameOverScene::Update() {
 	switch (phase_) {
 	case Phase::FadeIn:
 		fade_->Update();
-		if (fade_->IsFinished())
+		if (fade_->IsFinished()) {
 			phase_ = Phase::Main;
+		}
 		break;
 	case Phase::Main:
 		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
@@ -46,8 +47,9 @@ void GameOverScene::Update() {
 		break;
 	case Phase::FadeOut:
 		fade_->Update();
-		if (fade_->IsFinished())
+		if (fade_->IsFinished()) {
 			finished_ = true;
+		}
 		break;
 	}
 
@@ -66,15 +68,19 @@ void GameOverScene::Update() {
 void GameOverScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 	Model::PreDraw(dxCommon->GetCommandList());
-	if (skyDomeModel_)
+	if (skyDomeModel_) {
 		skyDomeModel_->Draw(skyDomeWT_, *camera_);
-	if (textModel_)
+	}
+	if (textModel_) {
 		textModel_->Draw(textTransform_, *camera_);
-	if (pressSpaceModel_ && blinkVisible_)
+	}
+	if (pressSpaceModel_ && blinkVisible_) {
 		pressSpaceModel_->Draw(pressSpaceTransform_, *camera_);
+	}
 	Model::PostDraw();
-	if (fade_)
+	if (fade_) {
 		fade_->Draw();
+	}
 }
 
 GameOverScene::~GameOverScene() {
