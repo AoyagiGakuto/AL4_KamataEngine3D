@@ -41,12 +41,10 @@ void UpdateScene() {
 		gameScene->Update();
 		break;
 	case Scene::kClear:
-		if (gameClearScene)
-			gameClearScene->Update();
+		gameClearScene->Update();
 		break;
 	case Scene::kOver:
-		if (gameOverScene)
-			gameOverScene->Update();
+		gameOverScene->Update();
 		break;
 	}
 }
@@ -64,12 +62,10 @@ void DrawScene() {
 		gameScene->Draw();
 		break;
 	case Scene::kClear:
-		if (gameClearScene)
-			gameClearScene->Draw();
+		gameClearScene->Draw();
 		break;
 	case Scene::kOver:
-		if (gameOverScene)
-			gameOverScene->Draw();
+		gameOverScene->Draw();
 		break;
 	}
 }
@@ -91,7 +87,7 @@ void ChangeScene() {
 		break;
 	case Scene::kGame:
 		if (gameScene->IsFinished()) {
-			// クリア判定を確認
+			// クリア判定
 			bool isClear = gameScene->IsClear();
 
 			delete gameScene;

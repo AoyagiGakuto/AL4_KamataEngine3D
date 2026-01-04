@@ -10,7 +10,7 @@ void GameClearScene::Initialize() {
 	textModel_ = Model::CreateFromOBJ("gameclear");
 	textTransform_.Initialize();
 	textTransform_.translation_ = {0.0f, 2.0f, 0.0f};
-	textTransform_.scale_ = {2.0f, 2.0f, 2.0f};
+	textTransform_.scale_ = {10.0f, 10.0f, 10.0f};
 
 	skyDomeModel_ = Model::CreateFromOBJ("SkyDome", true);
 	skyDomeWT_.Initialize();
@@ -18,7 +18,8 @@ void GameClearScene::Initialize() {
 
 	pressSpaceModel_ = Model::CreateFromOBJ("PressSpace");
 	pressSpaceTransform_.Initialize();
-	pressSpaceTransform_.translation_ = {0.0f, -2.0f, 0.0f};
+	pressSpaceTransform_.translation_ = {0.0f, -4.0f, 0.0f};
+	pressSpaceTransform_.scale_ = {5.0f, 5.0f, 5.0f};
 
 	camera_ = new Camera();
 	camera_->Initialize();
@@ -35,8 +36,10 @@ void GameClearScene::Update() {
 	switch (phase_) {
 	case Phase::FadeIn:
 		fade_->Update();
-		if (fade_->IsFinished())
+		if (fade_->IsFinished()) {
 			phase_ = Phase::Main;
+		}
+
 		break;
 	case Phase::Main:
 		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
@@ -46,8 +49,9 @@ void GameClearScene::Update() {
 		break;
 	case Phase::FadeOut:
 		fade_->Update();
-		if (fade_->IsFinished())
+		if (fade_->IsFinished()) {
 			finished_ = true;
+		}
 		break;
 	}
 
@@ -68,15 +72,19 @@ void GameClearScene::Update() {
 void GameClearScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 	Model::PreDraw(dxCommon->GetCommandList());
-	if (skyDomeModel_)
+	if (skyDomeModel_) {
 		skyDomeModel_->Draw(skyDomeWT_, *camera_);
-	if (textModel_)
+	}
+	if (textModel_) {
 		textModel_->Draw(textTransform_, *camera_);
-	if (pressSpaceModel_ && blinkVisible_)
+	}
+	if (pressSpaceModel_ && blinkVisible_) {
 		pressSpaceModel_->Draw(pressSpaceTransform_, *camera_);
+	}
 	Model::PostDraw();
-	if (fade_)
+	if (fade_) {
 		fade_->Draw();
+	}
 }
 
 GameClearScene::~GameClearScene() {

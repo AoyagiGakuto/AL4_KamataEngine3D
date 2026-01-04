@@ -9,7 +9,7 @@ void GameOverScene::Initialize() {
 	textModel_ = Model::CreateFromOBJ("gameover");
 	textTransform_.Initialize();
 	textTransform_.translation_ = {0.0f, 2.0f, 0.0f};
-	textTransform_.scale_ = {2.0f, 2.0f, 2.0f};
+	textTransform_.scale_ = {10.0f, 10.0f, 10.0f};
 
 	skyDomeModel_ = Model::CreateFromOBJ("SkyDome", true);
 	skyDomeWT_.Initialize();
@@ -17,7 +17,8 @@ void GameOverScene::Initialize() {
 
 	pressSpaceModel_ = Model::CreateFromOBJ("PressSpace");
 	pressSpaceTransform_.Initialize();
-	pressSpaceTransform_.translation_ = {0.0f, -2.0f, 0.0f};
+	pressSpaceTransform_.translation_ = {0.0f, -4.0f, 0.0f};
+	pressSpaceTransform_.scale_ = {5.0f, 5.0f, 5.0f};
 
 	camera_ = new Camera();
 	camera_->Initialize();
