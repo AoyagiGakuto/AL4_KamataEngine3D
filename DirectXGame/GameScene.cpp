@@ -26,6 +26,7 @@ void GameScene::Initialize() {
 	modelZangeki_ = Model::CreateFromOBJ("zangeki");
 	modelHp_ = Model::CreateFromOBJ("hp");
 	modelHpBar_ = Model::CreateFromOBJ("hpbar");
+	tutorialModel_ = Model::CreateFromOBJ("setumei");
 
 	for (int i = 0; i < 10; ++i) {
 		modelNumbers_[i] = Model::CreateFromOBJ(std::to_string(i));
@@ -52,6 +53,12 @@ void GameScene::Initialize() {
 	Matrix4x4 matWorld = MakeAffineMatrix(uiScale, uiRot, uiPos);
 	uiCamera_->matView = Inverse(matWorld);
 	uiCamera_->TransferMatrix();
+
+	tutorialWT_.Initialize();
+	tutorialWT_.translation_ = {0.0f, -1.0f, 0.0f};
+	tutorialWT_.scale_ = {0.5f, 0.5f, 0.5f};
+
+	isTutorialMode_ = false;
 
 	// HPバー初期化
 	worldTransformHudHpBar_.Initialize();
@@ -148,6 +155,18 @@ void GameScene::GenerateBlocks() {
 // 更新処理
 // ==========================================================================
 void GameScene::Update() {
+
+	// Tキーでポーズ切り替え
+	if (Input::GetInstance()->TriggerKey(DIK_T)) {
+		isTutorialMode_ = !isTutorialMode_;
+	}
+
+	// 説明が出てきているならゲームを止める
+	if (isTutorialMode_) {
+		tutorialWT_.matWorld_ = MakeAffineMatrix(tutorialWT_.scale_, tutorialWT_.rotation_, tutorialWT_.translation_);
+		tutorialWT_.TransferMatrix();
+		return;
+	}
 
 	const float dt = 1.0f / 60.0f;
 
@@ -926,6 +945,7 @@ void GameScene::DrawTimer() {
 void GameScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 	Model::PreDraw(dxCommon->GetCommandList());
+
 	for (auto& line : worldTransformBlocks_) {
 		for (auto& block : line) {
 			if (!block)
@@ -961,6 +981,11 @@ void GameScene::Draw() {
 	modelHpBar_->Draw(worldTransformHudHpBar_, *uiCamera_);
 	comboRank_.Draw();
 	DrawTimer();
+
+	if (isTutorialMode_ && tutorialModel_) {
+		tutorialModel_->Draw(tutorialWT_, *uiCamera_);
+	}
+
 	Model::PostDraw();
 	if (fade_) {
 		fade_->Draw();
@@ -971,6 +996,7 @@ void GameScene::Draw() {
 // 解放処理
 // ==========================================================================
 GameScene::~GameScene() {
+	delete tutorialModel_;
 	delete modelPlayer_;
 	delete modelEnemy_;
 	delete modelDeathParticle_;

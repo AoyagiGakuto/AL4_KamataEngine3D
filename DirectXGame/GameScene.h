@@ -228,6 +228,10 @@ private:
 	KamataEngine::Model* modelDeathParticle_ = nullptr;
 	float particleCooldown_ = 0.0f;
 
+	KamataEngine::Model* tutorialModel_ = nullptr;
+	KamataEngine::WorldTransform tutorialWT_;
+	bool isTutorialMode_ = false;
+
 	// UI
 	KamataEngine::WorldTransform worldTransformHudHpBar_;
 	KamataEngine::WorldTransform worldTransformHudHp_;
