@@ -27,6 +27,7 @@ void GameScene::Initialize() {
 	modelHp_ = Model::CreateFromOBJ("hp");
 	modelHpBar_ = Model::CreateFromOBJ("hpbar");
 	tutorialModel_ = Model::CreateFromOBJ("setumei");
+	tKeyModel_ = Model::CreateFromOBJ("Tkey");
 
 	for (int i = 0; i < 10; ++i) {
 		modelNumbers_[i] = Model::CreateFromOBJ(std::to_string(i));
@@ -57,6 +58,14 @@ void GameScene::Initialize() {
 	tutorialWT_.Initialize();
 	tutorialWT_.translation_ = {0.0f, -1.0f, 0.0f};
 	tutorialWT_.scale_ = {0.5f, 0.5f, 0.5f};
+	
+	tKeyWT_.Initialize();
+	tKeyWT_.scale_ = {0.5f, 0.5f, 0.5f};
+
+	// HPバーの下あたりに
+	tKeyWT_.translation_ = {-5.0f, 3.0f, 0.0f};
+	tKeyColor_.Initialize();
+	tKeyColor_.SetColor({0.0f, 0.0f, 0.0f, 1.0f});
 
 	isTutorialMode_ = false;
 
@@ -160,6 +169,9 @@ void GameScene::Update() {
 	if (Input::GetInstance()->TriggerKey(DIK_T)) {
 		isTutorialMode_ = !isTutorialMode_;
 	}
+
+	tKeyWT_.matWorld_ = MakeAffineMatrix(tKeyWT_.scale_, tKeyWT_.rotation_, tKeyWT_.translation_);
+	tKeyWT_.TransferMatrix();
 
 	// 説明が出てきているならゲームを止める
 	if (isTutorialMode_) {
@@ -946,6 +958,10 @@ void GameScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 	Model::PreDraw(dxCommon->GetCommandList());
 
+	if (tKeyModel_) {
+		tKeyModel_->Draw(tKeyWT_, *uiCamera_, &tKeyColor_);
+	}
+
 	for (auto& line : worldTransformBlocks_) {
 		for (auto& block : line) {
 			if (!block)
@@ -1008,6 +1024,7 @@ GameScene::~GameScene() {
 	delete modelHpBar_;
 	delete model_;
 	delete modelCube_;
+	delete tKeyModel_;
 	delete modelSkyDome_;
 	for (Model* model : modelNumbers_) {
 		delete model;

@@ -232,6 +232,10 @@ private:
 	KamataEngine::WorldTransform tutorialWT_;
 	bool isTutorialMode_ = false;
 
+	KamataEngine::Model* tKeyModel_ = nullptr;
+	KamataEngine::WorldTransform tKeyWT_;
+	KamataEngine::ObjectColor tKeyColor_;
+
 	// UI
 	KamataEngine::WorldTransform worldTransformHudHpBar_;
 	KamataEngine::WorldTransform worldTransformHudHp_;
