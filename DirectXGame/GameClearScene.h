@@ -2,12 +2,15 @@
 #include "Fade.h"
 #include "KamataEngine.h"
 
+#include <array>
+#include <string>
+
 class GameClearScene {
 public:
 	GameClearScene() = default;
 	~GameClearScene();
 
-	void Initialize();
+	void Initialize(int score);
 	void Update();
 	void Draw();
 	bool IsFinished() const { return finished_; }
@@ -36,6 +39,10 @@ private:
 	KamataEngine::ObjectColor pressSpaceColor_;
 	float blinkTimer_ = 0.0f;
 	bool blinkVisible_ = true;
+
+	int score_ = 0;
+	std::array<KamataEngine::Model*, 10> modelNumbers_{};
+	std::array<KamataEngine::WorldTransform, 5> scoreWTs_;
 
 	KamataEngine::Camera* camera_ = nullptr;
 	Fade* fade_ = nullptr;

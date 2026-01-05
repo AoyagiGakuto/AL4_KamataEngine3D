@@ -31,6 +31,8 @@ public:
 	bool IsFinished() const { return finished_; }
 	// ゲームクリアかどうか
 	bool IsClear() const { return isClear_; }
+	// スコア取得
+	int GetScore() const { return score_; }
 
 private:
 	/*

@@ -92,6 +92,7 @@ void ChangeScene() {
 		if (gameScene->IsFinished()) {
 			// クリア判定
 			bool isClear = gameScene->IsClear();
+			int finalScore = gameScene->GetScore();
 
 			delete gameScene;
 			gameScene = nullptr;
@@ -100,7 +101,7 @@ void ChangeScene() {
 				soundManager->ChangeBgm(SceneType::Clear);
 				scene = Scene::kClear;
 				gameClearScene = new GameClearScene();
-				gameClearScene->Initialize();
+				gameClearScene->Initialize(finalScore);
 			} else {
 				soundManager->ChangeBgm(SceneType::GameOver);
 				scene = Scene::kOver;
@@ -140,6 +141,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	scene = Scene::kTitle;
 	titleScene = new TitleScene();
 	titleScene->Initialize();
+
 	soundManager = new SoundManager();
 	soundManager->Initialize();
 	soundManager->ChangeBgm(SceneType::Title);
