@@ -3,6 +3,7 @@
 #include "GameScene.h"
 #include "KamataEngine.h"
 #include "TitleScene.h"
+#include "SoundManager.h"
 
 using namespace KamataEngine;
 
@@ -15,6 +16,7 @@ TitleScene* titleScene = nullptr;
 GameScene* gameScene = nullptr;
 GameClearScene* gameClearScene = nullptr;
 GameOverScene* gameOverScene = nullptr;
+SoundManager* soundManager = nullptr;
 
 // シーン状態管理用enum
 enum class Scene {
@@ -80,6 +82,7 @@ void ChangeScene() {
 		if (titleScene->IsFinished()) {
 			delete titleScene;
 			titleScene = nullptr;
+			soundManager->ChangeBgm(SceneType::Game);
 			scene = Scene::kGame;
 			gameScene = new GameScene();
 			gameScene->Initialize();
@@ -94,10 +97,12 @@ void ChangeScene() {
 			gameScene = nullptr;
 
 			if (isClear) {
+				soundManager->ChangeBgm(SceneType::Clear);
 				scene = Scene::kClear;
 				gameClearScene = new GameClearScene();
 				gameClearScene->Initialize();
 			} else {
+				soundManager->ChangeBgm(SceneType::GameOver);
 				scene = Scene::kOver;
 				gameOverScene = new GameOverScene();
 				gameOverScene->Initialize();
@@ -108,6 +113,7 @@ void ChangeScene() {
 		if (gameClearScene->IsFinished()) {
 			delete gameClearScene;
 			gameClearScene = nullptr;
+			soundManager->ChangeBgm(SceneType::Title);
 			scene = Scene::kTitle;
 			titleScene = new TitleScene();
 			titleScene->Initialize();
@@ -117,6 +123,7 @@ void ChangeScene() {
 		if (gameOverScene->IsFinished()) {
 			delete gameOverScene;
 			gameOverScene = nullptr;
+			soundManager->ChangeBgm(SceneType::Title);
 			scene = Scene::kTitle;
 			titleScene = new TitleScene();
 			titleScene->Initialize();
@@ -133,6 +140,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	scene = Scene::kTitle;
 	titleScene = new TitleScene();
 	titleScene->Initialize();
+	soundManager = new SoundManager();
+	soundManager->Initialize();
+	soundManager->ChangeBgm(SceneType::Title);
 
 	while (true) {
 		if (KamataEngine::Update())
@@ -151,6 +161,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	delete gameScene;
 	delete gameClearScene;
 	delete gameOverScene;
+	delete soundManager;
 
 	KamataEngine::Finalize();
 	return 0;

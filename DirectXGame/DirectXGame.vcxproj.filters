@@ -79,6 +79,9 @@
     <ClCompile Include="ComboRank.cpp">
       <Filter>Effects\ComboRank</Filter>
     </ClCompile>
+    <ClCompile Include="SoundManager.cpp">
+      <Filter>SoundManager</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Bullet.h">
@@ -128,6 +131,9 @@
     </ClInclude>
     <ClInclude Include="TitleScene.h">
       <Filter>Scene\Title</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundManager.h">
+      <Filter>SoundManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -219,6 +225,9 @@
     </Filter>
     <Filter Include="Effects\ComboRank">
       <UniqueIdentifier>{270e1a4f-46e8-450f-90e6-664f9adb865a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SoundManager">
+      <UniqueIdentifier>{3e2ecaab-e31c-42ed-aa2d-eb10a1b1f34c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
