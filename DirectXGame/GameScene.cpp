@@ -32,6 +32,8 @@ void GameScene::Initialize() {
 	for (int i = 0; i < 10; ++i) {
 		modelNumbers_[i] = Model::CreateFromOBJ(std::to_string(i));
 	}
+	
+	// delete忘れないように
 
 	model_ = Model::Create();
 	mapChipField_ = new MapChipField();
@@ -50,11 +52,13 @@ void GameScene::Initialize() {
 	Vector3 uiPos = {0.0f, 0.0f, -10.0f};
 	Vector3 uiRot = {0.0f, 0.0f, 0.0f};
 	Vector3 uiScale = {1.0f, 1.0f, 1.0f};
-
+	
+	// カメラの生成
 	Matrix4x4 matWorld = MakeAffineMatrix(uiScale, uiRot, uiPos);
 	uiCamera_->matView = Inverse(matWorld);
 	uiCamera_->TransferMatrix();
 
+	// チュートリアルというか説明
 	tutorialWT_.Initialize();
 	tutorialWT_.translation_ = {0.0f, -0.6f, -2.0f};
 	tutorialWT_.scale_ = {0.4f, 0.4f, 0.4f};

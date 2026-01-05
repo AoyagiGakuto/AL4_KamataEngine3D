@@ -186,7 +186,7 @@ private:
 	bool hasUsedSpecial_ = false;
 
 	std::vector<std::unique_ptr<ChargeParticle>> chargeParticles_;
-
+	
 	// カメラ
 	KamataEngine::Camera* camera_ = nullptr;
 	KamataEngine::Camera* uiCamera_ = nullptr;
