@@ -1,7 +1,7 @@
 #pragma once
 #include "KamataEngine.h"
 
-// シーンの種類をここで使うので定義
+// シーンの種類を定義
 enum class SceneType { Title, Tutorial, Game, Clear, GameOver };
 
 class SoundManager {
