@@ -5,9 +5,7 @@
 
 class Skydome {
 public:
-	void Initialize();
-	void Update();
-	void Draw();
+	//void Draw();
 
 private:
 	// ワールド

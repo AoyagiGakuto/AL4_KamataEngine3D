@@ -133,7 +133,7 @@ private:
 	void UpdateProjectiles();
 	// 敵の更新と回復行動
 	void UpdateEnemies();
-	// 敵のスポーン管理 (NEW)
+	// 敵のスポーン管理
 	void UpdateEnemySpawn();
 	// 弾などの当たり判定
 	void CheckCollisions();

@@ -92,7 +92,6 @@ void GameOverScene::Draw() {
 
 GameOverScene::~GameOverScene() {
 	delete textModel_;
-	delete backgroundModel_;
 	delete skyDomeModel_;
 	delete pressSpaceModel_;
 	delete camera_;
