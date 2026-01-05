@@ -1,5 +1,4 @@
 #pragma once
-
 #include "KamataEngine.h"
 #include "Player.h"
 
@@ -72,7 +71,7 @@ private:
 
 	// 追従の遅延率（小さいほどゆっくり追従）
 	static inline const float kInterpolationRate = 0.08f;
-	// 速度バイアス（移動先を予測してカメラを寄せる強さ）
+	// 速度の影響度合い
 	static inline const float kVelocityBias = 30.0f;
 	// ターゲットが画面端に寄りすぎないための余白
 	static inline const Rect targetMargin = {6.0f, 100 - 12.0f, 5.0f, 5.0f};

@@ -288,17 +288,17 @@ void GameScene::UpdateEnemySpawn() {
 		Enemy* newEnemy = nullptr;
 
 		switch (enemyType) {
-		case 0: // Normal
+		case 0:
 			newEnemy = new NormalEnemy();
 			newEnemy->Initialize(modelEnemy_, modelHpBar_, modelHp_, camera_, spawnPos);
 			newEnemy->SetScale({GameParam::kEnemyScaleNormal, GameParam::kEnemyScaleNormal, GameParam::kEnemyScaleNormal});
 			break;
-		case 1: // Homing
+		case 1:
 			newEnemy = new HomingEnemy();
 			newEnemy->Initialize(modelEnemy_, modelHpBar_, modelHp_, camera_, spawnPos);
 			newEnemy->SetScale({GameParam::kEnemyScaleNormal, GameParam::kEnemyScaleNormal, GameParam::kEnemyScaleNormal});
 			break;
-		case 2: // Flying
+		case 2:
 			newEnemy = new FlyingEnemy();
 			newEnemy->Initialize(modelEnemy_, modelHpBar_, modelHp_, camera_, spawnPos);
 			newEnemy->SetScale({GameParam::kEnemyScaleSmall, GameParam::kEnemyScaleSmall, GameParam::kEnemyScaleSmall});
@@ -941,7 +941,7 @@ void GameScene::DrawTimer() {
 	float posY = 2.0f;
 
 	for (size_t i = 0; i < timeStr.length(); ++i) {
-		// 文字から数字を取り出す ('0'～'9' -> 0～9)
+		// 文字から数字を取り出す
 		int digit = timeStr[i] - '0';
 
 		// 範囲外チェック
