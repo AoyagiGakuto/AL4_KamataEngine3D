@@ -67,7 +67,7 @@ private:
 		static inline const float kEnemyScaleNormal = 0.4f;
 		// 飛行敵サイズ
 		static inline const float kEnemyScaleSmall = 0.3f;
-		// 飛行敵の高さ補正
+		// 飛ぶ敵の高さ補正
 		static inline const float kFlyingHeightOffset = 5.0f;
 
 		/*
@@ -149,7 +149,6 @@ private:
 	void PerformSpecialDash(float deltaTime);
 	// チャージ演出
 	void UpdateChargeParticles();
-	void DrawChargeParticles();
 
 	enum class SpecialState {
 		None,
