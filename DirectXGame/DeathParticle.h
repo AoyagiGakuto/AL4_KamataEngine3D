@@ -3,33 +3,54 @@
 #include <memory>
 #include <vector>
 
-using namespace KamataEngine;
-
 class DeathParticle {
 public:
+
 	struct Particle {
-		WorldTransform transform;
-		Vector3 velocity;
-		float lifetime;    // 残り寿命
-		float maxLifetime; // 最大寿命
+		KamataEngine::WorldTransform transform;
+		KamataEngine::Vector3 velocity;
+
+		/*
+		// --- 寿命管理 ---
+		*/
+
+		// 残り寿命
+		float lifetime;
+		// 最大寿命
+		float maxLifetime;
+
+		/*
+		// --- 色とフェード ---
+		*/
+
 		// フェードアウト用カラー
-		Vector4 color;
-		ObjectColor objectColor;
+		KamataEngine::Vector4 color;
+		KamataEngine::ObjectColor objectColor;
 	};
 
 	DeathParticle();
 	~DeathParticle();
 
-	void Initialize(Model* model, Camera* camera);
-	void Spawn(const Vector3& position); // パーティクル生成
-	void Update();                       // 更新
-	void Draw();                         // 描画
+	// 初期化
+	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera);
+	
+	// パーティクル生成
+	void Spawn(const KamataEngine::Vector3& position);
+	
+	// 更新
+	void Update();
+	
+	// 描画
+	void Draw();
 
 	// すべてのパーティクルが消えたら true
 	bool IsFinished() const;
 
 private:
+
+	// パーティクル群
 	std::vector<std::unique_ptr<Particle>> particles_;
-	Model* model_ = nullptr;
-	Camera* camera_ = nullptr;
+	
+	KamataEngine::Model* model_ = nullptr;
+	KamataEngine::Camera* camera_ = nullptr;
 };

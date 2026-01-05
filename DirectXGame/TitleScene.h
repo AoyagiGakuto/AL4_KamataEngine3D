@@ -2,9 +2,6 @@
 #include "Fade.h"
 #include "KamataEngine.h"
 #include "ScenePhase.h"
-#include <string>
-
-using namespace KamataEngine;
 
 class TitleScene {
 public:
@@ -17,45 +14,45 @@ public:
 
 	bool IsFinished() const { return finished_; }
 
-	enum class NextAction { StartGame, OpenTutorial };
-	NextAction GetNextAction() const { return nextAction_; }
-
 private:
 	// フェーズ
 	ScenePhase phase_ = ScenePhase::FadeIn;
 
 	bool finished_ = false;
 
-	// ==== 表示要素 ====
 	// タイトルロゴ
-	Model* titleFontModel_ = nullptr;
-	WorldTransform titleTransform_;
-
-	Model* backgroundModel_ = nullptr;
-	WorldTransform backgroundTransform_;
-
-	// 天球（確実に背景を出す）
-	Model* skyDomeModel_ = nullptr;
-	WorldTransform skyDomeWT_;
-
-	// 「PressSpace」OBJ
-	Model* pressSpaceModel_ = nullptr;
-	WorldTransform pressSpaceTransform_;
+	KamataEngine::Model* titleFontModel_ = nullptr;
+	KamataEngine::WorldTransform titleTransform_;
+	KamataEngine::ObjectColor titleColor_;
 	float blinkTimer_ = 0.0f;
 	bool blinkVisible_ = true;
 
-	// ：チュートリアル誘導OBJ
-	Model* tutorialGuideModel_ = nullptr;
-	WorldTransform tutorialGuideTransform_;
-
-	// ロゴ上下揺れ
+	// 上下揺れ
 	float logoMoveTimer_ = 0.0f;
 
-	// カメラ
-	Camera* camera_ = nullptr;
+	// プレイヤー表示
+	KamataEngine::Model* playerModel_ = nullptr;
+	KamataEngine::WorldTransform playerTransform_;
+
+	// 天球
+	KamataEngine::Model* skyDomeModel_ = nullptr;
+	KamataEngine::WorldTransform skyDomeWT_;
+
+	// 文字
+	KamataEngine::Model* pressSpaceModel_ = nullptr;
+	KamataEngine::WorldTransform pressSpaceWT_;
+	KamataEngine::ObjectColor pressSpaceColor_;
+	KamataEngine::Model* tKeyModel_ = nullptr;
+	KamataEngine::WorldTransform tKeyWT_;
+	KamataEngine::ObjectColor tKeyColor_;
+
+	// チュートリアル表示
+	KamataEngine::Model* tutorialModel_ = nullptr;
+	KamataEngine::WorldTransform tutorialWT_;
+	bool isTutorialMode_ = false;
+
+	KamataEngine::Camera* camera_ = nullptr;
 
 	// フェード
 	Fade* fade_ = nullptr;
-
-	NextAction nextAction_ = NextAction::StartGame;
 };

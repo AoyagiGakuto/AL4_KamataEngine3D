@@ -3,62 +3,80 @@
 #include "MapChipField.h"
 #include "MyMath.h"
 #include "Player.h"
-#include <numbers>
 #include <list>
-
-using namespace KamataEngine;
+#include <numbers>
 
 class MapChipField;
 class Player;
 
+// ==========================================
+// 基底クラス (親)
+// ==========================================
 class Enemy {
 public:
-	enum class Type {
-		kNormal,       // 普通の敵
-		kHoming,       // 追いかけてくる敵
-		kFlyingSupport // 飛行＆回復する敵
-	};
 
-	void Initialize(Model* model, Model* modelHpBar, Model* modelHp, Camera* camera, const Vector3& position, Type type = Type::kNormal);
+	virtual ~Enemy() = default;
+
+	// 初期化
+	virtual void Initialize(KamataEngine::Model* model, KamataEngine::Model* modelHpBar, KamataEngine::Model* modelHp, KamataEngine::Camera* camera, const KamataEngine::Vector3& position);
+
+	// 更新
 	void Update();
+
+	// 描画
 	void Draw();
 
-	void HealNearbyEnemies(std::list<Enemy*>& enemies);
+	// 固有の行動 (飛行敵の回復など)
+	virtual void PerformUniqueAction(std::list<Enemy*>& enemies) { (void)enemies; }
+
+	// ダメージを受ける
+	void TakeDamage(int damage);
+
+	// スロー効果付与
+	void SlowDown(float duration);
+	
+	// ノックバック
+	void Knockback(const KamataEngine::Vector3& dir);
+	
+	// ヒットストップ
+	void ApplyHitStop(float duration);
+	
+	// 打ち上げ
+	void Launch(float power);
+	
+	// 空中で攻撃を受けた時の浮遊処理
+	void OnAirHit(float time);
+	
+	// 叩きつけ
+	void SlamDown();
+	
+	// 重力を元に戻す
+	void ResetGravity();
 
 	AABB GetAABB();
-
-	Type GetType() const { return type_; }
-
-	// ワールド変換取得
-	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
-
-	// マップチップフィールドのセット
+	const KamataEngine::WorldTransform& GetWorldTransform() const { return worldTransform_; }
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
-	void OnCollision(const Player* player); 
-	void SetScale(const Vector3& scale) { worldTransform_.scale_ = scale; }
+	void SetScale(const KamataEngine::Vector3& scale) { worldTransform_.scale_ = scale; }
 	void SetRotationY(float y) { worldTransform_.rotation_.y = y; }
 	void SetTarget(Player* p) { target_ = p; }
-	void TakeDamage(int damage);
-	void SlowDown(float duration);
-	void Knockback(const Vector3& dir);
-	void ApplyHitStop(float duration);
+	float GetHp() const { return (float)hp_; }
+	float GetMaxHp() const { return maxHp_; }
 	bool IsDead() const;
 	bool IsReadyToFire();
 
-	static inline const float kWalkSpeed = 0.01f;                                     // 敵の移動速度
-	static inline const float kWalkMotionAngelStart = 0.0f;                           // 通常姿勢
-	static inline const float kWalkMotionAngelEnd = std::numbers::pi_v<float> / 6.0f; // 30度
-	static inline const float kWalkMotionTime = 2.0f;                                 // 敵の歩行モーションの時間
 	static inline const float kWidth = 0.8f;
 	static inline const float kHeight = 0.8f;
-	static inline const float kBlank = 0.01f;      // ぶるぶる防止
-	static inline const float kFallLimit = 0.2f;   // 最大落下速度
-	static inline const float kGravityAcc = 0.01f; // 重力
+	static inline const float kBlank = 0.01f;
+	static inline const float kGravityAcc = 0.01f;
+	static inline const float kFireInterval = 2.0f;
 
-private:
+protected:
+	// 移動
+	virtual void Move() = 0;
 
+	// 衝突判定系
 	struct CollisionInfo {
-		Vector3 move{0, 0, 0};
+		KamataEngine::Vector3 move{0, 0, 0};
 		bool isOnGround = false;
 		bool isCeiling = false;
 		bool isHitWall = false;
@@ -69,39 +87,90 @@ private:
 	void CheckMapCollisionDown(CollisionInfo& info);
 	void CheckMapCollisionLeft(CollisionInfo& info);
 	void CheckMapCollisionRight(CollisionInfo& info);
+	
+	/*
+	// --- メンバ変数 ---
+	*/
 
-	float walkTimer_ = 0.0f;                                                          // 敵の歩行モーションのタイマー
-	float shotTimer_ = 0.0f;
-	float hitStopTimer_ = 0.0f;
+	KamataEngine::WorldTransform worldTransform_;
+	KamataEngine::WorldTransform worldTransformHpBar_;
+	KamataEngine::WorldTransform worldTransformHp_;
+	KamataEngine::Model* model_ = nullptr;
+	KamataEngine::Model* modelHpBar_ = nullptr;
+	KamataEngine::Model* modelHp_ = nullptr;
+	KamataEngine::Camera* camera_ = nullptr;
+	KamataEngine::Vector3 velocity_ = {};
 
-	WorldTransform worldTransform_;
-	WorldTransform worldTransformHpBar_; // 枠用
-	WorldTransform worldTransformHp_;
-	Model* model_ = nullptr;
-	Model* modelHpBar_ = nullptr;
-	Model* modelHp_ = nullptr;
-	Camera* camera_ = nullptr;
-	Vector3 velocity_ = {};
 	MapChipField* mapChipField_ = nullptr;
 	Player* target_ = nullptr;
 
 	float maxHp_ = 5.0f;
-	int hp_ = 5; // HP (今は5発で死ぬように)
-	float slowTimer_ = 0.0f;       // スロー効果の残り時間
+	int hp_ = 5;
+	float walkTimer_ = 0.0f;
+	float shotTimer_ = 0.0f;
+	float hitStopTimer_ = 0.0f;
+	float slowTimer_ = 0.0f;
 	float knockbackTimer_ = 0.0f;
+	float speedMultiplier_ = 1.0f; // Updateの内の速度倍率
 
-	Type type_ = Type::kNormal; // 自分のタイプ
+	float gravityScale_ = 1.0f; // 重力倍率
+	float suspendTimer_ = 0.0f;
 
-	float homingMaxSpeed_ = 0.06f; // 最大速度（横移動）
-	float homingAccel_ = 0.004f;   // 1フレーム加速量
-	float homingStopDist_ = 0.05f; // これ以下の距離で減速・停止
-	
-	float baseHeight_ = 0.0f;   // 飛行時の基準の高さ
-	float healTimer_ = 0.0f;    // 回復スキルのクールダウン
-	Enemy* healTarget_ = nullptr; // 回復しに行く対象
+	// 弾のフラグ
+	bool canShoot_ = false;
+};
 
-	// 定数
-	static inline const float kFireInterval = 2.0f; // 2秒に1回撃つ
-	static inline const float kHealRange = 5.0f;    // 回復が届く範囲
-	static inline const float kHealCooldown = 3.0f; // 回復の間隔（秒）
+// ==========================================
+// 通常の敵 (Normal)
+// ==========================================
+class NormalEnemy : public Enemy {
+public:
+	void Initialize(KamataEngine::Model* model, KamataEngine::Model* modelHpBar, KamataEngine::Model* modelHp, KamataEngine::Camera* camera, const KamataEngine::Vector3& position) override;
+
+protected:
+	void Move() override;
+
+private:
+	static inline const float kWalkSpeed = 0.01f;
+	static inline const float kWalkMotionTime = 2.0f;
+	static inline const float kWalkMotionAngelStart = 0.0f;
+	static inline const float kWalkMotionAngelEnd = std::numbers::pi_v<float> / 6.0f;
+};
+
+// ==========================================
+// 追尾する敵
+// ==========================================
+class HomingEnemy : public Enemy {
+public:
+	void Initialize(KamataEngine::Model* model, KamataEngine::Model* modelHpBar, KamataEngine::Model* modelHp, KamataEngine::Camera* camera, const KamataEngine::Vector3& position) override;
+
+protected:
+	void Move() override;
+
+private:
+	float homingMaxSpeed_ = 0.06f;
+	float homingAccel_ = 0.004f;
+	float homingStopDist_ = 0.05f;
+};
+
+// ==========================================
+// 飛行・支援する敵
+// ==========================================
+class FlyingEnemy : public Enemy {
+public:
+	void Initialize(KamataEngine::Model* model, KamataEngine::Model* modelHpBar, KamataEngine::Model* modelHp, KamataEngine::Camera* camera, const KamataEngine::Vector3& position) override;
+
+	// 回復行動
+	void PerformUniqueAction(std::list<Enemy*>& enemies) override;
+
+protected:
+	void Move() override;
+
+private:
+	float baseHeight_ = 0.0f;
+	float healTimer_ = 0.0f;
+	Enemy* healTarget_ = nullptr;
+
+	static inline const float kHealRange = 5.0f;
+	static inline const float kHealCooldown = 3.0f;
 };

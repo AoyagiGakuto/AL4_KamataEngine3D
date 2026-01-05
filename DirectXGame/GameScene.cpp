@@ -7,22 +7,33 @@
 #include <numbers>
 
 using namespace KamataEngine;
+using namespace MathUtility;
+
+// ==========================================================================
+// 初期化処理
+// ==========================================================================
 
 void GameScene::Initialize() {
+	// モデル生成
 	modelCube_ = Model::CreateFromOBJ("block");
 	modelSkyDome_ = Model::CreateFromOBJ("SkyDome", true);
 	modelPlayer_ = Model::CreateFromOBJ("player");
-	modelEnemy_ = Model::CreateFromOBJ("Ninja");
+	modelEnemy_ = Model::CreateFromOBJ("enemyMonster");
 	modelDeathParticle_ = Model::CreateFromOBJ("deathParticle");
+	modelChargeParticle_ = Model::CreateFromOBJ("chargeParticle");
 	modelBullet_ = Model::CreateFromOBJ("bullet");
 	modelSlowBall_ = Model::CreateFromOBJ("bullet");
 	modelZangeki_ = Model::CreateFromOBJ("zangeki");
 	modelHp_ = Model::CreateFromOBJ("hp");
 	modelHpBar_ = Model::CreateFromOBJ("hpbar");
+	tutorialModel_ = Model::CreateFromOBJ("setumei");
+	tKeyModel_ = Model::CreateFromOBJ("Tkey");
 
 	for (int i = 0; i < 10; ++i) {
 		modelNumbers_[i] = Model::CreateFromOBJ(std::to_string(i));
 	}
+	
+	// delete忘れないように
 
 	model_ = Model::Create();
 	mapChipField_ = new MapChipField();
@@ -41,73 +52,58 @@ void GameScene::Initialize() {
 	Vector3 uiPos = {0.0f, 0.0f, -10.0f};
 	Vector3 uiRot = {0.0f, 0.0f, 0.0f};
 	Vector3 uiScale = {1.0f, 1.0f, 1.0f};
-
-	// カメラのワールド行列を作成
+	
+	// カメラの生成
 	Matrix4x4 matWorld = MakeAffineMatrix(uiScale, uiRot, uiPos);
-
-	// ビュー行列は「ワールド行列の逆行列」
 	uiCamera_->matView = Inverse(matWorld);
-
-	// 行列を転送
 	uiCamera_->TransferMatrix();
 
+	// チュートリアルというか説明
+	tutorialWT_.Initialize();
+	tutorialWT_.translation_ = {0.0f, -0.6f, -2.0f};
+	tutorialWT_.scale_ = {0.4f, 0.4f, 0.4f};
+	
+	tKeyWT_.Initialize();
+	tKeyWT_.scale_ = {0.5f, 0.5f, 0.5f};
+
+	// HPバーの下あたりに
+	tKeyWT_.translation_ = {-5.0f, 3.0f, 0.0f};
+	tKeyColor_.Initialize();
+	tKeyColor_.SetColor({0.0f, 0.0f, 0.0f, 1.0f});
+
+	isTutorialMode_ = false;
+
+	// HPバー初期化
 	worldTransformHudHpBar_.Initialize();
 	worldTransformHudHp_.Initialize();
 
-	Vector3 hudPos = {-3.5f, 3.8f, 0.0f};
-	comboRank_.Initialize(uiCamera_, {1.0f, 3.5f, 0.0f});
+	// UI位置
+	comboRank_.Initialize(uiCamera_, GameParam::kComboPos, modelHpBar_, modelHp_);
 
-	worldTransformHudHpBar_.translation_ = hudPos;
-	worldTransformHudHp_.translation_ = hudPos;
+	worldTransformHudHpBar_.translation_ = GameParam::kHudPos;
+	worldTransformHudHp_.translation_ = GameParam::kHudPos;
+	worldTransformHudHpBar_.scale_ = GameParam::kHudScale;
+	worldTransformHudHp_.scale_ = GameParam::kHudScale;
 
-	// 大きさ（少し大きめに見やすく）
-	Vector3 hudScale = {1.2f, 0.2f, 0.1f};
-	worldTransformHudHpBar_.scale_ = hudScale;
-	worldTransformHudHp_.scale_ = hudScale;
-
-	GenerateBlooks();
+	// ブロック生成
+	GenerateBlocks();
 
 	// プレイヤー初期位置
 	Vector3 playerPosition = mapChipField_->GetMapPositionTypeByIndex(25, 18);
 	player_->Initialize(modelPlayer_, camera_, playerPosition);
 	player_->SetMapChipField(mapChipField_);
 
-	// 敵配置
-	const int enemyCount = 3; // 3体に増やす（通常、追尾、飛行）
-
-	for (int32_t i = 0; i < enemyCount; ++i) {
-		Enemy* newEnemy = new Enemy();
-
-		// 敵の基本位置（少しずつずらす）
-		Vector3 enemyPosition = mapChipField_->GetMapPositionTypeByIndex(30 + i * 3, 18);
-
-		// 全員プレイヤーをターゲットとしてセットしておく
-		newEnemy->SetTarget(player_);
-
-		// タイプを変える
-		if (i == 0) {
-			// 通常タイプ
-			newEnemy->Initialize(modelEnemy_, modelHpBar_, modelHp_, camera_, enemyPosition, Enemy::Type::kNormal);
-			newEnemy->SetScale({0.4f, 0.4f, 0.4f});
-
-		} else if (i == 1) {
-			// 追尾タイプ
-			newEnemy->Initialize(modelEnemy_, modelHpBar_, modelHp_, camera_, enemyPosition, Enemy::Type::kHoming);
-			newEnemy->SetScale({0.4f, 0.4f, 0.4f});
-
-		} else {
-			// 飛行支援タイプ
-			enemyPosition.y += 5.0f;
-			newEnemy->Initialize(modelEnemy_, modelHpBar_, modelHp_, camera_, enemyPosition, Enemy::Type::kFlyingSupport);
-			newEnemy->SetScale({0.3f, 0.3f, 0.3f}); // 少し小さく
-		}
-
-		newEnemy->SetMapChipField(mapChipField_);
-		// 回転の初期値
-		newEnemy->SetRotationY(std::numbers::pi_v<float> * 3.0f / 2.0f);
-
-		enemies_.push_back(newEnemy);
-	}
+	// 敵の初期配置
+	/*
+	Enemy* firstEnemy = new NormalEnemy();
+	Vector3 enemyPos = mapChipField_->GetMapPositionTypeByIndex(30, 18);
+	firstEnemy->Initialize(modelEnemy_, modelHpBar_, modelHp_, camera_, enemyPos);
+	firstEnemy->SetScale({GameParam::kEnemyScaleNormal, GameParam::kEnemyScaleNormal, GameParam::kEnemyScaleNormal});
+	firstEnemy->SetTarget(player_);
+	firstEnemy->SetMapChipField(mapChipField_);
+	firstEnemy->SetRotationY(std::numbers::pi_v<float> * 3.0f / 2.0f);
+	enemies_.push_back(firstEnemy);
+	*/
 
 	// カメラコントローラー
 	cameraController_ = new CameraController();
@@ -117,19 +113,44 @@ void GameScene::Initialize() {
 	cameraController_->Initialize();
 	cameraController_->Reset();
 
-	// DeathParticle 初期化
 	deathParticle_.Initialize(modelDeathParticle_, camera_);
+
+	hasUsedSpecial_ = false;
+	chargeParticles_.clear();
 
 	particleCooldown_ = 0.0f;
 	score_ = 0;
 	fade_ = new Fade();
 	fade_->Initialize();
 	fade_->Start(Fade::Status::FadeIn, 1.0f);
-	// 毎回違うパターンで弾が降るように
+
+	// サバイバルタイマー初期化
+	survivalTimer_ = GameParam::kSurvivalTimeLimit;
+	enemySpawnTimer_ = 0.0f; // すぐに湧くように
+	isClear_ = false;
+
+	// タイマー用ワールド変換の初期化
+	for (auto& wt : timerWTs_) {
+		wt.Initialize();
+		wt.rotation_.y = std::numbers::pi_v<float> / -2.0f;
+		// 少し大きめに表示
+		wt.scale_ = {2.0f, 2.0f, 2.0f};
+	}
+
+	// スコア用ワールド変換の初期化
+	for (auto& wt : scoreWTs_) {
+		wt.Initialize();
+		wt.rotation_.y = std::numbers::pi_v<float> / -2.0f; // 正面に向ける
+		wt.scale_ = {1.5f, 1.5f, 1.5f};                     // 少し小さめ
+	}
+
 	srand((unsigned int)time(NULL));
 }
 
-void GameScene::GenerateBlooks() {
+// ==========================================================================
+// ブロック生成
+// ==========================================================================
+void GameScene::GenerateBlocks() {
 	uint32_t kNumBlockVertical = mapChipField_->GetNumBlockVertical();
 	uint32_t kNumBlockHorizontal = mapChipField_->GetNumBlockHorizontal();
 
@@ -150,12 +171,52 @@ void GameScene::GenerateBlooks() {
 	}
 }
 
+// ==========================================================================
+// 更新処理
+// ==========================================================================
 void GameScene::Update() {
+
+	// Tキーでポーズ切り替え
+	if (Input::GetInstance()->TriggerKey(DIK_T)) {
+		isTutorialMode_ = !isTutorialMode_;
+	}
+
+	tKeyWT_.matWorld_ = MakeAffineMatrix(tKeyWT_.scale_, tKeyWT_.rotation_, tKeyWT_.translation_);
+	tKeyWT_.TransferMatrix();
+
+	// 説明が出てきているならゲームを止める
+	if (isTutorialMode_) {
+		tutorialWT_.matWorld_ = MakeAffineMatrix(tutorialWT_.scale_, tutorialWT_.rotation_, tutorialWT_.translation_);
+		tutorialWT_.TransferMatrix();
+		return;
+	}
 
 	const float dt = 1.0f / 60.0f;
 
+	// サバイバルタイマー更新
+	if (!isClear_ && !player_->IsDead()) {
+		survivalTimer_ -= dt;
+		// 時間経過でクリア
+		if (survivalTimer_ <= 0.0f) {
+			isClear_ = true;
+			// 敵を全消去してフェードアウト開始
+			phase_ = ScenePhase::FadeOut;
+			fade_->Start(Fade::Status::FadeOut, 1.0f);
+		}
+	}
+
+	// 敵のスポーン処理
+	UpdateEnemySpawn();
+
+	if (comboTimer_ > 0.0f) {
+		comboTimer_ -= dt;
+		if (comboTimer_ <= 0.0f) {
+			comboIndex_ = 0;
+		}
+	}
+
 	if (particleCooldown_ > 0.0f) {
-		particleCooldown_ -= 1.0f / 60.0f;
+		particleCooldown_ -= dt;
 	}
 
 	cameraController_->Update();
@@ -170,86 +231,148 @@ void GameScene::Update() {
 		camera_->TransferMatrix();
 	}
 
-	// 次元斬
 	UpdateSpecialMove(dt);
+	UpdateMapBlocks();
+	UpdatePlayerAction();
 
-	// マップブロック更新
+	if (!player_->IsDead()) {
+		if (specialState_ == SpecialState::None) {
+			player_->Update();
+			CheckAllCollisions();
+		}
+	}
+
+	UpdateEnemies();
+	UpdateProjectiles();
+	CheckCollisions();
+
+	deathParticle_.Update();
+
+	UpdateChargeParticles();
+
+	for (auto& vfx : slashEffects_) {
+		vfx->Update();
+	}
+
+	slashEffects_.erase(std::remove_if(slashEffects_.begin(), slashEffects_.end(), [](const std::unique_ptr<SlashEffect>& v) { return !v->IsAlive(); }), slashEffects_.end());
+
+	UpdateHud();
+	UpdateSceneFlow();
+}
+
+// ==========================================================================
+// 敵スポーン処理
+// ==========================================================================
+void GameScene::UpdateEnemySpawn() {
+	if (isClear_ || player_->IsDead()) {
+		return;
+	}
+
+	enemySpawnTimer_ -= 1.0f / 60.0f;
+
+	if (enemySpawnTimer_ <= 0.0f) {
+		enemySpawnTimer_ = GameParam::kEnemySpawnInterval;
+
+		// ステージの幅（ブロック数）
+		uint32_t mapWidth = mapChipField_->GetNumBlockHorizontal();
+
+		// ランダムなX座標
+		uint32_t randomX = rand() % (mapWidth - 10) + 5;
+		// 高さ
+		uint32_t spawnY = 15;
+
+		Vector3 spawnPos = mapChipField_->GetMapPositionTypeByIndex(randomX, spawnY);
+
+		// 敵の種類をランダムに決定 (0ふつう, 1ついてくる敵, 2飛んでる敵)
+		int enemyType = rand() % 3;
+		Enemy* newEnemy = nullptr;
+
+		switch (enemyType) {
+		case 0:
+			newEnemy = new NormalEnemy();
+			newEnemy->Initialize(modelEnemy_, modelHpBar_, modelHp_, camera_, spawnPos);
+			newEnemy->SetScale({GameParam::kEnemyScaleNormal, GameParam::kEnemyScaleNormal, GameParam::kEnemyScaleNormal});
+			break;
+		case 1:
+			newEnemy = new HomingEnemy();
+			newEnemy->Initialize(modelEnemy_, modelHpBar_, modelHp_, camera_, spawnPos);
+			newEnemy->SetScale({GameParam::kEnemyScaleNormal, GameParam::kEnemyScaleNormal, GameParam::kEnemyScaleNormal});
+			break;
+		case 2:
+			newEnemy = new FlyingEnemy();
+			newEnemy->Initialize(modelEnemy_, modelHpBar_, modelHp_, camera_, spawnPos);
+			newEnemy->SetScale({GameParam::kEnemyScaleSmall, GameParam::kEnemyScaleSmall, GameParam::kEnemyScaleSmall});
+			break;
+		}
+
+		if (newEnemy) {
+			newEnemy->SetTarget(player_);
+			newEnemy->SetMapChipField(mapChipField_);
+			// プレイヤーの方を向かせる
+			if (player_->GetPosition().x < spawnPos.x) {
+				newEnemy->SetRotationY(std::numbers::pi_v<float> * 3.0f / 2.0f);
+			} else {
+				newEnemy->SetRotationY(std::numbers::pi_v<float> / 2.0f);
+			}
+			enemies_.push_back(newEnemy);
+		}
+	}
+}
+
+// ==========================================================================
+// マップブロックの更新
+// ==========================================================================
+void GameScene::UpdateMapBlocks() {
 	for (auto& line : worldTransformBlocks_) {
 		for (auto& block : line) {
-			if (!block)
+			if (!block) {
 				continue;
+			}
+
 			block->matWorld_ = MakeAffineMatrix(block->scale_, block->rotation_, block->translation_);
 			block->TransferMatrix();
 		}
 	}
+}
 
-	// Hキーの発射入力
+// ==========================================================================
+// 入力処理の更新
+// ==========================================================================
+void GameScene::UpdatePlayerAction() {
+
+	/* --- 通常弾発射 --- */
 	if (Input::GetInstance()->TriggerKey(DIK_H)) {
-
-		// 回頭中でなく、死んでいない時だけ発射
 		if (player_->GetTurnTimer() <= 0.0f && !player_->isDead_) {
-
-			// プレイヤーの位置を弾発射位置に調整
 			Vector3 spawnPos = player_->GetWorldTransform().translation_;
-			spawnPos.y += 0.3f; // プレイヤーの中心に合わせる
-
-			Vector3 dir; // 発射方向
-
-			// ロックオン中か？
+			spawnPos.y += 0.3f;
+			Vector3 dir;
 			if (player_->IsLockedOn() && player_->GetTargetEnemy()) {
-				// ロックオン中敵の座標を取得
 				Vector3 targetPos = player_->GetTargetEnemy()->GetWorldTransform().translation_;
-
-				// 敵の中心を狙う
-				targetPos.y += 0.4f; // 敵の高さの半分 (仮)
-
-				dir = targetPos - spawnPos;
-				dir = Normalize(dir);
-
+				targetPos.y += 0.4f;
+				Vector3 diff = targetPos - spawnPos;
+				dir = Normalize(diff);
 			} else {
-				// プレイヤーの向いている方向にまっすぐ
 				float y = player_->GetWorldTransform().rotation_.y;
 				dir = {std::sin(y), 0.0f, -std::cos(y)};
 			}
-
 			auto b = std::make_unique<Bullet>();
 			b->Initialize(modelBullet_ ? modelBullet_ : modelCube_, camera_, spawnPos, dir);
 			bullets_.push_back(std::move(b));
 		}
 	}
-
-	// Yキーでスロー弾発射
+	/* ---スロー弾発射--- */
 	if (Input::GetInstance()->TriggerKey(DIK_Y)) {
 		if (!player_->IsDead() && player_->IsLockedOn()) {
-
-			// ロックオン中の敵を取得
 			Enemy* targetEnemy = player_->GetTargetEnemy();
-
-			// 念のため、ターゲットが有効かチェック
 			if (targetEnemy && !targetEnemy->IsDead()) {
-
-				const int kNumRainBalls = 10;      // 降らせる弾の数
-				const float kRainAreaWidth = 5.0f; // 左右5の範囲
-				const float kRainHeight = 10.0f;   // 敵の上空10の高さから
-
-				// ロックオン中の敵のX座標に
+				const float kRainAreaWidth = 5.0f;
+				const float kRainHeight = 10.0f;
 				float centerX = targetEnemy->GetWorldTransform().translation_.x;
-
-				// 敵の真上に、kNumRainBalls の数だけ弾を生成
-				for (int i = 0; i < kNumRainBalls; ++i) {
-
-					// 0.0f ～ 1.0fランダムな値
+				for (int i = 0; i < GameParam::kRainBallCount; ++i) {
 					float randomRatio = (float)(rand() % 1000) / 999.0f;
-					// ランダム
 					float randomX = (randomRatio - 0.5f) * kRainAreaWidth;
-
-					Vector3 spawnPos;
-					spawnPos.x = centerX + randomX; // 敵の中心 + ランダムなX
-					spawnPos.y = kRainHeight;       // 固定の高さ
-					spawnPos.z = 0.0f;              // Zは0
-
-					Vector3 dir = {0.0f, -0.2f, 0.0f}; // ゆっくり真下に落ちる
-
+					Vector3 spawnPos = {centerX + randomX, kRainHeight, 0.0f};
+					Vector3 dir = {0.0f, -0.2f, 0.0f};
 					auto sb = std::make_unique<Bullet>();
 					sb->Initialize(modelSlowBall_ ? modelSlowBall_ : modelCube_, camera_, spawnPos, dir);
 					slowBalls_.push_back(std::move(sb));
@@ -257,63 +380,40 @@ void GameScene::Update() {
 			}
 		}
 	}
-
-	// ロックオン処理
+	/* ---ロックオン制御--- */
 	if (Input::GetInstance()->PushKey(DIK_LSHIFT) || Input::GetInstance()->PushKey(DIK_RSHIFT)) {
-
 		bool needsNewTarget = true;
-
-		// 既にロックオン中か？
 		if (player_->IsLockedOn()) {
 			Enemy* currentTarget = player_->GetTargetEnemy();
-			//  ターゲットが有効か
 			if (currentTarget && !currentTarget->IsDead()) {
-				// 有効なら、ターゲットを探し直す必要はない
 				needsNewTarget = false;
 			}
 		}
-
 		if (needsNewTarget) {
 			Enemy* closestEnemy = nullptr;
 			float minDistance = FLT_MAX;
 			Vector3 playerPos = player_->GetWorldTransform().translation_;
-
 			for (Enemy* enemy : enemies_) {
-				if (!enemy || enemy->IsDead()) {
-					continue; // 死んでる敵は無視
-				}
-
-				Vector3 enemyPos = enemy->GetWorldTransform().translation_;
-				float distanceSq = Length(enemyPos - playerPos);
-
+				if (!enemy || enemy->IsDead())
+					continue;
+				float distanceSq = Length(enemy->GetWorldTransform().translation_ - playerPos);
 				if (distanceSq < minDistance) {
 					minDistance = distanceSq;
 					closestEnemy = enemy;
 				}
 			}
-
-			// 一番近い敵をロックオン
 			player_->LockOn(closestEnemy);
 		}
 		if (Input::GetInstance()->TriggerKey(DIK_L) && player_->IsLockedOn()) {
-
 			Enemy* currentTarget = player_->GetTargetEnemy();
-
-			// 今のターゲットがリストのどこにいるか探す
 			auto it = std::find(enemies_.begin(), enemies_.end(), currentTarget);
-
 			if (it != enemies_.end()) {
 				size_t checkCount = 0;
 				size_t enemyMax = enemies_.size();
-
-				// 最大で敵の数だけループ（全員死んでる場合の無限ループ防止）
 				while (checkCount < enemyMax) {
-					it++; // 次へ
-					if (it == enemies_.end()) {
-						it = enemies_.begin(); // 端まで行ったら先頭に戻る（ループ）
-					}
-
-					// 生きている敵を見つけたらロックオンして終了
+					it++;
+					if (it == enemies_.end())
+						it = enemies_.begin();
 					if (!(*it)->IsDead()) {
 						player_->LockOn(*it);
 						break;
@@ -323,340 +423,287 @@ void GameScene::Update() {
 			}
 		}
 	} else {
-		// シフトが押されていない時の処理
 		player_->LockOff();
 	}
-
-	// K攻撃
+	/* ---近接攻撃--- */
 	if (Input::GetInstance()->TriggerKey(DIK_K)) {
-
 		if (player_->IsLockedOn()) {
-
 			Enemy* target = player_->GetTargetEnemy();
-
 			if (target && !target->IsDead()) {
-
-				const float kMeleeRange = 3.5f; // 近接攻撃の有効範囲 (例: 2.5f)
-
-				Vector3 playerPos = player_->GetWorldTransform().translation_;
-				Vector3 targetPos = target->GetWorldTransform().translation_;
-
-				// 距離を計算
-				float distance = Length(targetPos - playerPos);
-
-				// 距離がちかければ攻撃
-				if (distance <= kMeleeRange) {
-					// 1ダメージ
-					target->TakeDamage(1);
-
-					target->ApplyHitStop(0.1f);
-
-					 comboRank_.AddHit(8.0f);
-
-					// 斬撃エフェクトを1つ出す
-					const float kEffectSpread = 1.0f; // 敵の中心から少しだけ散らす
-					Vector3 enemyPos = target->GetWorldTransform().translation_;
-					enemyPos.y += 0.1f; // 敵の少し上あたり
-
-					auto vfx = std::make_unique<ZangekiEffect>();
-
-					float randX = ((float)(rand() % 1000) / 999.0f - 0.5f) * kEffectSpread;
-					float randY = ((float)(rand() % 1000) / 999.0f - 0.5f) * kEffectSpread;
-					Vector3 spawnPos = enemyPos + Vector3{randX, randY, 0.0f};
-
-					vfx->Initialize(modelZangeki_, camera_, spawnPos);
-
-					vfx->SetRotation(player_->GetWorldTransform().rotation_.y);
-
-					zangekiEffects_.push_back(std::move(vfx));
-
-					// 死んだかチェック
-					if (target->IsDead()) {
-						score_++;
-						comboRank_.OnEnemyKilled(12.0f);
-						hitEffects_.clear();
-						auto hit = std::make_unique<HitEffect>();
-						hit->Initialize(modelNumbers_, camera_, {0.0f, 0.0f, 0.0f}, score_);
-						hitEffects_.push_back(std::move(hit));
-						deathParticle_.Spawn(target->GetWorldTransform().translation_);
-
-						for (auto it = enemies_.begin(); it != enemies_.end(); ++it) {
-							if (*it == target) {
-								delete *it;
-								enemies_.erase(it);
-								break;
-							}
+				float distance = Length(target->GetWorldTransform().translation_ - player_->GetWorldTransform().translation_);
+				if (distance <= GameParam::kPlayerMeleeRange * 1.5f) {
+					bool isFacingRight = (player_->GetWorldTransform().rotation_.y < 3.14f);
+					bool isBackInput = false;
+					if (isFacingRight && Input::GetInstance()->PushKey(DIK_A))
+						isBackInput = true;
+					if (!isFacingRight && Input::GetInstance()->PushKey(DIK_D))
+						isBackInput = true;
+					bool isPlayerAir = (player_->GetWorldTransform().translation_.y > 2.0f);
+					// 打ち上げ
+					if (!isPlayerAir && isBackInput) {
+						target->Launch(0.35f);
+						player_->velocity_.y = 0.35f;
+						target->TakeDamage(GameParam::kDamageNormal);
+						hitStopTimer_ = 0.1f;
+					}
+					// 叩きつけ
+					else if (isPlayerAir && isBackInput) {
+						target->SlamDown();
+						player_->velocity_.y = -0.5f;
+						target->TakeDamage(GameParam::kDamageNormal * 2);
+						hitStopTimer_ = 0.15f;
+					}
+					// 空中コンボ
+					else if (isPlayerAir) {
+						target->OnAirHit(0.4f);
+						player_->velocity_.y = 0.08f;
+						player_->velocity_.x = 0.0f;
+						target->TakeDamage(GameParam::kDamageNormal);
+						hitStopTimer_ = 0.08f;
+					}
+					// 地上通常攻撃
+					else {
+						comboIndex_++;
+						comboTimer_ = 1.0f;
+						if (comboIndex_ > 3)
+							comboIndex_ = 1;
+						Vector3 dir = target->GetWorldTransform().translation_ - player_->GetWorldTransform().translation_;
+						dir = Normalize(dir);
+						switch (comboIndex_) {
+						case 1:
+							player_->velocity_.x = dir.x * 0.15f;
+							target->Knockback(dir * 0.5f);
+							target->TakeDamage(GameParam::kDamageNormal);
+							hitStopTimer_ = 0.05f;
+							break;
+						case 2:
+							player_->velocity_.x = dir.x * 0.2f;
+							target->Knockback(dir * 0.5f);
+							target->TakeDamage(GameParam::kDamageNormal);
+							hitStopTimer_ = 0.05f;
+							break;
+						case 3:
+							player_->velocity_.x = dir.x * 0.4f;
+							target->Launch(0.2f);
+							target->Knockback(dir * 3.0f);
+							target->TakeDamage(GameParam::kDamageNormal * 2);
+							hitStopTimer_ = 0.2f;
+							comboIndex_ = 0;
+							comboTimer_ = 0.0f;
+							break;
 						}
-
-						// ロックオン解除
+						comboRank_.AddHit(GameParam::kComboPointHit);
+					}
+					comboRank_.AddHit(GameParam::kComboPointHit);
+					if (target->IsDead()) {
+						AddScore();
+						comboRank_.OnEnemyKilled(GameParam::kComboPointKill);
+						deathParticle_.Spawn(target->GetWorldTransform().translation_);
+						enemies_.remove(target);
+						delete target;
 						player_->LockOff();
 					}
 				}
 			}
 		}
 	}
-
-	// K長押し攻撃の処理
+	/* ---チャージ攻撃--- */
 	if (player_->IsChargeAttackReady()) {
 		player_->ConsumeChargeAttack();
 		Enemy* target = player_->GetTargetEnemy();
 		if (target && !target->IsDead()) {
-
-			 comboRank_.AddHit(15.0f);
-
-			// 複数ヒットダメージ 5回ヒットで雑魚敵はたおせる
-			const int kNumHits = 5;
-			for (int i = 0; i < kNumHits; ++i) {
-				target->TakeDamage(1);
+			comboRank_.AddHit(GameParam::kComboPointCharge);
+			for (int i = 0; i < GameParam::kChargeAttackHitCount; ++i) {
+				target->TakeDamage(GameParam::kDamageNormal);
 			}
-
-			// 斬撃エフェクトを20個くらい
 			const int kNumSlashes = 20;
-			const float kEffectSpread = 1.5f; // エフェクトが広がる範囲
+			const float kEffectSpread = 1.5f;
 			Vector3 enemyPos = target->GetWorldTransform().translation_;
-			enemyPos.y += 0.5f; // 敵の少し上あたり
-
+			enemyPos.y += 0.5f;
 			for (int i = 0; i < kNumSlashes; ++i) {
-				auto vfx = std::make_unique<ZangekiEffect>();
-
-				// ランダム
+				auto vfx = std::make_unique<SlashEffect>();
 				float randX = ((float)(rand() % 1000) / 999.0f - 0.5f) * kEffectSpread;
 				float randY = ((float)(rand() % 1000) / 999.0f - 0.5f) * kEffectSpread;
-
-				Vector3 spawnPos = enemyPos + Vector3{randX, randY, 0.0f};
-
-				vfx->Initialize(modelZangeki_, camera_, spawnPos);
-				vfx->SetRandomRotation(); // 斬撃の向きをランダムに
-
-				zangekiEffects_.push_back(std::move(vfx));
+				vfx->Initialize(modelZangeki_, camera_, enemyPos + Vector3{randX, randY, 0.0f});
+				vfx->SetRandomRotation();
+				slashEffects_.push_back(std::move(vfx));
 			}
-		}
-
-		// 敵が死んだ時の処理
-		if (target->IsDead()) {
-			score_++;
-			comboRank_.OnEnemyKilled(12.0f);
-			hitEffects_.clear();
-			auto hit = std::make_unique<HitEffect>();
-			hit->Initialize(modelNumbers_, camera_, {0.0f, 0.0f, 0.0f}, score_);
-			hitEffects_.push_back(std::move(hit));
-			deathParticle_.Spawn(target->GetWorldTransform().translation_);
-
-			for (auto it = enemies_.begin(); it != enemies_.end(); ++it) {
-				if (*it == target) {
-					delete *it;
-					enemies_.erase(it);
-
-					break; // 削除したらループ終了
-				}
+			if (target->IsDead()) {
+				AddScore();
+				comboRank_.OnEnemyKilled(GameParam::kComboPointKill);
+				deathParticle_.Spawn(target->GetWorldTransform().translation_);
+				enemies_.remove(target);
+				delete target;
+				player_->LockOff();
 			}
-
-			// 解除
-			player_->LockOff();
 		}
 	}
+}
 
-	// 弾の更新と削除
+// ==========================================================================
+// 弾の更新処理
+// ==========================================================================
+void GameScene::UpdateProjectiles() {
 	for (auto& b : bullets_) {
 		b->Update();
 	}
-
-	// 削除
 	bullets_.erase(std::remove_if(bullets_.begin(), bullets_.end(), [](const std::unique_ptr<Bullet>& b) { return !b->IsAlive(); }), bullets_.end());
 
 	for (auto& sb : slowBalls_) {
 		sb->Update();
 	}
-
 	slowBalls_.erase(std::remove_if(slowBalls_.begin(), slowBalls_.end(), [](const std::unique_ptr<Bullet>& sb) { return !sb->IsAlive(); }), slowBalls_.end());
+}
 
-	// HPの割合を計算
+// ==========================================================================
+// 敵の更新処理
+// ==========================================================================
+void GameScene::UpdateEnemies() {
+	for (Enemy* enemy : enemies_) {
+		if (!enemy) {
+			continue;
+		}
+		if (specialState_ == SpecialState::Dash) {
+			continue;
+		}
+		enemy->Update();
+		enemy->PerformUniqueAction(enemies_);
+		if (enemy->IsReadyToFire()) {
+			Vector3 startPos = enemy->GetWorldTransform().translation_;
+			Vector3 targetPos = player_->GetWorldTransform().translation_;
+			targetPos.y += 0.5f;
+			Vector3 dir = targetPos - startPos;
+			dir = Normalize(dir);
+			auto newBullet = std::make_unique<Bullet>();
+			newBullet->Initialize(modelBullet_, camera_, startPos, dir);
+			newBullet->SetType(Bullet::Type::kEnemy);
+			bullets_.push_back(std::move(newBullet));
+		}
+	}
+}
+
+// ==========================================================================
+// 当たり判定処理
+// ==========================================================================
+void GameScene::CheckCollisions() {
+	/* ---通常弾と敵--- */
+	for (auto it = bullets_.begin(); it != bullets_.end();) {
+		bool bulletRemoved = false;
+		if ((*it)->GetType() == Bullet::Type::kEnemy) {
+			AABB aabbB = (*it)->GetAABB();
+			AABB aabbP = player_->GetAABB();
+			bool isHit =
+			    (aabbB.min.x < aabbP.max.x && aabbB.max.x > aabbP.min.x) && (aabbB.min.y < aabbP.max.y && aabbB.max.y > aabbP.min.y) && (aabbB.min.z < aabbP.max.z && aabbB.max.z > aabbP.min.z);
+			if (isHit) {
+				player_->TakeDamage(GameParam::kDamageNormal);
+				comboRank_.OnPlayerDamaged();
+				(*it)->Kill();
+				bulletRemoved = true;
+			}
+		} else {
+			AABB aabbB = (*it)->GetAABB();
+			auto enemyIt = enemies_.begin();
+			while (enemyIt != enemies_.end()) {
+				Enemy* enemy = *enemyIt;
+				AABB aabbE = enemy->GetAABB();
+				bool isHit =
+				    (aabbB.min.x < aabbE.max.x && aabbB.max.x > aabbE.min.x) && (aabbB.min.y < aabbE.max.y && aabbB.max.y > aabbE.min.y) && (aabbB.min.z < aabbE.max.z && aabbB.max.z > aabbB.min.z);
+				if (isHit) {
+					enemy->TakeDamage(GameParam::kDamageNormal);
+					comboRank_.AddHit(5.0f);
+					if (enemy->IsDead()) {
+						AddScore();
+						comboRank_.OnEnemyKilled(10.0f);
+						deathParticle_.Spawn(enemy->GetWorldTransform().translation_);
+						delete enemy;
+						enemyIt = enemies_.erase(enemyIt);
+					} else {
+						++enemyIt;
+					}
+					(*it)->Kill();
+					bulletRemoved = true;
+					break;
+				} else {
+					++enemyIt;
+				}
+			}
+		}
+		if (bulletRemoved) {
+			it = bullets_.erase(it);
+			continue;
+		}
+		MapChipField::IndexSet idx = mapChipField_->GetMapChipIndexSetByPosition((*it)->GetAABB().min);
+		MapChipType type = mapChipField_->GetMapChipTypeByIndex(idx.xIndex, idx.yIndex);
+		if (type == MapChipType::kBlock) {
+			(*it)->Kill();
+			it = bullets_.erase(it);
+		} else {
+			++it;
+		}
+	}
+	/* ---スロー弾と敵--- */
+	for (auto it = slowBalls_.begin(); it != slowBalls_.end();) {
+		bool ballRemoved = false;
+		AABB aabbB = (*it)->GetAABB();
+		for (Enemy* enemy : enemies_) {
+			AABB aabbE = enemy->GetAABB();
+			bool isHit =
+			    (aabbB.min.x < aabbE.max.x && aabbB.max.x > aabbE.min.x) && (aabbB.min.y < aabbE.max.y && aabbB.max.y > aabbE.min.y) && (aabbB.min.z < aabbE.max.z && aabbB.max.z > aabbB.min.z);
+			if (isHit) {
+				enemy->SlowDown(GameParam::kSlowDuration);
+				(*it)->Kill();
+				ballRemoved = true;
+				break;
+			}
+		}
+		if (ballRemoved) {
+			it = slowBalls_.erase(it);
+			continue;
+		}
+		MapChipField::IndexSet idx = mapChipField_->GetMapChipIndexSetByPosition((*it)->GetAABB().min);
+		MapChipType type = mapChipField_->GetMapChipTypeByIndex(idx.xIndex, idx.yIndex);
+		if (type == MapChipType::kBlock || aabbB.min.y < 0.0f) {
+			(*it)->Kill();
+			it = slowBalls_.erase(it);
+		} else {
+			++it;
+		}
+	}
+}
+
+// ==========================================================================
+// UI更新
+// ==========================================================================
+void GameScene::UpdateHud() {
 	float hpRatio = player_->GetHp() / player_->GetMaxHp();
 	hpRatio = std::clamp(hpRatio, 0.0f, 1.0f);
 
-	// スケールの計算
-	float baseScaleX = 1.2f; // 横幅 (Initializeの 1.2f に合わせる)
-	float baseScaleY = 0.2f; // 縦幅 (Initializeの 0.2f に合わせる)
+	float baseScaleX = GameParam::kHudScale.x;
+	float baseScaleY = GameParam::kHudScale.y;
 
-	// 中身(HP)のスケール計算
 	worldTransformHudHp_.scale_.x = baseScaleX * hpRatio;
 	worldTransformHudHp_.scale_.y = baseScaleY;
 	worldTransformHudHp_.scale_.z = 0.1f;
 
-	// 左寄せ計算 (バーが中心に向かって縮まないようにする魔法)
-	float modelHalfWidth = 3.0f; // モデルの幅の半分
+	float modelHalfWidth = 3.0f;
 	float shiftAmount = (1.0f - hpRatio) * modelHalfWidth * baseScaleX;
 
-	// 枠の位置を基準に、少し左にずらす
 	worldTransformHudHp_.translation_ = worldTransformHudHpBar_.translation_;
 	worldTransformHudHp_.translation_.x -= shiftAmount;
 
-	// 行列の更新
 	worldTransformHudHpBar_.matWorld_ = MakeAffineMatrix(worldTransformHudHpBar_.scale_, worldTransformHudHpBar_.rotation_, worldTransformHudHpBar_.translation_);
 	worldTransformHudHpBar_.TransferMatrix();
 
 	worldTransformHudHp_.matWorld_ = MakeAffineMatrix(worldTransformHudHp_.scale_, worldTransformHudHp_.rotation_, worldTransformHudHp_.translation_);
 	worldTransformHudHp_.TransferMatrix();
 
-	for (auto it = bullets_.begin(); it != bullets_.end();) {
-		bool bulletRemoved = false;
-		AABB aabbB = (*it)->GetAABB();
-		for (auto enemyIt = enemies_.begin(); enemyIt != enemies_.end();) {
-			AABB aabbE = (*enemyIt)->GetAABB();
-			bool isHit =
-			    (aabbB.min.x < aabbE.max.x && aabbB.max.x > aabbE.min.x) && (aabbB.min.y < aabbE.max.y && aabbB.max.y > aabbE.min.y) && (aabbB.min.z < aabbE.max.z && aabbB.max.z > aabbE.min.z);
+	comboRank_.Update(1.0f / 60.0f);
+}
 
-			if (isHit) {
-
-				// HP制に
-				(*enemyIt)->TakeDamage(1); // 1ダメージ
-
-				comboRank_.AddHit(5.0f);
-
-				if ((*enemyIt)->IsDead()) { // 敵がHP0かチェック
-					// 敵が死んだ時の処理
-					score_++;
-					comboRank_.OnEnemyKilled(10.0f);
-					hitEffects_.clear();
-					auto hit = std::make_unique<HitEffect>();
-					hit->Initialize(modelNumbers_, camera_, {0.0f, 0.0f, 0.0f}, score_);
-					hitEffects_.push_back(std::move(hit));
-					deathParticle_.Spawn((*enemyIt)->GetWorldTransform().translation_);
-
-					delete *enemyIt;
-					enemyIt = enemies_.erase(enemyIt);
-
-				} else {
-					// 敵がまだ生きている
-					++enemyIt; // 次の敵へ
-				}
-
-				(*it)->Kill(); // 弾は消える
-				bulletRemoved = true;
-				break; // この弾は処理したので次の弾へ
-
-			} else {
-				++enemyIt; // ヒットしなかったので次の敵へ
-			}
-		}
-		if (bulletRemoved) {
-			it = bullets_.erase(it);
-		} else {
-			++it;
-		}
-	}
-
-	// スロー弾と敵の当たり判定
-	for (auto it = slowBalls_.begin(); it != slowBalls_.end();) {
-		bool ballRemoved = false;
-		AABB aabbB = (*it)->GetAABB();
-		for (auto enemyIt = enemies_.begin(); enemyIt != enemies_.end(); ++enemyIt) {
-			AABB aabbE = (*enemyIt)->GetAABB();
-			bool isHit =
-			    (aabbB.min.x < aabbE.max.x && aabbB.max.x > aabbE.min.x) && (aabbB.min.y < aabbE.max.y && aabbB.max.y > aabbE.min.y) && (aabbB.min.z < aabbE.max.z && aabbB.max.z > aabbE.min.z);
-
-			if (isHit) {
-				// ダメージはなし
-				(*enemyIt)->SlowDown(2.0f); // 2秒間スローにする
-
-				(*it)->Kill(); // 球は消える
-				ballRemoved = true;
-				break; // この球は処理したので次の球へ
-			}
-		}
-		if (ballRemoved) {
-			it = slowBalls_.erase(it);
-		} else {
-			++it;
-		}
-	}
-
-	// ブロックとの当たり判定
-	for (auto it = bullets_.begin(); it != bullets_.end();) {
-
-		// 弾の位置からタイルを取得
-		MapChipField::IndexSet idx = mapChipField_->GetMapChipIndexSetByPosition((*it)->GetAABB().min);
-
-		MapChipType type = mapChipField_->GetMapChipTypeByIndex(idx.xIndex, idx.yIndex);
-
-		bool hitBlock = (type == MapChipType::kBlock);
-		if (hitBlock) {
-			(*it)->Kill();
-			it = bullets_.erase(it); // 消し
-		} else {
-			++it; // 残す
-		}
-	}
-
-	// スロー弾とブロック・地面の当たり判定
-	for (auto it = slowBalls_.begin(); it != slowBalls_.end();) {
-		AABB aabbB = (*it)->GetAABB();
-		MapChipField::IndexSet idx = mapChipField_->GetMapChipIndexSetByPosition((*it)->GetAABB().min);
-		MapChipType type = mapChipField_->GetMapChipTypeByIndex(idx.xIndex, idx.yIndex);
-		bool hitBlock = (type == MapChipType::kBlock);
-
-		// 地面 (Y=0より下) またはブロックに当たったら消える
-		if (hitBlock || aabbB.min.y < 0.0f) {
-			(*it)->Kill();
-			it = slowBalls_.erase(it);
-		} else {
-			++it;
-		}
-	}
-
-	// カメラの座標を取得
-	Vector3 cameraPos = cameraController_->GetViewProjection().translation_;
-
-	// スコア表示の基準座標を計算
-	Vector3 basePos = cameraPos;
-
-	for (auto& hit : hitEffects_) {
-		hit->Update(); // yOffset_ や Alpha の更新
-
-		// エフェクトの位置更新
-		hit->UpdatePosition(basePos);
-	}
-
-	// 生存時間が切れたものを削除
-	hitEffects_.erase(std::remove_if(hitEffects_.begin(), hitEffects_.end(), [](const std::unique_ptr<HitEffect>& h) { return !h->IsAlive(); }), hitEffects_.end());
-
-	    // プレイヤーは死亡後止まるけど、敵は常に動く
-	if (!player_->IsDead()) {
-		if (specialState_ == SpecialState::None) {
-			// 通常時：全部の挙動を更新
-			player_->Update();
-			CheckAllCollisions(); // 衝突判定は生存中だけ
-		}
-	}
-
-
-	for (Enemy* enemy : enemies_) {
-		if (!enemy) {
-			continue;
-		}
-
-		// 次元斬(ダッシュ)中は敵を止める（位置はそのまま）
-		if (specialState_ == SpecialState::Dash) {
-			continue;
-		}
-
-		enemy->Update();
-	}
-
-	for (Enemy* enemy : enemies_) {
-		if (enemy->GetType() == Enemy::Type::kFlyingSupport) {
-			enemy->HealNearbyEnemies(enemies_);
-		}
-	}
-
-	// 死亡パーティクル演出
-	deathParticle_.Update();
-
-	for (auto& vfx : zangekiEffects_) {
-		vfx->Update();
-	}
-	zangekiEffects_.erase(std::remove_if(zangekiEffects_.begin(), zangekiEffects_.end(), [](const std::unique_ptr<ZangekiEffect>& v) { return !v->IsAlive(); }), zangekiEffects_.end());
-
+// ==========================================================================
+// シーン遷移管理
+// ==========================================================================
+void GameScene::UpdateSceneFlow() {
 	switch (phase_) {
 	case ScenePhase::FadeIn:
 		fade_->Update();
@@ -666,9 +713,10 @@ void GameScene::Update() {
 		break;
 
 	case ScenePhase::Play:
-		// プレイヤー死亡 & パーティクル終了 → フェードアウト開始（出るとき）
+		// プレイヤー死亡時はGameOver
 		if (player_->IsDead() && deathParticle_.IsFinished()) {
 			phase_ = ScenePhase::FadeOut;
+			isClear_ = false;
 			fade_->Start(Fade::Status::FadeOut, 1.0f);
 		}
 		break;
@@ -680,169 +728,171 @@ void GameScene::Update() {
 		}
 		break;
 	}
-
-	// コンボランク
-	comboRank_.Update(1.0f / 60.0f);
 }
 
+// ==========================================================================
+// プレイヤーと敵の衝突判定
+// ==========================================================================
 void GameScene::CheckAllCollisions() {
 	if (player_->IsDead())
 		return;
-
 	AABB aabb1 = player_->GetAABB();
-
 	for (Enemy* enemy : enemies_) {
 		if (enemy->IsDead())
 			continue;
-
 		AABB aabb2 = enemy->GetAABB();
-
-		// 当たり判定
 		bool isHit = (aabb1.min.x < aabb2.max.x && aabb1.max.x > aabb2.min.x) && (aabb1.min.y < aabb2.max.y && aabb1.max.y > aabb2.min.y) && (aabb1.min.z < aabb2.max.z && aabb1.max.z > aabb2.min.z);
-
 		if (isHit) {
-			// ダメージ処理
-			player_->TakeDamage(1);
-
-			// コンボランクを減らす
+			player_->TakeDamage(GameParam::kDamageNormal);
 			comboRank_.OnPlayerDamaged();
-
-			// ノックバック方向の計算
-			// プレイヤーから見た敵の方向
 			Vector3 pPos = player_->GetWorldTransform().translation_;
 			Vector3 ePos = enemy->GetWorldTransform().translation_;
-
-			Vector3 dir = pPos - ePos; // 敵 → プレイヤー の向き
+			Vector3 dir = pPos - ePos;
 			dir = Normalize(dir);
-
-			// お互いに弾き飛ばす
-			player_->Knockback(dir);       // プレイヤーは敵と逆方向へ
-			enemy->Knockback(dir * -1.0f); // 敵はプレイヤーと逆方向へ
-
-			// 死亡チェック
+			player_->Knockback(dir);
+			enemy->Knockback(dir * -1.0f);
 			if (player_->IsDead()) {
 				deathParticle_.Spawn(player_->GetWorldTransform().translation_);
 				comboRank_.Reset();
 			}
-
-			break; // 1フレームに1回ヒットまで
+			break;
 		}
 	}
 }
 
+// ==========================================================================
+// 特殊攻撃の更新
+// ==========================================================================
 void GameScene::UpdateSpecialMove(float deltaTime) {
-	// R押した瞬間に発動開始
 	if (specialState_ == SpecialState::None) {
-		if (!player_->IsDead() && Input::GetInstance()->TriggerKey(DIK_R)) {
+		if (!hasUsedSpecial_ && !player_->IsDead() && Input::GetInstance()->TriggerKey(DIK_R)) {
+			hasUsedSpecial_ = true;
 			specialState_ = SpecialState::Charge;
-			specialTimer_ = 3.0f; // 3秒チャージ
+			specialTimer_ = GameParam::kSpecialChargeTime;
 			specialFinalSlashesSpawned_ = false;
 		}
 	}
-
 	switch (specialState_) {
 	case SpecialState::None:
-		// 何もしない
 		break;
-
 	case SpecialState::Charge:
 		specialTimer_ -= deltaTime;
+		if (specialTimer_ > 0.0f) {
+			for (int i = 0; i < 2; i++) {
+				auto p = std::make_unique<ChargeParticle>();
+				p->transform.Initialize();
+
+				Vector3 center = player_->GetWorldTransform().translation_;
+
+				// ランダム
+				Vector3 offset;
+				offset.x = (rand() % 200 - 100) / 100.0f;
+				offset.y = (rand() % 200 - 100) / 100.0f;
+				offset.z = (rand() % 200 - 100) / 100.0f;
+				if (Length(offset) != 0.0f) {
+					offset = Normalize(offset) * 5.0f;
+				}
+
+				p->transform.translation_ = center + offset;
+				p->transform.scale_ = {0.5f, 0.5f, 0.5f}; // 少し小さめ
+
+				// 中心（プレイヤー）に向かって吸い込まれる速度
+				Vector3 dir = center - p->transform.translation_;
+				p->velocity = Normalize(dir) * 0.2f; // 吸い込みスピード
+
+				p->lifeTimer = 60.0f;
+
+				chargeParticles_.push_back(std::move(p));
+			}
+		}
 		if (specialTimer_ <= 0.0f) {
-			// チャージ終了
 			specialState_ = SpecialState::Dash;
-			specialTimer_ = 0.7f; // ダッシュ全体の長さ（0.7秒くらい）
+			specialTimer_ = GameParam::kSpecialDashTime;
 			specialHitInterval_ = 0.0f;
 		}
 		break;
-
 	case SpecialState::Dash:
-		// 実際のワープ＆斬撃処理
 		PerformSpecialDash(deltaTime);
 		break;
-
 	case SpecialState::Finish:
 		specialTimer_ -= deltaTime;
-
 		if (!specialFinalSlashesSpawned_) {
 			specialFinalSlashesSpawned_ = true;
-
-			// Finish開始時に全敵を一括処理する
 			for (auto it = enemies_.begin(); it != enemies_.end();) {
 				Enemy* e = *it;
 				if (!e || e->IsDead()) {
 					++it;
 					continue;
 				}
-
-				// 敵の位置
 				Vector3 enemyPos = e->GetWorldTransform().translation_;
 				enemyPos.y += 0.5f;
-
-				// ここでダメージ
-				e->TakeDamage(9999);
-
+				e->TakeDamage(GameParam::kDamageSpecial);
+				comboRank_.AddHit(GameParam::kComboPointHit);
 				if (e->IsDead()) {
-					score_++;
+					AddScore();
+					comboRank_.OnEnemyKilled(GameParam::kComboPointKill);
 					deathParticle_.Spawn(enemyPos);
-
-					auto hit = std::make_unique<HitEffect>();
-					hit->Initialize(modelNumbers_, camera_, {0, 0, 0}, score_);
-					hitEffects_.push_back(std::move(hit));
-
 					delete e;
 					it = enemies_.erase(it);
 				} else {
 					++it;
 				}
 			}
-
-			// 演出
-			const int kNumSlashes = 200;
-
+			const int kNumSlashes = GameParam::kSpecialFinaleSlashCount;
 			uint32_t width = mapChipField_->GetNumBlockHorizontal();
 			uint32_t height = mapChipField_->GetNumBlockVertical();
-
 			for (int i = 0; i < kNumSlashes; ++i) {
 				uint32_t ix = rand() % width;
 				uint32_t iy = rand() % height;
-
 				Vector3 pos = mapChipField_->GetMapPositionTypeByIndex(ix, iy);
 				pos.y += 0.5f;
-
-				auto vfx = std::make_unique<ZangekiEffect>();
+				auto vfx = std::make_unique<SlashEffect>();
 				vfx->Initialize(modelZangeki_, camera_, pos);
 				vfx->SetRandomRotation();
-				zangekiEffects_.push_back(std::move(vfx));
+				slashEffects_.push_back(std::move(vfx));
 			}
 		}
-
 		if (specialTimer_ <= 0.0f) {
 			specialState_ = SpecialState::None;
 		}
-
 		break;
 	}
 }
 
+void GameScene::UpdateChargeParticles() {
+	auto it = chargeParticles_.begin();
+	while (it != chargeParticles_.end()) {
+		ChargeParticle* cp = it->get();
+		cp->transform.translation_ += cp->velocity;
+		cp->lifeTimer -= 1.0f;
+		cp->transform.matWorld_ = MakeAffineMatrix(cp->transform.scale_, cp->transform.rotation_, cp->transform.translation_);
+		cp->transform.TransferMatrix();
+
+		Vector3 playerPos = player_->GetWorldTransform().translation_;
+		float dist = Length(cp->transform.translation_ - playerPos);
+
+		if (dist < 0.5f || cp->lifeTimer <= 0.0f) {
+			it = chargeParticles_.erase(it);
+		} else {
+			++it;
+		}
+	}
+}
+
+// ==========================================================================
+// 必殺技の時のダッシュの実装
+// ==========================================================================
 void GameScene::PerformSpecialDash(float deltaTime) {
 	specialTimer_ -= deltaTime;
 	specialHitInterval_ -= deltaTime;
-
-	// 一定間隔で敵のところにワープして斬る
 	if (specialHitInterval_ <= 0.0f) {
-
-		// 生きている敵がいるか確認
 		Enemy* target = nullptr;
-
 		int aliveCount = 0;
 		for (Enemy* e : enemies_) {
-			if (e && !e->IsDead()) {
+			if (e && !e->IsDead())
 				aliveCount++;
-			}
 		}
-
 		if (aliveCount > 0) {
-			// ランダムな敵を1体選ぶ
 			int targetIndex = rand() % aliveCount;
 			int current = 0;
 			for (Enemy* e : enemies_) {
@@ -855,33 +905,136 @@ void GameScene::PerformSpecialDash(float deltaTime) {
 				}
 			}
 		}
-
 		if (target) {
 			Vector3 enemyPos = target->GetWorldTransform().translation_;
-
-			// 敵の周囲のどこかにワープ（左右ランダム）
 			float side = (rand() % 2 == 0) ? -1.0f : 1.0f;
 			Vector3 warpPos = enemyPos;
 			warpPos.x += side * 1.0f;
 			warpPos.y += 0.2f;
-
 			player_->WarpTo(warpPos);
-
-			// 次に斬るまでの間隔
-			specialHitInterval_ = 0.06f;
+			specialHitInterval_ = GameParam::kSpecialHitInterval;
 		}
 	}
-
-	// 規定時間が終わったら終わる
 	if (specialTimer_ <= 0.0f) {
 		specialState_ = SpecialState::Finish;
-		specialTimer_ = 0.0f; // 画面全体の斬撃を見せる時間
+		specialTimer_ = 0.0f;
 	}
 }
 
+// ==========================================================================
+// タイマー描画
+// ==========================================================================
+void GameScene::DrawTimer() {
+	// 残り時間を整数にする (負にならないように0で止める)
+	int timeValue = (std::max)(0, (int)survivalTimer_);
+
+	// 文字列に変換
+	std::string timeStr = std::to_string(timeValue);
+
+	// 文字の幅（調整用）
+	float charWidth = 1.5f;
+	// 画面中央に表示するための開始位置計算
+	float totalWidth = (timeStr.length() - 1) * charWidth;
+	float startX = -totalWidth * 0.5f;
+
+	// 高さ（画面の少し上の方）
+	float posY = 2.0f;
+
+	for (size_t i = 0; i < timeStr.length(); ++i) {
+		// 文字から数字を取り出す
+		int digit = timeStr[i] - '0';
+
+		// 範囲外チェック
+		if (digit < 0 || digit > 9)
+			continue;
+
+		// 桁ごとの座標計算
+		if (i < timerWTs_.size()) {
+			timerWTs_[i].translation_ = {startX + i * charWidth, posY, 0.0f};
+
+			// 行列更新
+			timerWTs_[i].matWorld_ = MakeAffineMatrix(timerWTs_[i].scale_, timerWTs_[i].rotation_, timerWTs_[i].translation_);
+			timerWTs_[i].TransferMatrix();
+
+			// 描画 (UI用のカメラを使う)
+			modelNumbers_[digit]->Draw(timerWTs_[i], *uiCamera_);
+		}
+	}
+}
+
+// ==========================================================================
+// ランクに応じたスコア加算
+// ==========================================================================
+void GameScene::AddScore() {
+	int point = 1; // デフォルト
+
+	// 現在のランクを取得して点数を変える
+	switch (comboRank_.GetRank()) {
+	case ComboRank::Rank::D:
+		point = 2; // Dランクなら2倍
+		break;
+	case ComboRank::Rank::C:
+		point = 5; // Cランクなら5倍
+		break;
+	case ComboRank::Rank::B:
+		point = 10; // Bランクなら10倍
+		break;
+	case ComboRank::Rank::A:
+		point = 20; // Aランクなら20倍
+		break;
+	case ComboRank::Rank::S:
+		point = 50; // Sランクなら50倍
+		break;
+	}
+
+	score_ += point;
+}
+
+// ==========================================================================
+// スコア描画
+// ==========================================================================
+void GameScene::DrawScore() {
+	// スコアを文字列に変換
+	std::string scoreStr = std::to_string(score_);
+
+	// 文字の幅
+	float charWidth = 1.2f;
+
+	// 表示位置
+	float startX = 0.0f;
+	float posY = 0.0f;
+
+	// 右揃えで描画するために、文字数分ずらす
+	for (int i = 0; i < (int)scoreStr.length(); ++i) {
+		int digit = scoreStr[i] - '0';
+		if (digit < 0 || digit > 9)
+			continue;
+
+		// 配列の範囲内なら描画
+		if (i < scoreWTs_.size()) {
+			// 位置設定
+			scoreWTs_[i].translation_ = {startX + i * charWidth, posY, 0.0f};
+
+			// 行列更新
+			scoreWTs_[i].matWorld_ = MakeAffineMatrix(scoreWTs_[i].scale_, scoreWTs_[i].rotation_, scoreWTs_[i].translation_);
+			scoreWTs_[i].TransferMatrix();
+
+			// UIカメラで描画
+			modelNumbers_[digit]->Draw(scoreWTs_[i], *uiCamera_);
+		}
+	}
+}
+
+// ==========================================================================
+// 描画処理
+// ==========================================================================
 void GameScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 	Model::PreDraw(dxCommon->GetCommandList());
+
+	if (tKeyModel_) {
+		tKeyModel_->Draw(tKeyWT_, *uiCamera_, &tKeyColor_);
+	}
 
 	for (auto& line : worldTransformBlocks_) {
 		for (auto& block : line) {
@@ -897,65 +1050,75 @@ void GameScene::Draw() {
 		enemy->Draw();
 	}
 
-	// 弾の描画
 	for (const auto& b : bullets_) {
 		b->Draw();
 	}
 
-	// スロー弾の描画
 	for (const auto& sb : slowBalls_) {
 		sb->Draw();
 	}
 
-	for (const auto& hit : hitEffects_) {
-		hit->Draw();
-	}
-
-	// DeathParticle描画
 	deathParticle_.Draw();
 
-	for (const auto& vfx : zangekiEffects_) {
-		vfx->Draw();
+	for (const auto& p : chargeParticles_) {
+		modelChargeParticle_->Draw(p->transform, *camera_);
 	}
 
+	for (const auto& vfx : slashEffects_) {
+		vfx->Draw();
+	}
 	modelHp_->Draw(worldTransformHudHp_, *uiCamera_);
-
 	modelHpBar_->Draw(worldTransformHudHpBar_, *uiCamera_);
-
 	comboRank_.Draw();
+	DrawTimer();
+	DrawScore();
+
+	if (isTutorialMode_ && tutorialModel_) {
+		tutorialModel_->Draw(tutorialWT_, *uiCamera_);
+	}
 
 	Model::PostDraw();
-
 	if (fade_) {
 		fade_->Draw();
 	}
 }
 
+// ==========================================================================
+// 解放処理
+// ==========================================================================
 GameScene::~GameScene() {
+	delete tutorialModel_;
+	delete modelPlayer_;
+	delete modelEnemy_;
+	delete modelDeathParticle_;
+	delete modelChargeParticle_;
+	delete modelBullet_;
+	delete modelSlowBall_;
+	delete modelZangeki_;
+	delete modelHp_;
+	delete modelHpBar_;
 	delete model_;
 	delete modelCube_;
+	delete tKeyModel_;
 	delete modelSkyDome_;
+	for (Model* model : modelNumbers_) {
+		delete model;
+	}
+	delete player_;
+	delete mapChipField_;
 	delete debugCamera_;
 	delete cameraController_;
-	delete modelSlowBall_;
-	delete mapChipField_;
-	delete modelZangeki_;
-	delete player_;
-	delete fade_;
 	delete camera_;
 	delete uiCamera_;
+	delete fade_;
 	for (Enemy* enemy : enemies_) {
 		delete enemy;
 	}
+	enemies_.clear();
 	for (auto& line : worldTransformBlocks_) {
 		for (auto& block : line) {
 			delete block;
 		}
 	}
-
-	for (Model* model : modelNumbers_) {
-		delete model;
-	}
-
 	worldTransformBlocks_.clear();
 }

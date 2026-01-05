@@ -2,14 +2,15 @@
 #include "Fade.h"
 #include "KamataEngine.h"
 
-using namespace KamataEngine;
+#include <array>
+#include <string>
 
 class GameClearScene {
 public:
 	GameClearScene() = default;
 	~GameClearScene();
 
-	void Initialize();
+	void Initialize(int score);
 	void Update();
 	void Draw();
 	bool IsFinished() const { return finished_; }
@@ -20,23 +21,29 @@ private:
 
 	bool finished_ = false;
 
-	// 「GAME CLEAR」文字
-	Model* textModel_ = nullptr;
-	WorldTransform textTransform_;
+	// GAME CLEAR文字
+	KamataEngine::Model* textModel_ = nullptr;
+	KamataEngine::WorldTransform textTransform_;
+	KamataEngine::ObjectColor textColor_;
 
 	// 背景OBJ
-	Model* backgroundModel_ = nullptr;
-	WorldTransform backgroundTransform_;
+	KamataEngine::Model* backgroundModel_ = nullptr;
+	KamataEngine::WorldTransform backgroundTransform_;
 
-	Model* skyDomeModel_ = nullptr;
-	WorldTransform skyDomeWT_;
+	KamataEngine::Model* skyDomeModel_ = nullptr;
+	KamataEngine::WorldTransform skyDomeWT_;
 
-	// 「PressSpace」OBJ
-	Model* pressSpaceModel_ = nullptr;
-	WorldTransform pressSpaceTransform_;
+	// PressSpaceOBJ
+	KamataEngine::Model* pressSpaceModel_ = nullptr;
+	KamataEngine::WorldTransform pressSpaceTransform_;
+	KamataEngine::ObjectColor pressSpaceColor_;
 	float blinkTimer_ = 0.0f;
 	bool blinkVisible_ = true;
 
-	Camera* camera_ = nullptr;
+	int score_ = 0;
+	std::array<KamataEngine::Model*, 10> modelNumbers_{};
+	std::array<KamataEngine::WorldTransform, 5> scoreWTs_;
+
+	KamataEngine::Camera* camera_ = nullptr;
 	Fade* fade_ = nullptr;
 };

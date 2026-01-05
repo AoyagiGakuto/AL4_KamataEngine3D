@@ -2,8 +2,6 @@
 #include "Fade.h"
 #include "KamataEngine.h"
 
-using namespace KamataEngine;
-
 class GameOverScene {
 public:
 	GameOverScene() = default;
@@ -20,23 +18,25 @@ private:
 
 	bool finished_ = false;
 
-	// 「GAME OVER」文字
-	Model* textModel_ = nullptr;
-	WorldTransform textTransform_;
+	// GAME OVER文字
+	KamataEngine::Model* textModel_ = nullptr;
+	KamataEngine::WorldTransform textTransform_;
+	KamataEngine::ObjectColor textColor_;
 
 	// 背景OBJ
-	Model* backgroundModel_ = nullptr;
-	WorldTransform backgroundTransform_;
+	KamataEngine::Model* backgroundModel_ = nullptr;
+	KamataEngine::WorldTransform backgroundTransform_;
 
-	Model* skyDomeModel_ = nullptr;
-	WorldTransform skyDomeWT_;
+	KamataEngine::Model* skyDomeModel_ = nullptr;
+	KamataEngine::WorldTransform skyDomeWT_;
 
-	// 「PressSpace」OBJ（点滅）
-	Model* pressSpaceModel_ = nullptr;
-	WorldTransform pressSpaceTransform_;
+	// PressSpaceOBJ（点滅）
+	KamataEngine::Model* pressSpaceModel_ = nullptr;
+	KamataEngine::WorldTransform pressSpaceTransform_;
+	KamataEngine::ObjectColor pressSpaceColor_;
 	float blinkTimer_ = 0.0f;
 	bool blinkVisible_ = true;
 
-	Camera* camera_ = nullptr;
+	KamataEngine::Camera* camera_ = nullptr;
 	Fade* fade_ = nullptr;
 };

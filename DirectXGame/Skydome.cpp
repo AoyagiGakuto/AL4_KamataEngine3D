@@ -1,12 +1,8 @@
 #include "Skydome.h"
 
-void Skydome::Initialize() {
+using namespace KamataEngine;
 
-}
-
-void Skydome::Update() {}
-
-void Skydome::Draw() {
-	// 3Dオブジェクトの描画
-	model_->Draw(worldTransform_, *camera_);
-}
+//void Skydome::Draw() {
+//	// 3Dオブジェクトの描画
+//	model_->Draw(worldTransform_, *camera_);
+//}

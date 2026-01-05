@@ -1,6 +1,17 @@
 #include "Fade.h"
 #include <algorithm>
+
 using namespace KamataEngine;
+
+// ==========================================================================
+// デストラクタ
+// ==========================================================================
+
+Fade::~Fade() { delete sprite_; }
+
+// ==========================================================================
+// ヘルパー関数
+// ==========================================================================
 
 // 画面サイズに合わせるヘルパ
 static inline void ResizeToBackbuffer(KamataEngine::Sprite* spr) {
@@ -9,16 +20,25 @@ static inline void ResizeToBackbuffer(KamataEngine::Sprite* spr) {
 	spr->SetPosition(Vector2(0.0f, 0.0f));
 }
 
+// ==========================================================================
+// 初期化
+// ==========================================================================
+
 void Fade::Initialize() {
 	textureHandle = TextureManager::Load("white1x1.png");
 	sprite_ = Sprite::Create(textureHandle, {0, 0});
-	sprite_->SetColor(Vector4(0, 0, 0, 1)); // 黒
-	ResizeToBackbuffer(sprite_);            // 初期フレームから全面
+	sprite_->SetColor(Vector4(0, 0, 0, 1));
+	ResizeToBackbuffer(sprite_);
 }
+
+// ==========================================================================
+// 更新処理
+// ==========================================================================
 
 void Fade::Update() {
 	switch (status_) {
 	case Status::None:
+		// 何もしない
 		break;
 	case Status::FadeIn:
 		counter_ += 1.0f / 60.0f;
@@ -37,8 +57,13 @@ void Fade::Update() {
 		}
 		break;
 	}
+
 	ResizeToBackbuffer(sprite_);
 }
+
+// ==========================================================================
+// 描画処理
+// ==========================================================================
 
 void Fade::Draw() {
 	if (status_ == Status::None) {
@@ -49,6 +74,10 @@ void Fade::Draw() {
 	sprite_->Draw();
 	Sprite::PostDraw();
 }
+
+// ==========================================================================
+// 制御関数
+// ==========================================================================
 
 void Fade::Start(Status status, float duration) {
 	status_ = status;
