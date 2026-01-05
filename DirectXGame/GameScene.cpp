@@ -137,6 +137,13 @@ void GameScene::Initialize() {
 		wt.scale_ = {2.0f, 2.0f, 2.0f};
 	}
 
+	// スコア用ワールド変換の初期化
+	for (auto& wt : scoreWTs_) {
+		wt.Initialize();
+		wt.rotation_.y = std::numbers::pi_v<float> / -2.0f; // 正面に向ける
+		wt.scale_ = {1.5f, 1.5f, 1.5f};                     // 少し小さめ
+	}
+
 	srand((unsigned int)time(NULL));
 }
 
@@ -489,7 +496,7 @@ void GameScene::UpdatePlayerAction() {
 					}
 					comboRank_.AddHit(GameParam::kComboPointHit);
 					if (target->IsDead()) {
-						score_++;
+						AddScore();
 						comboRank_.OnEnemyKilled(GameParam::kComboPointKill);
 						deathParticle_.Spawn(target->GetWorldTransform().translation_);
 						enemies_.remove(target);
@@ -522,7 +529,7 @@ void GameScene::UpdatePlayerAction() {
 				slashEffects_.push_back(std::move(vfx));
 			}
 			if (target->IsDead()) {
-				score_++;
+				AddScore();
 				comboRank_.OnEnemyKilled(GameParam::kComboPointKill);
 				deathParticle_.Spawn(target->GetWorldTransform().translation_);
 				enemies_.remove(target);
@@ -605,7 +612,7 @@ void GameScene::CheckCollisions() {
 					enemy->TakeDamage(GameParam::kDamageNormal);
 					comboRank_.AddHit(5.0f);
 					if (enemy->IsDead()) {
-						score_++;
+						AddScore();
 						comboRank_.OnEnemyKilled(10.0f);
 						deathParticle_.Spawn(enemy->GetWorldTransform().translation_);
 						delete enemy;
@@ -822,7 +829,7 @@ void GameScene::UpdateSpecialMove(float deltaTime) {
 				e->TakeDamage(GameParam::kDamageSpecial);
 				comboRank_.AddHit(GameParam::kComboPointHit);
 				if (e->IsDead()) {
-					score_++;
+					AddScore();
 					comboRank_.OnEnemyKilled(GameParam::kComboPointKill);
 					deathParticle_.Spawn(enemyPos);
 					delete e;
@@ -956,6 +963,69 @@ void GameScene::DrawTimer() {
 }
 
 // ==========================================================================
+// ランクに応じたスコア加算
+// ==========================================================================
+void GameScene::AddScore() {
+	int point = 1; // デフォルト
+
+	// 現在のランクを取得して点数を変える
+	switch (comboRank_.GetRank()) {
+	case ComboRank::Rank::D:
+		point = 2; // Dランクなら2倍
+		break;
+	case ComboRank::Rank::C:
+		point = 5; // Cランクなら5倍
+		break;
+	case ComboRank::Rank::B:
+		point = 10; // Bランクなら10倍
+		break;
+	case ComboRank::Rank::A:
+		point = 20; // Aランクなら20倍
+		break;
+	case ComboRank::Rank::S:
+		point = 50; // Sランクなら50倍
+		break;
+	}
+
+	score_ += point;
+}
+
+// ==========================================================================
+// スコア描画
+// ==========================================================================
+void GameScene::DrawScore() {
+	// スコアを文字列に変換
+	std::string scoreStr = std::to_string(score_);
+
+	// 文字の幅
+	float charWidth = 1.2f;
+
+	// 表示位置
+	float startX = 0.0f;
+	float posY = 0.0f;
+
+	// 右揃えで描画するために、文字数分ずらす
+	for (int i = 0; i < (int)scoreStr.length(); ++i) {
+		int digit = scoreStr[i] - '0';
+		if (digit < 0 || digit > 9)
+			continue;
+
+		// 配列の範囲内なら描画
+		if (i < scoreWTs_.size()) {
+			// 位置設定
+			scoreWTs_[i].translation_ = {startX + i * charWidth, posY, 0.0f};
+
+			// 行列更新
+			scoreWTs_[i].matWorld_ = MakeAffineMatrix(scoreWTs_[i].scale_, scoreWTs_[i].rotation_, scoreWTs_[i].translation_);
+			scoreWTs_[i].TransferMatrix();
+
+			// UIカメラで描画
+			modelNumbers_[digit]->Draw(scoreWTs_[i], *uiCamera_);
+		}
+	}
+}
+
+// ==========================================================================
 // 描画処理
 // ==========================================================================
 void GameScene::Draw() {
@@ -1001,6 +1071,7 @@ void GameScene::Draw() {
 	modelHpBar_->Draw(worldTransformHudHpBar_, *uiCamera_);
 	comboRank_.Draw();
 	DrawTimer();
+	DrawScore();
 
 	if (isTutorialMode_ && tutorialModel_) {
 		tutorialModel_->Draw(tutorialWT_, *uiCamera_);

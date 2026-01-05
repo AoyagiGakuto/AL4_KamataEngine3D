@@ -250,6 +250,12 @@ private:
 
 	// タイマー表示
 	std::array<KamataEngine::WorldTransform, 3> timerWTs_;
+	
+	// スコア表示用
+	std::array<KamataEngine::WorldTransform, 3> scoreWTs_; // 3桁まで表示可能
+	void DrawScore();
+	void AddScore();
+
 	// タイマー描画関数
 	void DrawTimer();
 
