@@ -4,10 +4,10 @@ using namespace KamataEngine;
 
 void SoundManager::Initialize() {
 	// 一括読み込み
-	handleTitle_ = Audio::GetInstance()->LoadWave("Drumnbass_02.mp3");
-	handleGame_ = Audio::GetInstance()->LoadWave("kakushin.mp3");
-	handleClear_ = Audio::GetInstance()->LoadWave("Clear.mp3");
-	handleOver_ = Audio::GetInstance()->LoadWave("GameOver.mp3");
+	handleTitle_ = Audio::GetInstance()->LoadWave("451_BPM190.mp3");
+	handleGame_ = Audio::GetInstance()->LoadWave("160_BPM172.mp3");
+	handleClear_ = Audio::GetInstance()->LoadWave("126_BPM142.mp3");
+	handleOver_ = Audio::GetInstance()->LoadWave("354_BPM180.mp3");
 
 	// 音量設定
 	float vol = 0.5f;
