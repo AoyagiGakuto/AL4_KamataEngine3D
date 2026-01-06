@@ -25,7 +25,6 @@ enum class Scene {
 	kGame,
 	kClear,
 	kOver,
-	kBoss,
 };
 
 Scene scene = Scene::kUnknown;
