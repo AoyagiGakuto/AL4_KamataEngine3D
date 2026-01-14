@@ -46,7 +46,7 @@ void SoundManager::ChangeBgm(SceneType scene) {
 }
 
 void SoundManager::Finalize() {
-	// 音を止める
+	// 今流れてる音を止める
 	if (currentBgmHandle_ != -1) {
 		Audio::GetInstance()->StopWave(currentBgmHandle_);
 	}
