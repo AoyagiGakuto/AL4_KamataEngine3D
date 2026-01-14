@@ -474,12 +474,14 @@ void GameScene::UpdatePlayerAction() {
 							player_->velocity_.x = dir.x * 0.15f;
 							target->Knockback(dir * 0.5f);
 							target->TakeDamage(GameParam::kDamageNormal);
+							target->DisableContactDamage(0.5f);
 							hitStopTimer_ = 0.05f;
 							break;
 						case 2:
 							player_->velocity_.x = dir.x * 0.2f;
 							target->Knockback(dir * 0.5f);
 							target->TakeDamage(GameParam::kDamageNormal);
+							target->DisableContactDamage(0.5f);
 							hitStopTimer_ = 0.05f;
 							break;
 						case 3:
@@ -487,6 +489,7 @@ void GameScene::UpdatePlayerAction() {
 							target->Launch(0.2f);
 							target->Knockback(dir * 3.0f);
 							target->TakeDamage(GameParam::kDamageNormal * 2);
+							target->DisableContactDamage(0.5f);
 							hitStopTimer_ = 0.2f;
 							comboIndex_ = 0;
 							comboTimer_ = 0.0f;
@@ -494,6 +497,7 @@ void GameScene::UpdatePlayerAction() {
 						}
 						comboRank_.AddHit(GameParam::kComboPointHit);
 					}
+
 					comboRank_.AddHit(GameParam::kComboPointHit);
 					if (target->IsDead()) {
 						AddScore();
@@ -610,7 +614,8 @@ void GameScene::CheckCollisions() {
 				    (aabbB.min.x < aabbE.max.x && aabbB.max.x > aabbE.min.x) && (aabbB.min.y < aabbE.max.y && aabbB.max.y > aabbE.min.y) && (aabbB.min.z < aabbE.max.z && aabbB.max.z > aabbB.min.z);
 				if (isHit) {
 					enemy->TakeDamage(GameParam::kDamageNormal);
-					comboRank_.AddHit(5.0f);
+					// 弾の弱体化
+					comboRank_.AddHit(0.1f);
 					if (enemy->IsDead()) {
 						AddScore();
 						comboRank_.OnEnemyKilled(10.0f);
@@ -734,12 +739,22 @@ void GameScene::UpdateSceneFlow() {
 // プレイヤーと敵の衝突判定
 // ==========================================================================
 void GameScene::CheckAllCollisions() {
-	if (player_->IsDead())
+	if (player_->IsDead()) {
 		return;
+	}
+
+	
+
 	AABB aabb1 = player_->GetAABB();
 	for (Enemy* enemy : enemies_) {
-		if (enemy->IsDead())
+		if (enemy->IsDead()) {
 			continue;
+		}
+
+		if (!enemy->IsContactDamageActive()) {
+			continue;
+		}
+
 		AABB aabb2 = enemy->GetAABB();
 		bool isHit = (aabb1.min.x < aabb2.max.x && aabb1.max.x > aabb2.min.x) && (aabb1.min.y < aabb2.max.y && aabb1.max.y > aabb2.min.y) && (aabb1.min.z < aabb2.max.z && aabb1.max.z > aabb2.min.z);
 		if (isHit) {

@@ -40,6 +40,15 @@ void Enemy::Initialize(Model* model, Model* modelHpBar, Model* modelHp, Camera* 
 void Enemy::Update() {
 	
 	/*
+	// --- 近接強化のためのダメージ無効処理 ---
+	*/
+
+	// 接触ダメージ無効タイマーの更新
+	if (contactDamageTimer_ > 0.0f) {
+		contactDamageTimer_ -= 1.0f / 60.0f;
+	}
+
+	/*
 	// --- ヒットストップ処理 ---
 	*/
 
