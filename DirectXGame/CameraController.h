@@ -34,9 +34,9 @@ public:
 	void Shake(float magnitude, float duration);
 
 	// ビュー行列
-	KamataEngine::Matrix4x4 matView_;
+	KamataEngine::Matrix4x4 matView_ = {};
 	// プロジェクション行列
-	KamataEngine::Matrix4x4 matProjection_;
+	KamataEngine::Matrix4x4 matProjection_ = {};
 
 private:
 

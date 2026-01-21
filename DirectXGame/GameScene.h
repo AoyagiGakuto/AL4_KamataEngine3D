@@ -164,7 +164,7 @@ private:
 	// チャージ演出用
 	struct ChargeParticle {
 		KamataEngine::WorldTransform transform;
-		KamataEngine::Vector3 velocity;
+		KamataEngine::Vector3 velocity = {};
 		float lifeTimer = 0.0f;
 	};
 
@@ -226,7 +226,7 @@ private:
 
 	// エフェクト
 	std::vector<std::unique_ptr<SlashEffect>> slashEffects_;
-	KamataEngine::Model* modelZangeki_ = nullptr;
+	KamataEngine::Model* modelSlash_ = nullptr;
 
 	KamataEngine::Model* modelChargeParticle_ = nullptr;
 	DeathParticle deathParticle_;

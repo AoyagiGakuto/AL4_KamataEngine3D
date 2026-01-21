@@ -25,7 +25,7 @@ void GameScene::Initialize() {
 	modelChargeParticle_ = Model::CreateFromOBJ("chargeParticle");
 	modelBullet_ = Model::CreateFromOBJ("bullet");
 	modelSlowBall_ = Model::CreateFromOBJ("bullet");
-	modelZangeki_ = Model::CreateFromOBJ("zangeki");
+	modelSlash_ = Model::CreateFromOBJ("zangeki");
 	modelHp_ = Model::CreateFromOBJ("hp");
 	modelHpBar_ = Model::CreateFromOBJ("hpbar");
 	tutorialModel_ = Model::CreateFromOBJ("setumei");
@@ -531,7 +531,7 @@ void GameScene::UpdatePlayerAction() {
 				auto vfx = std::make_unique<SlashEffect>();
 				float randX = ((float)(rand() % 1000) / 999.0f - 0.5f) * kEffectSpread;
 				float randY = ((float)(rand() % 1000) / 999.0f - 0.5f) * kEffectSpread;
-				vfx->Initialize(modelZangeki_, camera_, enemyPos + Vector3{randX, randY, 0.0f});
+				vfx->Initialize(modelSlash_, camera_, enemyPos + Vector3{randX, randY, 0.0f});
 				vfx->SetRandomRotation();
 				slashEffects_.push_back(std::move(vfx));
 			}
@@ -865,7 +865,7 @@ void GameScene::UpdateSpecialMove(float deltaTime) {
 				Vector3 pos = mapChipField_->GetMapPositionTypeByIndex(ix, iy);
 				pos.y += 0.5f;
 				auto vfx = std::make_unique<SlashEffect>();
-				vfx->Initialize(modelZangeki_, camera_, pos);
+				vfx->Initialize(modelSlash_, camera_, pos);
 				vfx->SetRandomRotation();
 				slashEffects_.push_back(std::move(vfx));
 			}
@@ -1112,7 +1112,7 @@ GameScene::~GameScene() {
 	delete modelChargeParticle_;
 	delete modelBullet_;
 	delete modelSlowBall_;
-	delete modelZangeki_;
+	delete modelSlash_;
 	delete modelHp_;
 	delete modelHpBar_;
 	delete model_;
