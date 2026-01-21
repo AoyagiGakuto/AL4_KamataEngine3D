@@ -1,7 +1,6 @@
 #pragma once
 #include "KamataEngine.h"
 #include <vector>
-#include "GameScene.h"
 
 class Skydome {
 public:

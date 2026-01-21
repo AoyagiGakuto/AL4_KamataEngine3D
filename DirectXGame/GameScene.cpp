@@ -9,6 +9,8 @@
 using namespace KamataEngine;
 using namespace MathUtility;
 
+// 貫通団を巻き込み型にする、操作をむずくしない、近接でたおすと制限時間が増える、
+
 // ==========================================================================
 // 初期化処理
 // ==========================================================================
@@ -502,6 +504,7 @@ void GameScene::UpdatePlayerAction() {
 					if (target->IsDead()) {
 						AddScore();
 						comboRank_.OnEnemyKilled(GameParam::kComboPointKill);
+						survivalTimer_ += GameParam::kTimeBonusMelee;
 						deathParticle_.Spawn(target->GetWorldTransform().translation_);
 						enemies_.remove(target);
 						delete target;
