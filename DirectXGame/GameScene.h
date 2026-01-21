@@ -255,10 +255,10 @@ private:
 	std::array<KamataEngine::Model*, 10> modelNumbers_{};
 
 	// タイマー表示
-	std::array<KamataEngine::WorldTransform, 3> timerWTs_;
+	std::array<KamataEngine::WorldTransform, 4> timerWTs_;
 	
 	// スコア表示用
-	std::array<KamataEngine::WorldTransform, 3> scoreWTs_; // 3桁まで表示可能
+	std::array<KamataEngine::WorldTransform, 5> scoreWTs_;
 	void DrawScore();
 	void AddScore();
 
