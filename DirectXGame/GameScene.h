@@ -117,6 +117,8 @@ private:
 
 		// 生き残る時間
 		static inline const float kSurvivalTimeLimit = 60.0f;
+		// 近接で敵を倒した時の追加時間
+		static inline const float kTimeBonusMelee = 3.0f;
 		// 敵が湧く間隔
 		static inline const float kEnemySpawnInterval = 2.0f;
 	};
@@ -207,6 +209,8 @@ private:
 	// プレイヤー
 	Player* player_ = nullptr;
 	KamataEngine::Model* modelPlayer_ = nullptr;
+	KamataEngine::Model* modelKatana_ = nullptr;
+	KamataEngine::WorldTransform worldTransformKatana_;
 
 	// 敵
 	std::list<Enemy*> enemies_;
