@@ -10,7 +10,7 @@ void SoundManager::Initialize() {
 	handleOver_ = Audio::GetInstance()->LoadWave("354_BPM180.mp3");
 
 	// 音量設定
-	float vol = 0.5f;
+	float vol = 0.3f;
 	Audio::GetInstance()->SetVolume(handleTitle_, vol);
 	Audio::GetInstance()->SetVolume(handleGame_, vol);
 	Audio::GetInstance()->SetVolume(handleClear_, vol);
@@ -18,42 +18,35 @@ void SoundManager::Initialize() {
 }
 
 void SoundManager::ChangeBgm(SceneType scene) {
-	// 今流れている音を止める
-	if (currentBgmHandle_ != -1) {
-		Audio::GetInstance()->StopWave(currentBgmHandle_);
-	}
-
-	// 次に流す音を決める
-	int nextHandle = -1;
+	int nextResourceHandle = -1;
 	switch (scene) {
 	case SceneType::Title:
-		nextHandle = handleTitle_;
+		nextResourceHandle = handleTitle_;
 		break;
 	case SceneType::Game:
-	case SceneType::Tutorial:
-		nextHandle = handleGame_;
+		nextResourceHandle = handleGame_;
 		break;
 	case SceneType::Clear:
-		nextHandle = handleClear_;
+		nextResourceHandle = handleClear_;
 		break;
 	case SceneType::GameOver:
-		nextHandle = handleOver_;
+		nextResourceHandle = handleOver_;
 		break;
 	}
 
-	// 再生する
-	if (nextHandle != -1) {
-		if (currentBgmHandle_ != nextHandle) {
-			Audio::GetInstance()->PlayWave(nextHandle, true);
-			currentBgmHandle_ = nextHandle;
-		}
-	} else {
+	if (currentBgmHandle_ != -1) {
+		Audio::GetInstance()->StopWave(currentBgmHandle_);
 		currentBgmHandle_ = -1;
 	}
+
+	if (nextResourceHandle != -1) {
+		currentBgmHandle_ = Audio::GetInstance()->PlayWave(nextResourceHandle, true);
+	}
+
 }
 
 void SoundManager::Finalize() {
-	// 音を止める
+	// 今流れてる音を止める
 	if (currentBgmHandle_ != -1) {
 		Audio::GetInstance()->StopWave(currentBgmHandle_);
 	}

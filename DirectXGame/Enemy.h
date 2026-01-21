@@ -53,6 +53,12 @@ public:
 	// 重力を元に戻す
 	void ResetGravity();
 
+	// ダメージを受けた時の接触ダメージ無効化 
+	void DisableContactDamage(float duration) { contactDamageTimer_ = duration; }
+
+	// 今、接触ダメージがあるかどうか
+	bool IsContactDamageActive() const { return contactDamageTimer_ <= 0.0f; }
+
 	AABB GetAABB();
 	const KamataEngine::WorldTransform& GetWorldTransform() const { return worldTransform_; }
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
@@ -115,6 +121,9 @@ protected:
 
 	float gravityScale_ = 1.0f; // 重力倍率
 	float suspendTimer_ = 0.0f;
+
+	// これが0より大きい間プレイヤーが触れてもダメージを受けない
+	float contactDamageTimer_ = 0.0f;
 
 	// 弾のフラグ
 	bool canShoot_ = false;
