@@ -396,8 +396,9 @@ void GameScene::UpdatePlayerAction() {
 			float minDistance = FLT_MAX;
 			Vector3 playerPos = player_->GetWorldTransform().translation_;
 			for (Enemy* enemy : enemies_) {
-				if (!enemy || enemy->IsDead())
+				if (!enemy || enemy->IsDead()) {
 					continue;
+				}
 				float distanceSq = Length(enemy->GetWorldTransform().translation_ - playerPos);
 				if (distanceSq < minDistance) {
 					minDistance = distanceSq;
@@ -436,10 +437,12 @@ void GameScene::UpdatePlayerAction() {
 				if (distance <= GameParam::kPlayerMeleeRange * 1.5f) {
 					bool isFacingRight = (player_->GetWorldTransform().rotation_.y < 3.14f);
 					bool isBackInput = false;
-					if (isFacingRight && Input::GetInstance()->PushKey(DIK_A))
+					if (isFacingRight && Input::GetInstance()->PushKey(DIK_A)) {
 						isBackInput = true;
-					if (!isFacingRight && Input::GetInstance()->PushKey(DIK_D))
+					}
+					if (!isFacingRight && Input::GetInstance()->PushKey(DIK_D)) {
 						isBackInput = true;
+					}
 					bool isPlayerAir = (player_->GetWorldTransform().translation_.y > 2.0f);
 					// 打ち上げ
 					if (!isPlayerAir && isBackInput) {
@@ -467,8 +470,9 @@ void GameScene::UpdatePlayerAction() {
 					else {
 						comboIndex_++;
 						comboTimer_ = 1.0f;
-						if (comboIndex_ > 3)
+						if (comboIndex_ > 3) {
 							comboIndex_ = 1;
+						}
 						Vector3 dir = target->GetWorldTransform().translation_ - player_->GetWorldTransform().translation_;
 						dir = Normalize(dir);
 						switch (comboIndex_) {
@@ -1061,8 +1065,9 @@ void GameScene::Draw() {
 
 	for (auto& line : worldTransformBlocks_) {
 		for (auto& block : line) {
-			if (!block)
+			if (!block) {
 				continue;
+			}
 			modelCube_->Draw(*block, *camera_);
 		}
 	}
