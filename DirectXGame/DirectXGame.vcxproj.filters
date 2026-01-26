@@ -33,106 +33,106 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="TitleScene.cpp">
-      <Filter>Scene\Title</Filter>
-    </ClCompile>
-    <ClCompile Include="Bullet.cpp">
+    <ClCompile Include="Project\GameObject\Bullet\Bullet.cpp">
       <Filter>Bullet</Filter>
     </ClCompile>
-    <ClCompile Include="CameraController.cpp">
+    <ClCompile Include="Project\Control\Camera\CameraController.cpp">
       <Filter>Camera</Filter>
     </ClCompile>
-    <ClCompile Include="Fade.cpp">
-      <Filter>Effects\Fade</Filter>
-    </ClCompile>
-    <ClCompile Include="DeathParticle.cpp">
-      <Filter>Effects\Particle\Death</Filter>
-    </ClCompile>
-    <ClCompile Include="SlashEffect.cpp">
-      <Filter>Effects\Particle\Slash</Filter>
-    </ClCompile>
-    <ClCompile Include="GameClearScene.cpp">
-      <Filter>Scene\GameClear</Filter>
-    </ClCompile>
-    <ClCompile Include="MapChipField.cpp">
-      <Filter>Map</Filter>
-    </ClCompile>
-    <ClCompile Include="Enemy.cpp">
-      <Filter>Enemy</Filter>
-    </ClCompile>
-    <ClCompile Include="MyMath.cpp">
-      <Filter>Math</Filter>
-    </ClCompile>
-    <ClCompile Include="Player.cpp">
-      <Filter>Player</Filter>
-    </ClCompile>
-    <ClCompile Include="GameScene.cpp">
-      <Filter>Scene\Game</Filter>
-    </ClCompile>
-    <ClCompile Include="GameOverScene.cpp">
-      <Filter>Scene\GameOver</Filter>
-    </ClCompile>
-    <ClCompile Include="Skydome.cpp">
-      <Filter>Skydome</Filter>
-    </ClCompile>
-    <ClCompile Include="ComboRank.cpp">
+    <ClCompile Include="Project\UI\Combo\ComboRank.cpp">
       <Filter>Effects\ComboRank</Filter>
     </ClCompile>
-    <ClCompile Include="SoundManager.cpp">
+    <ClCompile Include="Project\UI\Fade\Fade.cpp">
+      <Filter>Effects\Fade</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\UI\Particle\DeathParticle.cpp">
+      <Filter>Effects\Particle\Death</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\UI\Particle\SlashEffect.cpp">
+      <Filter>Effects\Particle\Slash</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\GameObject\Character\Enemy\Enemy.cpp">
+      <Filter>Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Environment\Map\MapChipField.cpp">
+      <Filter>Map</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Math\MyMath.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\GameObject\Character\Player\Player.cpp">
+      <Filter>Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Scene\GameScene.cpp">
+      <Filter>Scene\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Scene\GameClearScene.cpp">
+      <Filter>Scene\GameClear</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Scene\TitleScene.cpp">
+      <Filter>Scene\Title</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Scene\GameOverScene.cpp">
+      <Filter>Scene\GameOver</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Environment\SkyDome\Skydome.cpp">
+      <Filter>Skydome</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\main.cpp" />
+    <ClCompile Include="Project\Sound\SoundManager.cpp">
       <Filter>SoundManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Bullet.h">
+    <ClInclude Include="Project\GameObject\Bullet\Bullet.h">
       <Filter>Bullet</Filter>
     </ClInclude>
-    <ClInclude Include="CameraController.h">
+    <ClInclude Include="Project\Control\Camera\CameraController.h">
       <Filter>Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Fade.h">
-      <Filter>Effects\Fade</Filter>
-    </ClInclude>
-    <ClInclude Include="DeathParticle.h">
-      <Filter>Effects\Particle\Death</Filter>
-    </ClInclude>
-    <ClInclude Include="SlashEffect.h">
-      <Filter>Effects\Particle\Slash</Filter>
-    </ClInclude>
-    <ClInclude Include="GameClearScene.h">
-      <Filter>Scene\GameClear</Filter>
-    </ClInclude>
-    <ClInclude Include="MapChipField.h">
-      <Filter>Map</Filter>
-    </ClInclude>
-    <ClInclude Include="Enemy.h">
-      <Filter>Enemy</Filter>
-    </ClInclude>
-    <ClInclude Include="MyMath.h">
-      <Filter>Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>Player</Filter>
-    </ClInclude>
-    <ClInclude Include="GameScene.h">
-      <Filter>Scene\Game</Filter>
-    </ClInclude>
-    <ClInclude Include="GameOverScene.h">
-      <Filter>Scene\GameOver</Filter>
-    </ClInclude>
-    <ClInclude Include="Skydome.h">
-      <Filter>Skydome</Filter>
-    </ClInclude>
-    <ClInclude Include="ComboRank.h">
+    <ClInclude Include="Project\UI\Combo\ComboRank.h">
       <Filter>Effects\ComboRank</Filter>
     </ClInclude>
-    <ClInclude Include="ScenePhase.h">
-      <Filter>Scene</Filter>
+    <ClInclude Include="Project\UI\Fade\Fade.h">
+      <Filter>Effects\Fade</Filter>
     </ClInclude>
-    <ClInclude Include="TitleScene.h">
+    <ClInclude Include="Project\UI\Particle\DeathParticle.h">
+      <Filter>Effects\Particle\Death</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\UI\Particle\SlashEffect.h">
+      <Filter>Effects\Particle\Slash</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\GameObject\Character\Enemy\Enemy.h">
+      <Filter>Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Environment\Map\MapChipField.h">
+      <Filter>Map</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Math\MyMath.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\GameObject\Character\Player\Player.h">
+      <Filter>Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Scene\GameScene.h">
+      <Filter>Scene\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Scene\GameClearScene.h">
+      <Filter>Scene\GameClear</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Scene\TitleScene.h">
       <Filter>Scene\Title</Filter>
     </ClInclude>
-    <ClInclude Include="SoundManager.h">
+    <ClInclude Include="Project\Scene\GameOverScene.h">
+      <Filter>Scene\GameOver</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Scene\ScenePhase.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Environment\SkyDome\Skydome.h">
+      <Filter>Skydome</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Sound\SoundManager.h">
       <Filter>SoundManager</Filter>
     </ClInclude>
   </ItemGroup>
