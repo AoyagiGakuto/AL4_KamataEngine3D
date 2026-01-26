@@ -63,7 +63,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_WINDOWS;_DEBUG;USE_IMGUI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Project\Scene;$(ProjectDir)Project\GameObject\Bullet;$(ProjectDir)Project\Control\Camera;$(ProjectDir)Project\UI\Combo;$(ProjectDir)Project\Environment\Map;$(ProjectDir)Project\Math;$(ProjectDir)Project\GameObject\Character\Player;$(ProjectDir)Project\GameObject\Character\Enemy;$(ProjectDir)Project\Sound;$(ProjectDir)Project\Environment\SkyDome;$(ProjectDir)Project\UI\Fade;$(ProjectDir)Project\UI\Particle</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
@@ -108,23 +108,23 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Bullet.cpp" />
-    <ClCompile Include="CameraController.cpp" />
-    <ClCompile Include="ComboRank.cpp" />
-    <ClCompile Include="DeathParticle.cpp" />
-    <ClCompile Include="Enemy.cpp" />
-    <ClCompile Include="Fade.cpp" />
-    <ClCompile Include="GameClearScene.cpp" />
-    <ClCompile Include="GameOverScene.cpp" />
-    <ClCompile Include="GameScene.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="MapChipField.cpp" />
-    <ClCompile Include="MyMath.cpp" />
-    <ClCompile Include="Skydome.cpp" />
-    <ClCompile Include="Player.cpp" />
-    <ClCompile Include="SoundManager.cpp" />
-    <ClCompile Include="TitleScene.cpp" />
-    <ClCompile Include="SlashEffect.cpp" />
+    <ClCompile Include="Project\Control\Camera\CameraController.cpp" />
+    <ClCompile Include="Project\Environment\Map\MapChipField.cpp" />
+    <ClCompile Include="Project\Environment\SkyDome\Skydome.cpp" />
+    <ClCompile Include="Project\GameObject\Bullet\Bullet.cpp" />
+    <ClCompile Include="Project\GameObject\Character\Enemy\Enemy.cpp" />
+    <ClCompile Include="Project\GameObject\Character\Player\Player.cpp" />
+    <ClCompile Include="Project\main.cpp" />
+    <ClCompile Include="Project\Math\MyMath.cpp" />
+    <ClCompile Include="Project\Scene\GameClearScene.cpp" />
+    <ClCompile Include="Project\Scene\GameOverScene.cpp" />
+    <ClCompile Include="Project\Scene\GameScene.cpp" />
+    <ClCompile Include="Project\Scene\TitleScene.cpp" />
+    <ClCompile Include="Project\Sound\SoundManager.cpp" />
+    <ClCompile Include="Project\UI\Combo\ComboRank.cpp" />
+    <ClCompile Include="Project\UI\Fade\Fade.cpp" />
+    <ClCompile Include="Project\UI\Particle\DeathParticle.cpp" />
+    <ClCompile Include="Project\UI\Particle\SlashEffect.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\shaders\TerrainPS.hlsl">
@@ -202,23 +202,23 @@
     <None Include="Resources\shaders\Sprite.hlsli" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Bullet.h" />
-    <ClInclude Include="CameraController.h" />
-    <ClInclude Include="ComboRank.h" />
-    <ClInclude Include="DeathParticle.h" />
-    <ClInclude Include="Enemy.h" />
-    <ClInclude Include="Fade.h" />
-    <ClInclude Include="GameClearScene.h" />
-    <ClInclude Include="GameOverScene.h" />
-    <ClInclude Include="GameScene.h" />
-    <ClInclude Include="MapChipField.h" />
-    <ClInclude Include="MyMath.h" />
-    <ClInclude Include="ScenePhase.h" />
-    <ClInclude Include="Skydome.h" />
-    <ClInclude Include="Player.h" />
-    <ClInclude Include="SlashEffect.h" />
-    <ClInclude Include="SoundManager.h" />
-    <ClInclude Include="TitleScene.h" />
+    <ClInclude Include="Project\Control\Camera\CameraController.h" />
+    <ClInclude Include="Project\Environment\Map\MapChipField.h" />
+    <ClInclude Include="Project\Environment\SkyDome\Skydome.h" />
+    <ClInclude Include="Project\GameObject\Bullet\Bullet.h" />
+    <ClInclude Include="Project\GameObject\Character\Enemy\Enemy.h" />
+    <ClInclude Include="Project\GameObject\Character\Player\Player.h" />
+    <ClInclude Include="Project\Math\MyMath.h" />
+    <ClInclude Include="Project\Scene\GameClearScene.h" />
+    <ClInclude Include="Project\Scene\GameOverScene.h" />
+    <ClInclude Include="Project\Scene\GameScene.h" />
+    <ClInclude Include="Project\Scene\ScenePhase.h" />
+    <ClInclude Include="Project\Scene\TitleScene.h" />
+    <ClInclude Include="Project\Sound\SoundManager.h" />
+    <ClInclude Include="Project\UI\Combo\ComboRank.h" />
+    <ClInclude Include="Project\UI\Fade\Fade.h" />
+    <ClInclude Include="Project\UI\Particle\DeathParticle.h" />
+    <ClInclude Include="Project\UI\Particle\SlashEffect.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
