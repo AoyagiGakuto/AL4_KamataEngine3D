@@ -146,8 +146,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	soundManager->ChangeBgm(SceneType::Title);
 
 	while (true) {
-		if (KamataEngine::Update())
+		if (KamataEngine::Update()) {
 			break;
+		}
 
 		dxCommon->PreDraw();
 
