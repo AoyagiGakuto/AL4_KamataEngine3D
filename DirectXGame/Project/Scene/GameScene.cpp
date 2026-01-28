@@ -1192,8 +1192,6 @@ GameScene::~GameScene() {
 	delete camera_;
 	delete uiCamera_;
 	delete fade_;
-	enemies_.clear();
-	worldTransformBlocks_.clear();
 
 	for (Model* model : modelNumbers_) {
 		delete model;
@@ -1208,4 +1206,7 @@ GameScene::~GameScene() {
 			delete block;
 		}
 	}
+
+	enemies_.clear();
+	worldTransformBlocks_.clear();
 }
