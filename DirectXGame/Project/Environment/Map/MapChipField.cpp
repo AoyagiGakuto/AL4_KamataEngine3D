@@ -18,9 +18,11 @@ MapChipType MapChipField::GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex
 	if (xIndex >= kNumBlockHorizontal) {
 		return MapChipType::kBlank;
 	}
+
 	if (yIndex >= kNumBlockVertical) {
 		return MapChipType::kBlank;
 	}
+
 	return mapChipData_.data[yIndex][xIndex];
 }
 

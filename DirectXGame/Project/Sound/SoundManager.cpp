@@ -22,12 +22,15 @@ void SoundManager::ChangeBgm(SceneType scene) {
 	case SceneType::Title:
 		nextResourceHandle = handleTitle_;
 		break;
+
 	case SceneType::Game:
 		nextResourceHandle = handleGame_;
 		break;
+
 	case SceneType::Clear:
 		nextResourceHandle = handleClear_;
 		break;
+
 	case SceneType::GameOver:
 		nextResourceHandle = handleOver_;
 		break;
@@ -50,12 +53,15 @@ void SoundManager::PlaySe(SeType type) {
 	case SeType::Punch:
 		handle = handleSePunch_;
 		break;
+
 	case SeType::Bomb:
 		handle = handleSeBomb_;
 		break;
+
 	case SeType::Dash:
 		handle = handleSeDash_;
 		break;
+
 	case SeType::Slash:
 		handle = handleSeSlash_;
 		break;

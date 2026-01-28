@@ -42,22 +42,28 @@ void GameOverScene::Update() {
 		if (fade_->IsFinished()) {
 			phase_ = Phase::Main;
 		}
+
 		break;
+
 	case Phase::Main:
 		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
 			phase_ = Phase::FadeOut;
 			fade_->Start(Fade::Status::FadeOut, 0.8f);
 		}
+
 		break;
+
 	case Phase::FadeOut:
 		fade_->Update();
 		if (fade_->IsFinished()) {
 			finished_ = true;
 		}
+
 		break;
 	}
 
 	blinkTimer_ += 1.0f / 60.0f;
+	
 	if (blinkTimer_ > 0.5f) {
 		blinkVisible_ = !blinkVisible_;
 		blinkTimer_ = 0.0f;
@@ -72,6 +78,7 @@ void GameOverScene::Update() {
 void GameOverScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 	Model::PreDraw(dxCommon->GetCommandList());
+	
 	if (skyDomeModel_) {
 		skyDomeModel_->Draw(skyDomeWT_, *camera_);
 	}
@@ -85,6 +92,7 @@ void GameOverScene::Draw() {
 	}
 
 	Model::PostDraw();
+	
 	if (fade_) {
 		fade_->Draw();
 	}

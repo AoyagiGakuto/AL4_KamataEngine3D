@@ -85,8 +85,8 @@ void Fade::Start(Status status, float duration) {
 	counter_ = 0.0f;
 	ResizeToBackbuffer(sprite_);
 	sprite_->SetColor(
-	    status_ == Status::FadeOut ? Vector4(0, 0, 0, 0.0f)   // 透明→黒へ
-	                               : Vector4(0, 0, 0, 1.0f)); // 黒→透明へ
+	    status_ == Status::FadeOut ? Vector4(0, 0, 0, 0.0f)  
+	                               : Vector4(0, 0, 0, 1.0f));
 }
 
 void Fade::Stop() { status_ = Status::None; }

@@ -108,14 +108,17 @@ void GameClearScene::Draw() {
 	if (skyDomeModel_) {
 		skyDomeModel_->Draw(skyDomeWT_, *camera_);
 	}
+
 	if (textModel_) {
 		textModel_->Draw(textTransform_, *camera_, &textColor_);
 	}
+	
 	if (pressSpaceModel_ && blinkVisible_) {
 		pressSpaceModel_->Draw(pressSpaceTransform_, *camera_, &pressSpaceColor_);
 	}
 
 	std::string scoreStr = std::to_string(score_);
+	
 	for (int i = 0; i < (int)scoreStr.length(); ++i) {
 		int digit = scoreStr[i] - '0';
 		if (digit >= 0 && digit <= 9 && i < scoreWTs_.size()) {
@@ -124,6 +127,7 @@ void GameClearScene::Draw() {
 	}
 
 	Model::PostDraw();
+	
 	if (fade_) {
 		fade_->Draw();
 	}
@@ -135,6 +139,7 @@ GameClearScene::~GameClearScene() {
 	delete pressSpaceModel_;
 	delete camera_;
 	delete fade_;
+	
 	for (auto* m : modelNumbers_) {
 		delete m;
 	}

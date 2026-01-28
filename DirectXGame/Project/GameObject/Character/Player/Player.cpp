@@ -1,4 +1,3 @@
-#include <cassert>
 #define NOMINMAX
 #include "Player.h"
 #include "Enemy.h"
@@ -62,6 +61,7 @@ void Player::Update() {
 	colX.move = {velocity_.x, 0.0f, 0.0f};
 	CollisionMapCheck(colX);
 	worldTransform_.translation_ += colX.move;
+	
 	if (colX.isHitWall) {
 		velocity_.x = 0;
 	}
@@ -90,6 +90,7 @@ void Player::Update() {
 
 		OnGround_ = false;
 	}
+
 	if (colY.isCeiling) {
 		velocity_.y = 0;
 	}
@@ -112,6 +113,7 @@ void Player::Update() {
 			worldTransform_.rotation_.y = std::numbers::pi_v<float> * 3.0f / 2.0f;
 			lrDirection_ = LRDirection::kLeft;
 		}
+
 		turnTimer_ = 0.0f; // 振り向きアニメーションはキャンセル
 
 	} else {
@@ -155,6 +157,7 @@ void Player::Draw() {
 	if (!model_ || !camera_) {
 		return;
 	}
+
 	model_->Draw(worldTransform_, *camera_);
 }
 
@@ -165,6 +168,7 @@ void Player::Draw() {
 void Player::InputMove() {
 
 	input = false;
+	
 	if (Input::GetInstance()->PushKey(DIK_A) || Input::GetInstance()->PushKey(DIK_D)) {
 		input = true;
 	}
@@ -180,6 +184,7 @@ void Player::InputMove() {
 		} else if (velocity_.x < 0.0f) {
 			velocity_.x = std::min(0.0f, velocity_.x + decel);
 		}
+
 		if (std::abs(velocity_.x) < 0.0005f) {
 			velocity_.x = 0.0f;
 		}
@@ -193,6 +198,7 @@ void Player::InputMove() {
 			if (velocity_.x < 0.0f) {
 				velocity_.x *= (1.0f - kAttenuation);
 			}
+
 			acceleration.x = -kAttenuation;
 
 			if (lrDirection_ != LRDirection::kLeft && !isLockedOn_) {
@@ -205,6 +211,7 @@ void Player::InputMove() {
 			if (velocity_.x > 0.0f) {
 				velocity_.x *= (1.0f - kAttenuation);
 			}
+
 			acceleration.x = kAttenuation;
 
 			if (lrDirection_ != LRDirection::kRight && !isLockedOn_) {
@@ -234,6 +241,7 @@ void Player::InputMove() {
 	} else {
 		isGliding_ = false;
 	}
+
 }
 
 // ==========================================================================
@@ -246,10 +254,12 @@ void Player::AnimateTurn() {
 		if (turnTimer_ < 0.0f) {
 			turnTimer_ = 0.0f;
 		}
+
 		float destinationRotationYTable[] = {std::numbers::pi_v<float> / 2.0f, std::numbers::pi_v<float> * 3.0f / 2.0f};
 		float destinationRotationY = destinationRotationYTable[static_cast<uint32_t>(lrDirection_)];
 		float t = turnTimer_ / kTimeTurn;
 		worldTransform_.rotation_.y = EaseInOut(destinationRotationY, turnFirstRotationY_, t);
+		
 		if (turnTimer_ <= 0.0f) {
 			worldTransform_.rotation_.y = destinationRotationY;
 		}
@@ -436,12 +446,16 @@ Vector3 CornerPosition(const Vector3& center, Corner corner) {
 	switch (corner) {
 	case kRightBottom:
 		return center + Vector3{+Player::kWidth / 2.0f, -Player::kHeight / 2.0f, 0};
+
 	case kLeftBottom:
 		return center + Vector3{-Player::kWidth / 2.0f, -Player::kHeight / 2.0f, 0};
+	
 	case kRightTop:
 		return center + Vector3{+Player::kWidth / 2.0f, +Player::kHeight / 2.0f, 0};
+	
 	case kLeftTop:
 		return center + Vector3{-Player::kWidth / 2.0f, +Player::kHeight / 2.0f, 0};
+	
 	default:
 		return center;
 	}
