@@ -1,5 +1,6 @@
 #include "GameScene.h"
 #include "CameraController.h"
+#include "SoundManager.h"
 #include "MyMath.h"
 #include <algorithm>
 #include <cstdlib>
@@ -9,7 +10,10 @@
 using namespace KamataEngine;
 using namespace MathUtility;
 
-// 貫通団を巻き込み型にする、操作をむずくしない、近接でたおすと制限時間が増える、
+// mainから取ってくる
+extern SoundManager* soundManager;
+
+// 貫通団を巻き込み型にする、操作をむずくしない
 
 // ==========================================================================
 // 初期化処理
@@ -373,6 +377,7 @@ void GameScene::UpdatePlayerAction() {
 			auto b = std::make_unique<Bullet>();
 			b->Initialize(modelBullet_ ? modelBullet_ : modelCube_, camera_, spawnPos, dir);
 			bullets_.push_back(std::move(b));
+			soundManager->PlaySe(SeType::Bomb);
 		}
 	}
 
@@ -392,6 +397,7 @@ void GameScene::UpdatePlayerAction() {
 					auto sb = std::make_unique<Bullet>();
 					sb->Initialize(modelSlowBall_ ? modelSlowBall_ : modelCube_, camera_, spawnPos, dir);
 					slowBalls_.push_back(std::move(sb));
+					soundManager->PlaySe(SeType::Bomb);
 				}
 			}
 		}
@@ -470,6 +476,8 @@ void GameScene::UpdatePlayerAction() {
 					}
 
 					bool isPlayerAir = (player_->GetWorldTransform().translation_.y > 2.0f);
+
+					soundManager->PlaySe(SeType::Punch);
 
 					// 打ち上げ
 					if (!isPlayerAir && isBackInput) {
@@ -924,6 +932,7 @@ void GameScene::UpdateSpecialMove(float deltaTime) {
 		specialTimer_ -= deltaTime;
 		if (!specialFinalSlashesSpawned_) {
 			specialFinalSlashesSpawned_ = true;
+			soundManager->PlaySe(SeType::Slash);
 			for (auto it = enemies_.begin(); it != enemies_.end();) {
 				Enemy* e = *it;
 				if (!e || e->IsDead()) {
@@ -1024,6 +1033,7 @@ void GameScene::PerformSpecialDash(float deltaTime) {
 			warpPos.x += side * 1.0f;
 			warpPos.y += 0.2f;
 			player_->WarpTo(warpPos);
+			soundManager->PlaySe(SeType::Dash);
 			specialHitInterval_ = GameParam::kSpecialHitInterval;
 		}
 	}
