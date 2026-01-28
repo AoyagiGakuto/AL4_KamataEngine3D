@@ -9,13 +9,6 @@ void SoundManager::Initialize() {
 	handleClear_ = Audio::GetInstance()->LoadWave("126_BPM142.mp3");
 	handleOver_ = Audio::GetInstance()->LoadWave("354_BPM180.mp3");
 
-	// 音量設定
-	float vol = 0.01f;
-	Audio::GetInstance()->SetVolume(handleTitle_, vol);
-	Audio::GetInstance()->SetVolume(handleGame_, vol);
-	Audio::GetInstance()->SetVolume(handleClear_, vol);
-	Audio::GetInstance()->SetVolume(handleOver_, vol);
-
 	// 効果音読み込み
 	handleSePunch_ = Audio::GetInstance()->LoadWave("punch.mp3");
 	handleSeBomb_ = Audio::GetInstance()->LoadWave("bomb.mp3");
