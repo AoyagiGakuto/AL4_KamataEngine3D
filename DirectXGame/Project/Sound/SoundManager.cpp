@@ -10,7 +10,7 @@ void SoundManager::Initialize() {
 	handleOver_ = Audio::GetInstance()->LoadWave("354_BPM180.mp3");
 
 	// 音量設定
-	float vol = 0.3f;
+	float vol = 0.01f;
 	Audio::GetInstance()->SetVolume(handleTitle_, vol);
 	Audio::GetInstance()->SetVolume(handleGame_, vol);
 	Audio::GetInstance()->SetVolume(handleClear_, vol);
