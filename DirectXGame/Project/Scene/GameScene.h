@@ -9,7 +9,6 @@
 #include "MapChipField.h"
 #include "Player.h"
 #include "ScenePhase.h"
-#include "Skydome.h"
 #include "SlashEffect.h"
 
 #include <array>

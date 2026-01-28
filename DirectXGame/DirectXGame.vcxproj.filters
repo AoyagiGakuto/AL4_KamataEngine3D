@@ -75,9 +75,6 @@
     <ClCompile Include="Project\Scene\GameOverScene.cpp">
       <Filter>Scene\GameOver</Filter>
     </ClCompile>
-    <ClCompile Include="Project\Environment\SkyDome\Skydome.cpp">
-      <Filter>Skydome</Filter>
-    </ClCompile>
     <ClCompile Include="Project\main.cpp" />
     <ClCompile Include="Project\Sound\SoundManager.cpp">
       <Filter>SoundManager</Filter>
@@ -128,9 +125,6 @@
     </ClInclude>
     <ClInclude Include="Project\Scene\ScenePhase.h">
       <Filter>Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="Project\Environment\SkyDome\Skydome.h">
-      <Filter>Skydome</Filter>
     </ClInclude>
     <ClInclude Include="Project\Sound\SoundManager.h">
       <Filter>SoundManager</Filter>
@@ -213,9 +207,6 @@
     </Filter>
     <Filter Include="Math">
       <UniqueIdentifier>{48930198-db8d-44ff-a53d-dcd8aa03a489}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Skydome">
-      <UniqueIdentifier>{06dd5677-d107-4a89-b7fe-ac5104877328}</UniqueIdentifier>
     </Filter>
     <Filter Include="Effects\Particle\Death">
       <UniqueIdentifier>{abf08dd4-b619-41db-897d-2b55082dffa0}</UniqueIdentifier>
