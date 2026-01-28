@@ -212,6 +212,10 @@ private:
 	KamataEngine::Model* modelKatana_ = nullptr;
 	KamataEngine::WorldTransform worldTransformKatana_;
 
+	KamataEngine::WorldTransform worldTransformChargeBar_;
+	KamataEngine::WorldTransform worldTransformChargeGauge_;
+	KamataEngine::ObjectColor chargeBarColor_;
+
 	// 敵
 	std::list<Enemy*> enemies_;
 	KamataEngine::Model* modelEnemy_ = nullptr;
