@@ -66,6 +66,7 @@ void SlashEffect::Update() {
 	}
 
 	lifetime_ -= 1.0f / 60.0f;
+	
 	if (lifetime_ <= 0.0f) {
 		alive_ = false;
 		return;

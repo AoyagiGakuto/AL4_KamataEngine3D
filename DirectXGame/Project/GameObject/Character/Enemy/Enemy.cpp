@@ -163,6 +163,7 @@ void Enemy::Draw() {
 
 void Enemy::TakeDamage(int damage) {
 	hp_ -= damage;
+	
 	if (hp_ > (int)maxHp_) {
 		hp_ = (int)maxHp_;
 	}
@@ -197,6 +198,7 @@ bool Enemy::IsReadyToFire() {
 		shotTimer_ = kFireInterval;
 		return true;
 	}
+
 	return false;
 }
 
@@ -349,6 +351,7 @@ void Enemy::CheckMapCollisionRight(CollisionInfo& info) {
 		if (type_B == MapChipType::kBlock) {
 			blockLeft = std::min(blockLeft, mapChipField_->GetRectByIndex(indexSet_B.xIndex, indexSet_B.yIndex).left);
 		}
+
 		worldTransform_.translation_.x = blockLeft - kWidth / 2.0f;
 		info.move.x = 0.0f;
 		info.isHitWall = true;

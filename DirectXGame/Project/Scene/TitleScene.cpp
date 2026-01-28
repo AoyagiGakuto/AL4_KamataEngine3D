@@ -102,24 +102,29 @@ void TitleScene::Update() {
 			if (Input::GetInstance()->TriggerKey(DIK_T)) {
 				isTutorialMode_ = true;
 			}
+			
 			// SPACEキーでゲーム開始
 			else if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
 				phase_ = ScenePhase::FadeOut;
 				fade_->Start(Fade::Status::FadeOut, 1.0f);
 			}
 		}
+		
 		break;
 
 	case ScenePhase::FadeOut:
 		fade_->Update();
+		
 		if (fade_->IsFinished()) {
 			finished_ = true;
 		}
+
 		break;
 	}
 
 	// 点滅
 	blinkTimer_ += 1.0f / 60.0f;
+	
 	if (blinkTimer_ > 0.5f) {
 		blinkVisible_ = !blinkVisible_;
 		blinkTimer_ = 0.0f;
@@ -151,6 +156,7 @@ void TitleScene::Draw() {
 	if (skyDomeModel_) {
 		skyDomeModel_->Draw(skyDomeWT_, *camera_);
 	}
+
 	if (!isTutorialMode_) {
 		titleFontModel_->Draw(titleTransform_, *camera_, &titleColor_);
 		playerModel_->Draw(playerTransform_, *camera_);

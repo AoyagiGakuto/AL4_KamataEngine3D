@@ -2,8 +2,8 @@
 #include "GameOverScene.h"
 #include "GameScene.h"
 #include "KamataEngine.h"
-#include "TitleScene.h"
 #include "SoundManager.h"
+#include "TitleScene.h"
 
 using namespace KamataEngine;
 
@@ -38,12 +38,15 @@ void UpdateScene() {
 	case Scene::kTitle:
 		titleScene->Update();
 		break;
+
 	case Scene::kGame:
 		gameScene->Update();
 		break;
+
 	case Scene::kClear:
 		gameClearScene->Update();
 		break;
+
 	case Scene::kOver:
 		gameOverScene->Update();
 		break;
@@ -59,12 +62,15 @@ void DrawScene() {
 	case Scene::kTitle:
 		titleScene->Draw();
 		break;
+
 	case Scene::kGame:
 		gameScene->Draw();
 		break;
+
 	case Scene::kClear:
 		gameClearScene->Draw();
 		break;
+
 	case Scene::kOver:
 		gameOverScene->Draw();
 		break;
@@ -86,7 +92,9 @@ void ChangeScene() {
 			gameScene = new GameScene();
 			gameScene->Initialize();
 		}
+
 		break;
+
 	case Scene::kGame:
 		if (gameScene->IsFinished()) {
 			// クリア判定
@@ -108,7 +116,9 @@ void ChangeScene() {
 				gameOverScene->Initialize();
 			}
 		}
+
 		break;
+
 	case Scene::kClear:
 		if (gameClearScene->IsFinished()) {
 			delete gameClearScene;
@@ -118,7 +128,9 @@ void ChangeScene() {
 			titleScene = new TitleScene();
 			titleScene->Initialize();
 		}
+
 		break;
+
 	case Scene::kOver:
 		if (gameOverScene->IsFinished()) {
 			delete gameOverScene;
@@ -128,6 +140,7 @@ void ChangeScene() {
 			titleScene = new TitleScene();
 			titleScene->Initialize();
 		}
+
 		break;
 	}
 }

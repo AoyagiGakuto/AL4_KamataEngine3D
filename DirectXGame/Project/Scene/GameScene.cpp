@@ -1,5 +1,6 @@
 #include "GameScene.h"
 #include "CameraController.h"
+#include "SoundManager.h"
 #include "MyMath.h"
 #include <algorithm>
 #include <cstdlib>
@@ -9,7 +10,10 @@
 using namespace KamataEngine;
 using namespace MathUtility;
 
-// 貫通団を巻き込み型にする、操作をむずくしない、近接でたおすと制限時間が増える、
+// mainから取ってくる
+extern SoundManager* soundManager;
+
+// 貫通団を巻き込み型にする、操作をむずくしない
 
 // ==========================================================================
 // 初期化処理
@@ -34,7 +38,7 @@ void GameScene::Initialize() {
 	for (int i = 0; i < 10; ++i) {
 		modelNumbers_[i] = Model::CreateFromOBJ(std::to_string(i));
 	}
-	
+
 	// delete忘れないように
 
 	model_ = Model::Create();
@@ -54,7 +58,7 @@ void GameScene::Initialize() {
 	Vector3 uiPos = {0.0f, 0.0f, -10.0f};
 	Vector3 uiRot = {0.0f, 0.0f, 0.0f};
 	Vector3 uiScale = {1.0f, 1.0f, 1.0f};
-	
+
 	// カメラの生成
 	Matrix4x4 matWorld = MakeAffineMatrix(uiScale, uiRot, uiPos);
 	uiCamera_->matView = Inverse(matWorld);
@@ -64,7 +68,7 @@ void GameScene::Initialize() {
 	tutorialWT_.Initialize();
 	tutorialWT_.translation_ = {0.0f, -0.6f, -2.0f};
 	tutorialWT_.scale_ = {0.4f, 0.4f, 0.4f};
-	
+
 	tKeyWT_.Initialize();
 	tKeyWT_.scale_ = {0.5f, 0.5f, 0.5f};
 
@@ -78,6 +82,19 @@ void GameScene::Initialize() {
 	// HPバー初期化
 	worldTransformHudHpBar_.Initialize();
 	worldTransformHudHp_.Initialize();
+
+	// チャージバー初期化
+	worldTransformChargeBar_.Initialize();
+	// バーの基本サイズなどを設定
+	worldTransformChargeBar_.scale_ = {0.0f, 0.2f, 1.0f};
+
+	// チャージゲージ初期化
+	worldTransformChargeGauge_.Initialize();
+	worldTransformChargeGauge_.scale_ = {0.0f, 0.2f, 0.2f};
+
+	// 色の設定
+	chargeBarColor_.Initialize();
+	chargeBarColor_.SetColor({1.0f, 1.0f, 0.0f, 1.0f});
 
 	// UI位置
 	comboRank_.Initialize(uiCamera_, GameParam::kComboPos, modelHpBar_, modelHp_);
@@ -360,6 +377,7 @@ void GameScene::UpdatePlayerAction() {
 			auto b = std::make_unique<Bullet>();
 			b->Initialize(modelBullet_ ? modelBullet_ : modelCube_, camera_, spawnPos, dir);
 			bullets_.push_back(std::move(b));
+			soundManager->PlaySe(SeType::Bomb);
 		}
 	}
 
@@ -379,6 +397,7 @@ void GameScene::UpdatePlayerAction() {
 					auto sb = std::make_unique<Bullet>();
 					sb->Initialize(modelSlowBall_ ? modelSlowBall_ : modelCube_, camera_, spawnPos, dir);
 					slowBalls_.push_back(std::move(sb));
+					soundManager->PlaySe(SeType::Bomb);
 				}
 			}
 		}
@@ -404,7 +423,7 @@ void GameScene::UpdatePlayerAction() {
 				}
 
 				float distanceSq = Length(enemy->GetWorldTransform().translation_ - playerPos);
-				
+
 				if (distanceSq < minDistance) {
 					minDistance = distanceSq;
 					closestEnemy = enemy;
@@ -457,7 +476,9 @@ void GameScene::UpdatePlayerAction() {
 					}
 
 					bool isPlayerAir = (player_->GetWorldTransform().translation_.y > 2.0f);
-					
+
+					soundManager->PlaySe(SeType::Punch);
+
 					// 打ち上げ
 					if (!isPlayerAir && isBackInput) {
 						target->Launch(0.35f);
@@ -493,7 +514,7 @@ void GameScene::UpdatePlayerAction() {
 
 						Vector3 dir = target->GetWorldTransform().translation_ - player_->GetWorldTransform().translation_;
 						dir = Normalize(dir);
-						
+
 						switch (comboIndex_) {
 						case 1:
 							player_->velocity_.x = dir.x * 0.15f;
@@ -555,7 +576,7 @@ void GameScene::UpdatePlayerAction() {
 			const float kEffectSpread = 1.5f;
 			Vector3 enemyPos = target->GetWorldTransform().translation_;
 			enemyPos.y += 0.5f;
-			
+
 			for (int i = 0; i < kNumSlashes; ++i) {
 				auto vfx = std::make_unique<SlashEffect>();
 				float randX = ((float)(rand() % 1000) / 999.0f - 0.5f) * kEffectSpread;
@@ -678,7 +699,7 @@ void GameScene::CheckCollisions() {
 
 		MapChipField::IndexSet idx = mapChipField_->GetMapChipIndexSetByPosition((*it)->GetAABB().min);
 		MapChipType type = mapChipField_->GetMapChipTypeByIndex(idx.xIndex, idx.yIndex);
-		
+
 		if (type == MapChipType::kBlock) {
 			(*it)->Kill();
 			it = bullets_.erase(it);
@@ -710,7 +731,7 @@ void GameScene::CheckCollisions() {
 
 		MapChipField::IndexSet idx = mapChipField_->GetMapChipIndexSetByPosition((*it)->GetAABB().min);
 		MapChipType type = mapChipField_->GetMapChipTypeByIndex(idx.xIndex, idx.yIndex);
-		
+
 		if (type == MapChipType::kBlock || aabbB.min.y < 0.0f) {
 			(*it)->Kill();
 			it = slowBalls_.erase(it);
@@ -837,6 +858,36 @@ void GameScene::UpdateSpecialMove(float deltaTime) {
 
 	case SpecialState::Charge:
 		specialTimer_ -= deltaTime;
+		
+		{
+			float maxTime = GameParam::kSpecialChargeTime;
+			float ratio = 1.0f - (specialTimer_ / maxTime);
+			ratio = std::clamp(ratio, 0.0f, 1.0f);
+
+			Vector3 playerPos = player_->GetWorldTransform().translation_;
+			worldTransformChargeBar_.translation_ = playerPos;
+			worldTransformChargeBar_.translation_.y -= 1.0f;
+
+			float baseScaleX = 0.2f;
+			worldTransformChargeBar_.scale_ = {baseScaleX, 0.2f, 0.2f};
+
+			worldTransformChargeGauge_.scale_ = worldTransformChargeBar_.scale_;
+			worldTransformChargeGauge_.scale_.x = baseScaleX * ratio;
+
+			float modelHalfWidth = 3.0f;
+			float shiftAmount = (1.0f - ratio) * modelHalfWidth * baseScaleX;
+
+			worldTransformChargeGauge_.translation_ = worldTransformChargeBar_.translation_;
+			worldTransformChargeGauge_.translation_.x -= shiftAmount;
+
+			// 行列更新
+			worldTransformChargeBar_.matWorld_ = MakeAffineMatrix(worldTransformChargeBar_.scale_, worldTransformChargeBar_.rotation_, worldTransformChargeBar_.translation_);
+			worldTransformChargeBar_.TransferMatrix();
+
+			worldTransformChargeGauge_.matWorld_ = MakeAffineMatrix(worldTransformChargeGauge_.scale_, worldTransformChargeGauge_.rotation_, worldTransformChargeGauge_.translation_);
+			worldTransformChargeGauge_.TransferMatrix();
+		}
+
 		if (specialTimer_ > 0.0f) {
 			for (int i = 0; i < 2; i++) {
 				auto p = std::make_unique<ChargeParticle>();
@@ -881,6 +932,7 @@ void GameScene::UpdateSpecialMove(float deltaTime) {
 		specialTimer_ -= deltaTime;
 		if (!specialFinalSlashesSpawned_) {
 			specialFinalSlashesSpawned_ = true;
+			soundManager->PlaySe(SeType::Slash);
 			for (auto it = enemies_.begin(); it != enemies_.end();) {
 				Enemy* e = *it;
 				if (!e || e->IsDead()) {
@@ -892,7 +944,7 @@ void GameScene::UpdateSpecialMove(float deltaTime) {
 				enemyPos.y += 0.5f;
 				e->TakeDamage(GameParam::kDamageSpecial);
 				comboRank_.AddHit(GameParam::kComboPointHit);
-				
+
 				if (e->IsDead()) {
 					AddScore();
 					comboRank_.OnEnemyKilled(GameParam::kComboPointKill);
@@ -981,6 +1033,7 @@ void GameScene::PerformSpecialDash(float deltaTime) {
 			warpPos.x += side * 1.0f;
 			warpPos.y += 0.2f;
 			player_->WarpTo(warpPos);
+			soundManager->PlaySe(SeType::Dash);
 			specialHitInterval_ = GameParam::kSpecialHitInterval;
 		}
 	}
@@ -1128,7 +1181,7 @@ void GameScene::Draw() {
 
 	modelSkyDome_->Draw(worldTransform_, *camera_);
 	player_->Draw();
-	
+
 	for (Enemy* enemy : enemies_) {
 		enemy->Draw();
 	}
@@ -1153,6 +1206,12 @@ void GameScene::Draw() {
 
 	modelHp_->Draw(worldTransformHudHp_, *uiCamera_);
 	modelHpBar_->Draw(worldTransformHudHpBar_, *uiCamera_);
+	
+	if (specialState_ == SpecialState::Charge) {
+		modelHpBar_->Draw(worldTransformChargeBar_, *camera_);
+		modelHp_->Draw(worldTransformChargeGauge_, *camera_, &chargeBarColor_);
+	}
+
 	comboRank_.Draw();
 	DrawTimer();
 	DrawScore();

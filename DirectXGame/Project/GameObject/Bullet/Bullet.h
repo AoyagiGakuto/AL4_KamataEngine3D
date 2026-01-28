@@ -68,5 +68,5 @@ private:
 	// カメラ
 	KamataEngine::Camera* camera_ = nullptr;
 	// 弾の種類
-	Type type_ = Type::kPlayer; // デフォルトはプレイヤーの弾にしておく
+	Type type_ = Type::kPlayer;
 };

@@ -110,7 +110,6 @@
   <ItemGroup>
     <ClCompile Include="Project\Control\Camera\CameraController.cpp" />
     <ClCompile Include="Project\Environment\Map\MapChipField.cpp" />
-    <ClCompile Include="Project\Environment\SkyDome\Skydome.cpp" />
     <ClCompile Include="Project\GameObject\Bullet\Bullet.cpp" />
     <ClCompile Include="Project\GameObject\Character\Enemy\Enemy.cpp" />
     <ClCompile Include="Project\GameObject\Character\Player\Player.cpp" />
@@ -204,7 +203,6 @@
   <ItemGroup>
     <ClInclude Include="Project\Control\Camera\CameraController.h" />
     <ClInclude Include="Project\Environment\Map\MapChipField.h" />
-    <ClInclude Include="Project\Environment\SkyDome\Skydome.h" />
     <ClInclude Include="Project\GameObject\Bullet\Bullet.h" />
     <ClInclude Include="Project\GameObject\Character\Enemy\Enemy.h" />
     <ClInclude Include="Project\GameObject\Character\Player\Player.h" />

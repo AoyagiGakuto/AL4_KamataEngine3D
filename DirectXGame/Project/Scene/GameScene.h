@@ -9,7 +9,6 @@
 #include "MapChipField.h"
 #include "Player.h"
 #include "ScenePhase.h"
-#include "Skydome.h"
 #include "SlashEffect.h"
 
 #include <array>
@@ -211,6 +210,10 @@ private:
 	KamataEngine::Model* modelPlayer_ = nullptr;
 	KamataEngine::Model* modelKatana_ = nullptr;
 	KamataEngine::WorldTransform worldTransformKatana_;
+
+	KamataEngine::WorldTransform worldTransformChargeBar_;
+	KamataEngine::WorldTransform worldTransformChargeGauge_;
+	KamataEngine::ObjectColor chargeBarColor_;
 
 	// 敵
 	std::list<Enemy*> enemies_;
