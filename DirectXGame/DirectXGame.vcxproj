@@ -88,7 +88,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Project\Scene;$(ProjectDir)Project\GameObject\Bullet;$(ProjectDir)Project\Control\Camera;$(ProjectDir)Project\UI\Combo;$(ProjectDir)Project\Environment\Map;$(ProjectDir)Project\Math;$(ProjectDir)Project\GameObject\Character\Player;$(ProjectDir)Project\GameObject\Character\Enemy;$(ProjectDir)Project\Sound;$(ProjectDir)Project\Environment\SkyDome;$(ProjectDir)Project\UI\Fade;$(ProjectDir)Project\UI\Particle</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <Optimization>MinSpace</Optimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
