@@ -62,10 +62,10 @@ void GameScene::Initialize() {
 	uiCamera_->matView = Inverse(matWorld);
 	uiCamera_->TransferMatrix();
 
-	// 説明
+	// チュートリアルというか説明
 	tutorialWT_.Initialize();
-	tutorialWT_.translation_ = {0.0f, -0.1f, -2.0f};
-	tutorialWT_.scale_ = {0.3f, 0.3f, 0.3f};
+	tutorialWT_.translation_ = {0.0f, -0.6f, -2.0f};
+	tutorialWT_.scale_ = {0.4f, 0.4f, 0.4f};
 
 	tKeyWT_.Initialize();
 	tKeyWT_.scale_ = {0.5f, 0.5f, 0.5f};
