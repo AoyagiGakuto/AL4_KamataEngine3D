@@ -9,7 +9,7 @@ https://github.com/AoyagiGakuto/AL4_KamataEngine3D/tree/AL4-Final
 - A09.近接コンボ
 - A11.まっすぐ飛ぶ弾
 - A17.デス演出
-- B01/基本の雑魚的
+- B01/基本の雑魚敵
 - B02.遠距離攻撃する敵
 - B03.飛行する敵
 - B07.プレイヤーを追尾する敵
