@@ -22,6 +22,7 @@ https://github.com/AoyagiGakuto/AL4_KamataEngine3D/tree/AL4-Final
 - F06.ポーズ機能
 - G01.外部ファイルによる配置データ
 - G02.遠景
+- G03.地面描画
 - H01.単色フェード
 
 ## 独自要素
